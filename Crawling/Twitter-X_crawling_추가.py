@@ -55,3 +55,8 @@ for i in range(10):# 10회 반복 내가 추가 함.
                 pass
 
         cursor = response.json()['data']['search_by_raw_query']['search_timeline']['timeline']['instructions'][-1]['entry']['content']['value']
+
+
+
+
+
