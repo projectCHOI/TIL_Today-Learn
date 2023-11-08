@@ -28,9 +28,14 @@ time.sleep(5)
 
 #선호도 가져오기
 for li in driver.find_elements(By.CSS_SELECTOR, "li.u_likeit_list"):
-    print(li)
-#클릭
+    print(li.find_element(By.CSS_SELECTOR, ".u_likeit_list_name").text)
+    print(li.find_element(By.CSS_SELECTOR, ".u_likeit_list_count").text)
 
-#검색어 임력
+    #검색창을 클릭
+    driver.find_element(By.CSS_SELECTOR, ".Nicon_search").click()
+    
+    #검색어 입력
+    driver.find_element(By.CSS_SELECTOR, ".u_it._search_input").send_keys("지드래곤")
 
-#
+    #검색어 입력 후 접속
+    driver.find_element(By.CSS_SELECTOR, ".u_hssbt_us._total_search_btn").click()
