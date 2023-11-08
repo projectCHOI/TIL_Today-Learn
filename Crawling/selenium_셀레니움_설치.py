@@ -26,6 +26,7 @@ driver.implicitly_wait(10)
 #print(driver.find_element(By.CSS_SELECTOR, "h2#title_area").text)
 time.sleep(5)
 
+#선호도 가져오기
 for li in driver.find_elements(By.CSS_SELECTOR, "li.u_likeit_list"):
     print(li)
 #클릭
