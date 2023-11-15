@@ -31,4 +31,6 @@ class NewsSpider(scrapy.Spider):
         yield scrapy.Request(url, callback=self.parse, headers=headers)
 
     def parse(self, response):
-        print(response.text)
+
+        for link in response.css("ul.type06_headline > li > dl > dt.photo a::attr(href)").getall():
+            print(link)
