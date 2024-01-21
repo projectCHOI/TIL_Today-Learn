@@ -1,24 +1,28 @@
-# 평균을 구하는 함수
 def f_avg(data):
     result = sum(data) / len(data)
     return result
 
-# 합계를 구하는 함수
 def f_sum(data):
     return sum(data)
 
-# 오름차순으로 정렬해주는 함수
-def f_sort(data) :
+def f_sort(data):
     data.sort()
     return data
 
-# 내림차순으로 정렬해주는 함수
 def f_desc(data):
     data.sort(reverse=True)
     return data
 
+# 데이터를 입력 input
+def get_data():
+    data_input = input("숫자들을 쉼표로 구분하여 입력하세요: ")
+    data_list = [float(num) for num in data_input.split(',')]
+    return data_list
 
-print(f_avg([4, 5, 6, 2, 7, 1]))
-print(f_sum([4, 5, 6, 2, 7, 1]))
-print(f_sort([4, 5, 6, 2, 7, 1]))
-print(f_desc([4, 5, 6, 2, 7, 1]))
+data = get_data()
+
+# 데이터의 출력 순서를 유지하기 위해 적는다.
+print("평균:", f_avg(data))
+print("합계:", f_sum(data))
+print("오름차순 정렬:", f_sort(data.copy())) 
+print("내림차순 정렬:", f_desc(data.copy())) 
