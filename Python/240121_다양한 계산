@@ -1,0 +1,24 @@
+# 평균을 구하는 함수
+def f_avg(data):
+    result = sum(data) / len(data)
+    return result
+
+# 합계를 구하는 함수
+def f_sum(data):
+    return sum(data)
+
+# 오름차순으로 정렬해주는 함수
+def f_sort(data) :
+    data.sort()
+    return data
+
+# 내림차순으로 정렬해주는 함수
+def f_desc(data):
+    data.sort(reverse=True)
+    return data
+
+
+print(f_avg([4, 5, 6, 2, 7, 1]))
+print(f_sum([4, 5, 6, 2, 7, 1]))
+print(f_sort([4, 5, 6, 2, 7, 1]))
+print(f_desc([4, 5, 6, 2, 7, 1]))
