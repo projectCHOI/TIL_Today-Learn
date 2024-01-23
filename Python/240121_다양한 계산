@@ -1,0 +1,28 @@
+def f_avg(data):
+    result = sum(data) / len(data)
+    return result
+
+def f_sum(data):
+    return sum(data)
+
+def f_sort(data):
+    data.sort()
+    return data
+
+def f_desc(data):
+    data.sort(reverse=True)
+    return data
+
+# 데이터를 입력 input
+def get_data():
+    data_input = input("숫자들을 쉼표로 구분하여 입력하세요: ")
+    data_list = [float(num) for num in data_input.split(',')]
+    return data_list
+
+data = get_data()
+
+# 데이터의 출력 순서를 유지하기 위해 적는다.
+print("평균:", f_avg(data))
+print("합계:", f_sum(data))
+print("오름차순 정렬:", f_sort(data.copy())) 
+print("내림차순 정렬:", f_desc(data.copy())) 
