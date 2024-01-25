@@ -4,7 +4,7 @@ import time
 
 # 게임 초기화
 pygame.init()
-width, height = 500, 500
+width, height = 700, 500
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Dodge the Falling Objects")
 
@@ -12,6 +12,10 @@ pygame.display.set_caption("Dodge the Falling Objects")
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
+
+# 폰트 설정
+pygame.font.init()
+font = pygame.font.SysFont("comicsans", 40)
 
 # 플레이어 설정
 player_size = 50
@@ -28,6 +32,15 @@ clock = pygame.time.Clock()
 # 게임 변수
 score = 0
 game_started = False
+
+# 시작 화면 함수
+def show_start_screen():
+    win.fill(black)
+    title = font.render("A red box descends from the sky", True, white)
+    start_message = font.render("Start : Spacebar", True, white)
+    win.blit(title, (50, height / 2 - 40))
+    win.blit(start_message, (120, height / 2 + 40))
+    pygame.display.update()
 
 # 게임 루프
 run = True
@@ -66,6 +79,7 @@ while run:
 
         clock.tick(30)
     else:
+        show_start_screen()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
