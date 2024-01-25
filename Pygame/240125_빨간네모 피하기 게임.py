@@ -35,7 +35,6 @@ game_started = False
 # game_over = False
 
 # 시작 화면 함수
-# 시작 화면 함수
 def show_start_screen():
     win.fill(black)
     title = font.render("A red box descends from the sky", True, white)
