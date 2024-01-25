@@ -25,14 +25,14 @@ player_speed = 10
 # 떨어지는 물체 설정
 enemy_size = 50
 enemy_pos = [random.randint(0, width - enemy_size), 0]
-enemy_speed = 10
+enemy_speed = 50 # 기본 10
 
 clock = pygame.time.Clock()
 
 # 게임 변수
 score = 0
 game_started = False
-game_over = False
+# game_over = False
 
 # 시작 화면 함수
 def show_start_screen():
@@ -44,18 +44,19 @@ def show_start_screen():
     pygame.display.update()
 
 # 게임 종료 화면 함수
-def show_game_over_screen(survival_time):
+def show_game_over_screen():
     win.fill(black)
     game_over_message = font.render("Game Over", True, white)
-    time_message = font.render(f"Survival Time: {survival_time:.2f} seconds", True, white)
+    score_message = font.render(f"Survival Time: {end_time - start_time:.2f} seconds", True, white)
     win.blit(game_over_message, (width / 2 - 100, height / 2 - 40))
-    win.blit(time_message, (width / 2 - 160, height / 2 + 10))
+    win.blit(score_message, (width / 2 - 160, height / 2 + 20))
     pygame.display.update()
+    pygame.time.delay(2000)
 
 # 게임 루프
 run = True
 while run:
-    if game_started and not game_over:
+    if game_started:
         # 이벤트 처리
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -88,13 +89,6 @@ while run:
         pygame.display.update()
 
         clock.tick(30)
-    elif game_over:
-        end_time = time.time()
-        survival_time = end_time - start_time
-        show_game_over_screen(survival_time)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
     else:
         show_start_screen()
         for event in pygame.event.get():
@@ -105,5 +99,7 @@ while run:
                     game_started = True
                     start_time = time.time()
 
-# 게임 종료 후 점수 표시
+# 게임 종료 후 점수 표시 및 게임 종료 화면 호출
+end_time = time.time()
+show_game_over_screen()
 pygame.quit()
