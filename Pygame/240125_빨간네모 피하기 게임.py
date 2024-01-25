@@ -4,7 +4,7 @@ import time
 
 # 게임 초기화
 pygame.init()
-width, height = 700, 500
+width, height = 1000, 500
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Dodge the Falling Objects")
 
@@ -35,12 +35,18 @@ game_started = False
 # game_over = False
 
 # 시작 화면 함수
+# 시작 화면 함수
 def show_start_screen():
     win.fill(black)
     title = font.render("A red box descends from the sky", True, white)
     start_message = font.render("Start : Spacebar", True, white)
-    win.blit(title, (50, height / 2 - 40))
-    win.blit(start_message, (120, height / 2 + 40))
+
+    # 타이틀과 시작 메시지의 중앙 정렬
+    title_rect = title.get_rect(center=(width / 2, height / 2 - 40))
+    start_message_rect = start_message.get_rect(center=(width / 2, height / 2 + 40))
+
+    win.blit(title, title_rect)
+    win.blit(start_message, start_message_rect)
     pygame.display.update()
 
 # 게임 종료 화면 함수
@@ -48,10 +54,14 @@ def show_game_over_screen():
     win.fill(black)
     game_over_message = font.render("Game Over", True, white)
     score_message = font.render(f"Survival Time: {end_time - start_time:.2f} seconds", True, white)
-    win.blit(game_over_message, (width / 2 - 100, height / 2 - 40))
-    win.blit(score_message, (width / 2 - 160, height / 2 + 20))
+
+    # 게임 오버 메시지와 점수 메시지의 중앙 정렬
+    game_over_message_rect = game_over_message.get_rect(center=(width / 2, height / 2 - 40))
+    score_message_rect = score_message.get_rect(center=(width / 2, height / 2 + 20))
+
+    win.blit(game_over_message, game_over_message_rect)
+    win.blit(score_message, score_message_rect)
     pygame.display.update()
-    pygame.time.delay(2000)
 
 # 게임 루프
 run = True
