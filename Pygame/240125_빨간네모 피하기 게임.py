@@ -25,7 +25,7 @@ player_speed = 10
 # 떨어지는 물체 설정
 enemy_size = 50
 enemy_pos = [random.randint(0, width - enemy_size), 0]
-enemy_speed = 50 # 기본 10
+enemy_speed = 10
 
 clock = pygame.time.Clock()
 
