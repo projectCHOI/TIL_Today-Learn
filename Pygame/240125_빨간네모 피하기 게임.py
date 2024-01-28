@@ -52,7 +52,7 @@ def show_start_screen():
 def show_game_over_screen():
     win.fill(black)
     game_over_message = font.render("Game Over", True, white)
-    score_message = font.render(f"Survival Time: {end_time - start_time:.2f} seconds", True, white)
+    score_message = font.render(f"Playtime : {end_time - start_time:.2f} seconds", True, white)
 
     # 게임 오버 메시지와 점수 메시지의 중앙 정렬
     game_over_message_rect = game_over_message.get_rect(center=(width / 2, height / 2 - 40))
@@ -111,4 +111,17 @@ while run:
 # 게임 종료 후 점수 표시 및 게임 종료 화면 호출
 end_time = time.time()
 show_game_over_screen()
+
+# 게임 종료 후 이벤트 루프
+game_over = True
+while game_over:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_over = False
+
 pygame.quit()
+
+# # 게임 종료 후 점수 표시 및 게임 종료 화면 호출
+# end_time = time.time()
+# show_game_over_screen()
+# pygame.quit()
