@@ -110,27 +110,29 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-        if game_over:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                initialize_game()
+    keys = pygame.key.get_pressed()  # 현재 눌려있는 키 상태를 가져옴
 
-        elif not game_started:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                game_started = True
-                start_time = time.time()
+    if game_over:
+        # 게임 오버 상태에서의 이벤트 처리
+        if keys[pygame.K_SPACE]:
+            initialize_game()
 
-        else:
-            # 키 입력 처리
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT and player_pos[0] > player_speed:
-                    player_pos[0] -= player_speed
-                elif event.key == pygame.K_RIGHT and player_pos[0] < width - player_size:
-                    player_pos[0] += player_speed
-                elif event.key == pygame.K_UP and player_pos[1] > player_speed:
-                    player_pos[1] -= player_speed
-                elif event.key == pygame.K_DOWN and player_pos[1] < height - player_size:
-                    player_pos[1] += player_speed
+    elif not game_started:
+        # 게임 시작 화면에서의 이벤트 처리
+        if keys[pygame.K_SPACE]:
+            game_started = True
+            start_time = time.time()
 
+    else:
+        # 플레이어 이동 처리
+        if keys[pygame.K_LEFT] and player_pos[0] > player_speed:
+            player_pos[0] -= player_speed
+        if keys[pygame.K_RIGHT] and player_pos[0] < width - player_size:
+            player_pos[0] += player_speed
+        if keys[pygame.K_UP] and player_pos[1] > player_speed:
+            player_pos[1] -= player_speed
+        if keys[pygame.K_DOWN] and player_pos[1] < height - player_size:
+            player_pos[1] += player_speed
     # 게임 로직
     if game_started and not game_over:
         # 물체가 떨어짐
