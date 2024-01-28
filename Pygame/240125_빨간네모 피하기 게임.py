@@ -2,13 +2,13 @@ import pygame
 import random
 import time
 
-# 게임 초기화
+# 게임 초기화 및 설정
 pygame.init()
 width, height = 1000, 500
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Dodge the Falling Objects")
 
-# 색상
+# 색상 설정
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
@@ -17,7 +17,27 @@ red = (255, 0, 0)
 pygame.font.init()
 font = pygame.font.SysFont("comicsans", 40)
 
-#플레이어 설정과 떨어지는 물체의 설정 값이 다르면, 타겟에 맞은 효과가 안 뜸,...
+# 게임 변수 초기화 함수
+def initialize_game():
+    global player_pos, enemy_pos, score, start_time, game_started
+    player_size = 50
+    player_pos = [width / 2, height - 2 * player_size]
+    player_speed = 10
+
+    enemy_size = 50
+    enemy_pos = [random.randint(0, width - enemy_size), 0]
+    enemy_speed = 10
+
+    score = 0
+    game_started = False
+    start_time = 0
+
+# 게임 변수 초기화
+initialize_game()
+
+# 시계 설정
+clock = pygame.time.Clock()
+
 # 플레이어 설정
 player_size = 50
 player_pos = [width / 2, height - 2 * player_size]
@@ -65,9 +85,24 @@ def show_game_over_screen():
     pygame.display.update()
 
 # 게임 루프
+# 게임 루프
 run = True
 while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                if not game_started:
+                    game_started = True
+                    start_time = time.time()
+
     if game_started:
+        # 키 입력 처리 및 게임 로직 (이전 코드와 동일)
+
+    else:
+        show_start_screen()
+
         # 이벤트 처리
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -120,5 +155,14 @@ while game_over:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_over = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                # 게임 관련 변수들을 초기화하여 게임을 재시작합니다.
+                player_pos = [width / 2, height - 2 * player_size]
+                enemy_pos = [random.randint(0, width - enemy_size), 0]
+                score = 0
+                start_time = time.time()
+                game_started = True
+                game_over = False
 
 pygame.quit()
