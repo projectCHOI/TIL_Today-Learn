@@ -17,6 +17,7 @@ red = (255, 0, 0)
 pygame.font.init()
 font = pygame.font.SysFont("comicsans", 40)
 
+#플레이어 설정과 떨어지는 물체의 설정 값이 다르면, 타겟에 맞은 효과가 안 뜸,...
 # 플레이어 설정
 player_size = 50
 player_pos = [width / 2, height - 2 * player_size]
@@ -26,6 +27,7 @@ player_speed = 10
 enemy_size = 50
 enemy_pos = [random.randint(0, width - enemy_size), 0]
 enemy_speed = 10
+
 
 clock = pygame.time.Clock()
 
@@ -120,8 +122,3 @@ while game_over:
             game_over = False
 
 pygame.quit()
-
-# # 게임 종료 후 점수 표시 및 게임 종료 화면 호출
-# end_time = time.time()
-# show_game_over_screen()
-# pygame.quit()
