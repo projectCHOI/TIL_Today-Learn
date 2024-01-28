@@ -17,20 +17,39 @@ red = (255, 0, 0)
 pygame.font.init()
 font = pygame.font.SysFont("comicsans", 40)
 
+# 플레이어 설정
+player_size = 50
+player_speed = 10
+
+# 떨어지는 물체 설정
+enemy_size = 50
+enemy_speed = 10
+
 # 게임 변수 초기화 함수
 def initialize_game():
-    global player_pos, enemy_pos, score, start_time, game_started
-    player_size = 50
+    global player_pos, enemy_pos, score, start_time, game_started, game_over
     player_pos = [width / 2, height - 2 * player_size]
-    player_speed = 10
-
-    enemy_size = 50
     enemy_pos = [random.randint(0, width - enemy_size), 0]
-    enemy_speed = 10
-
     score = 0
-    game_started = False
     start_time = 0
+    game_started = False
+    game_over = False
+
+# 게임 변수 초기화
+initialize_game()
+
+# 시계 설정
+clock = pygame.time.Clock()
+
+# 게임 변수 초기화 함수
+def initialize_game():
+    global player_pos, enemy_pos, score, start_time, game_started, game_over
+    player_pos = [width / 2, height - 2 * player_size]
+    enemy_pos = [random.randint(0, width - enemy_size), 0]
+    score = 0
+    start_time = 0
+    game_started = False
+    game_over = False
 
 # 게임 변수 초기화
 initialize_game()
@@ -83,86 +102,58 @@ def show_game_over_screen():
     win.blit(game_over_message, game_over_message_rect)
     win.blit(score_message, score_message_rect)
     pygame.display.update()
-
-# 게임 루프
+    
 # 게임 루프
 run = True
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                if not game_started:
-                    game_started = True
-                    start_time = time.time()
 
-    if game_started:
-        # 키 입력 처리 및 게임 로직 (이전 코드와 동일)
+        if game_over:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                initialize_game()
 
-    else:
-        show_start_screen()
+        elif not game_started:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                game_started = True
+                start_time = time.time()
 
-        # 이벤트 처리
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-
-        # 키 입력 처리
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] and player_pos[0] > player_speed:
-            player_pos[0] -= player_speed
-        if keys[pygame.K_RIGHT] and player_pos[0] < width - player_size:
-            player_pos[0] += player_speed
-
-        # 물체가 떨어짐
-        if enemy_pos[1] >= 0 and enemy_pos[1] < height:
-            enemy_pos[1] += enemy_speed
         else:
+            # 키 입력 처리
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT and player_pos[0] > player_speed:
+                    player_pos[0] -= player_speed
+                elif event.key == pygame.K_RIGHT and player_pos[0] < width - player_size:
+                    player_pos[0] += player_speed
+
+    # 게임 로직
+    if game_started and not game_over:
+        # 물체가 떨어짐
+        enemy_pos[1] += enemy_speed
+        if enemy_pos[1] > height:
             enemy_pos[0] = random.randint(0, width - enemy_size)
             enemy_pos[1] = 0
             score += 1
 
         # 충돌 감지
-        if player_pos[0] < enemy_pos[0] < player_pos[0] + player_size or player_pos[0] < enemy_pos[0] + enemy_size < player_pos[0] + player_size:
-            if player_pos[1] < enemy_pos[1] < player_pos[1] + player_size or player_pos[1] < enemy_pos[1] + enemy_size < player_pos[1] + player_size:
-                run = False
+        if player_pos[0] < enemy_pos[0] + enemy_size and player_pos[0] + player_size > enemy_pos[0]:
+            if player_pos[1] < enemy_pos[1] + enemy_size and player_pos[1] + player_size > enemy_pos[1]:
+                end_time = time.time()
+                game_over = True
 
         # 화면 업데이트
         win.fill(black)
         pygame.draw.rect(win, white, (player_pos[0], player_pos[1], player_size, player_size))
         pygame.draw.rect(win, red, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
-        pygame.display.update()
 
-        clock.tick(30)
+    elif game_over:
+        show_game_over_screen()
+
     else:
         show_start_screen()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    game_started = True
-                    start_time = time.time()
 
-# 게임 종료 후 점수 표시 및 게임 종료 화면 호출
-end_time = time.time()
-show_game_over_screen()
-
-# 게임 종료 후 이벤트 루프
-game_over = True
-while game_over:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            game_over = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                # 게임 관련 변수들을 초기화하여 게임을 재시작합니다.
-                player_pos = [width / 2, height - 2 * player_size]
-                enemy_pos = [random.randint(0, width - enemy_size), 0]
-                score = 0
-                start_time = time.time()
-                game_started = True
-                game_over = False
+    pygame.display.update()
+    clock.tick(30)
 
 pygame.quit()
