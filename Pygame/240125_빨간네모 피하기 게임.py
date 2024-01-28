@@ -126,6 +126,10 @@ while run:
                     player_pos[0] -= player_speed
                 elif event.key == pygame.K_RIGHT and player_pos[0] < width - player_size:
                     player_pos[0] += player_speed
+                elif event.key == pygame.K_UP and player_pos[1] > player_speed:
+                    player_pos[1] -= player_speed
+                elif event.key == pygame.K_DOWN and player_pos[1] < height - player_size:
+                    player_pos[1] += player_speed
 
     # 게임 로직
     if game_started and not game_over:
