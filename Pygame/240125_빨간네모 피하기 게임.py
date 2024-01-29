@@ -41,6 +41,24 @@ initialize_game()
 # 시계 설정
 clock = pygame.time.Clock()
 
+# 물체의 초기 위치와 방향 설정 함수
+def reset_enemy():
+    global enemy_pos, enemy_direction
+    edge = random.choice(['top', 'bottom', 'left', 'right'])
+    
+    if edge == 'top':
+        enemy_pos = [random.randint(0, width), 0]
+        enemy_direction = [0, enemy_speed]
+    elif edge == 'bottom':
+        enemy_pos = [random.randint(0, width), height]
+        enemy_direction = [0, -enemy_speed]
+    elif edge == 'left':
+        enemy_pos = [0, random.randint(0, height)]
+        enemy_direction = [enemy_speed, 0]
+    else:  # edge == 'right'
+        enemy_pos = [width, random.randint(0, height)]
+        enemy_direction = [-enemy_speed, 0]
+
 # 게임 변수 초기화 함수
 def initialize_game():
     global player_pos, enemy_pos, score, start_time, game_started, game_over
@@ -50,6 +68,7 @@ def initialize_game():
     start_time = 0
     game_started = False
     game_over = False
+    reset_enemy() # 물체의 초기 위치와 방향 설정
 
 # 게임 변수 초기화
 initialize_game()
@@ -133,13 +152,17 @@ while run:
             player_pos[1] -= player_speed
         if keys[pygame.K_DOWN] and player_pos[1] < height - player_size:
             player_pos[1] += player_speed
+
     # 게임 로직
     if game_started and not game_over:
-        # 물체가 떨어짐
-        enemy_pos[1] += enemy_speed
-        if enemy_pos[1] > height:
-            enemy_pos[0] = random.randint(0, width - enemy_size)
-            enemy_pos[1] = 0
+        # 물체 이동
+        enemy_pos[0] += enemy_direction[0]
+        enemy_pos[1] += enemy_direction[1]
+
+        # 물체가 화면 밖으로 나갔는지 확인
+        if (enemy_pos[0] < 0 or enemy_pos[0] > width or
+            enemy_pos[1] < 0 or enemy_pos[1] > height):
+            reset_enemy()  # 새로운 물체 위치와 방향 설정
             score += 1
 
         # 충돌 감지
