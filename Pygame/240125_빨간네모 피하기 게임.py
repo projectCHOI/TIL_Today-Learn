@@ -19,11 +19,11 @@ font = pygame.font.SysFont("comicsans", 40)
 
 # 플레이어 설정
 player_size = 50
-player_speed = 10
+player_speed = 40
 
 # 떨어지는 물체 설정
 enemy_size = 50
-enemy_speed = 10
+enemy_speed = 40
 
 # 게임 변수 초기화 함수
 def initialize_game():
