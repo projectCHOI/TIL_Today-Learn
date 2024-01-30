@@ -176,10 +176,20 @@ while run:
         pygame.draw.rect(win, white, (player_pos[0], player_pos[1], player_size, player_size))
         pygame.draw.rect(win, red, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
 
-    elif game_over:
-        show_game_over_screen()
+    # 게임 진행 시간 표시
+    if game_started and not game_over:
+        elapsed_time = time.time() - start_time
+        time_text = font.render(f"Time: {elapsed_time:.2f} seconds", True, white)
+        win.blit(time_text, (10, 10))  # 상단에 시간 표시
 
-    else:
+    # 플레이어와 물체 그리기
+    pygame.draw.rect(win, white, (player_pos[0], player_pos[1], player_size, player_size))
+    pygame.draw.rect(win, red, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+
+    # 게임 시작 화면 또는 게임 오버 화면 표시
+    if game_over:
+        show_game_over_screen()
+    elif not game_started:
         show_start_screen()
 
     pygame.display.update()
