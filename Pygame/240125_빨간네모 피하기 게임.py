@@ -43,21 +43,23 @@ clock = pygame.time.Clock()
 
 # 물체의 초기 위치와 방향 설정 함수
 def reset_enemy():
-    global enemy_pos, enemy_direction
+    global enemy_pos, enemy_direction, enemy_size
+    enemy_size = random.randint(10, 50)  # 물체 크기를 10에서 50 사이의 랜덤한 값으로 설정
     edge = random.choice(['top', 'bottom', 'left', 'right'])
     
     if edge == 'top':
-        enemy_pos = [random.randint(0, width), 0]
+        enemy_pos = [random.randint(0, width - enemy_size), 0]
         enemy_direction = [0, enemy_speed]
     elif edge == 'bottom':
-        enemy_pos = [random.randint(0, width), height]
+        enemy_pos = [random.randint(0, width - enemy_size), height - enemy_size]
         enemy_direction = [0, -enemy_speed]
     elif edge == 'left':
-        enemy_pos = [0, random.randint(0, height)]
+        enemy_pos = [0, random.randint(0, height - enemy_size)]
         enemy_direction = [enemy_speed, 0]
     else:  # edge == 'right'
-        enemy_pos = [width, random.randint(0, height)]
+        enemy_pos = [width - enemy_size, random.randint(0, height - enemy_size)]
         enemy_direction = [-enemy_speed, 0]
+
 
 # 게임 변수 초기화 함수
 def initialize_game():
