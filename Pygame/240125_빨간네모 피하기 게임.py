@@ -43,23 +43,30 @@ clock = pygame.time.Clock()
 
 # 물체의 초기 위치와 방향 설정 함수
 def reset_enemy():
-    global enemy_pos, enemy_direction, enemy_size
-    enemy_size = random.randint(10, 50)  # 물체 크기를 10에서 50 사이의 랜덤한 값으로 설정
-    edge = random.choice(['top', 'bottom', 'left', 'right'])
-    
-    if edge == 'top':
-        enemy_pos = [random.randint(0, width - enemy_size), 0]
-        enemy_direction = [0, enemy_speed]
-    elif edge == 'bottom':
-        enemy_pos = [random.randint(0, width - enemy_size), height - enemy_size]
-        enemy_direction = [0, -enemy_speed]
-    elif edge == 'left':
-        enemy_pos = [0, random.randint(0, height - enemy_size)]
-        enemy_direction = [enemy_speed, 0]
-    else:  # edge == 'right'
-        enemy_pos = [width - enemy_size, random.randint(0, height - enemy_size)]
-        enemy_direction = [-enemy_speed, 0]
+    global enemies
+    enemies = []
+    number_of_enemies = random.randint(2, 10)  # 물체의 개수를 2에서 10 사이로 랜덤 설정
+    for _ in range(number_of_enemies):
+        enemy_size = random.randint(10, 50)
+        edge = random.choice(['top', 'bottom', 'left', 'right'])
+        
+        if edge == 'top':
+            enemy_pos = [random.randint(0, width - enemy_size), 0]
+            enemy_direction = [0, enemy_speed]
+        elif edge == 'bottom':
+            enemy_pos = [random.randint(0, width - enemy_size), height - enemy_size]
+            enemy_direction = [0, -enemy_speed]
+        elif edge == 'left':
+            enemy_pos = [0, random.randint(0, height - enemy_size)]
+            enemy_direction = [enemy_speed, 0]
+        else:  # edge == 'right'
+            enemy_pos = [width - enemy_size, random.randint(0, height - enemy_size)]
+            enemy_direction = [-enemy_speed, 0]
+        
+        enemies.append({'pos': enemy_pos, 'direction': enemy_direction, 'size': enemy_size})
 
+# 게임 시작 및 재시작 시 물체 재설정
+initialize_game() #호출 시 reset_enemy()를 포함하여 호출
 
 # 게임 변수 초기화 함수
 def initialize_game():
@@ -155,38 +162,35 @@ while run:
         if keys[pygame.K_DOWN] and player_pos[1] < height - player_size:
             player_pos[1] += player_speed
 
-    # 게임 로직
-    if game_started and not game_over:
+# 게임 로직
+if game_started and not game_over:
+    for enemy in enemies:
         # 물체 이동
-        enemy_pos[0] += enemy_direction[0]
-        enemy_pos[1] += enemy_direction[1]
+        enemy['pos'][0] += enemy['direction'][0]
+        enemy['pos'][1] += enemy['direction'][1]
 
         # 물체가 화면 밖으로 나갔는지 확인
-        if (enemy_pos[0] < 0 or enemy_pos[0] > width or
-            enemy_pos[1] < 0 or enemy_pos[1] > height):
-            reset_enemy()  # 새로운 물체 위치와 방향 설정
-            score += 1
+        if (enemy['pos'][0] < 0 or enemy['pos'][0] > width or
+            enemy['pos'][1] < 0 or enemy['pos'][1] > height):
+            enemies.remove(enemy)  # 화면 밖으로 나간 물체 제거
 
         # 충돌 감지
-        if player_pos[0] < enemy_pos[0] + enemy_size and player_pos[0] + player_size > enemy_pos[0]:
-            if player_pos[1] < enemy_pos[1] + enemy_size and player_pos[1] + player_size > enemy_pos[1]:
+        if player_pos[0] < enemy['pos'][0] + enemy['size'] and player_pos[0] + player_size > enemy['pos'][0]:
+            if player_pos[1] < enemy['pos'][1] + enemy['size'] and player_pos[1] + player_size > enemy['pos'][1]:
                 end_time = time.time()
                 game_over = True
 
-        # 화면 업데이트
-        win.fill(black)
-        pygame.draw.rect(win, white, (player_pos[0], player_pos[1], player_size, player_size))
-        pygame.draw.rect(win, red, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+    # 모든 물체가 화면 밖으로 나갔으면 새로운 물체 그룹 생성
+    if not enemies:
+        reset_enemy()
 
-    # 게임 진행 시간 표시
-    if game_started and not game_over:
-        elapsed_time = time.time() - start_time
-        time_text = font.render(f"Time: {elapsed_time:.2f} seconds", True, white)
-        win.blit(time_text, (10, 10))  # 상단에 시간 표시
-
-    # 플레이어와 물체 그리기
-    pygame.draw.rect(win, white, (player_pos[0], player_pos[1], player_size, player_size))
-    pygame.draw.rect(win, red, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+# 화면 업데이트
+win.fill(black)
+# 플레이어 그리기
+pygame.draw.rect(win, white, (player_pos[0], player_pos[1], player_size, player_size))
+# 물체 그리기
+for enemy in enemies:
+    pygame.draw.rect(win, red, (enemy['pos'][0], enemy['pos'][1], enemy['size'], enemy['size']))
 
     # 게임 시작 화면 또는 게임 오버 화면 표시
     if game_over:
