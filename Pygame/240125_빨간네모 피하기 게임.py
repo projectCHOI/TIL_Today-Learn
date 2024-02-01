@@ -8,13 +8,10 @@ width, height = 1000, 500
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Dodge the Falling Objects")
 
-# 색상 설정
+# 색상 및 폰트 설정
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
-
-# 폰트 설정
-pygame.font.init()
 font = pygame.font.SysFont("comicsans", 40)
 
 # 플레이어 설정
@@ -33,6 +30,24 @@ def reset_enemy():
     for _ in range(number_of_enemies):
         enemy_size = random.randint(10, 50)
         edge = random.choice(['top', 'bottom', 'left', 'right'])
+        # 각 위치에 따른 물체의 초기 위치 및 방향 설정
+        # ...
+
+# 게임 변수 초기화 함수
+def initialize_game():
+    global player_pos, score, start_time, game_started, game_over
+    player_pos = [width / 2, height - 2 * player_size]
+    score = 0
+    start_time = 0
+    game_started = False
+    game_over = False
+    reset_enemy()
+
+# 게임 변수 초기화 및 시계 설정
+initialize_game()
+clock = pygame.time.Clock()
+
+###
 
 # 게임 변수 초기화 함수
 def initialize_game():
