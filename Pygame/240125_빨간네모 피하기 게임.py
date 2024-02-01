@@ -21,25 +21,28 @@ font = pygame.font.SysFont("comicsans", 40)
 player_size = 50
 player_speed = 40
 
-# 떨어지는 물체 설정
-enemy_size = 50
-enemy_speed = 40
+# 물체 설정
+enemy_speed = 10
+enemies = []  # 물체들을 관리할 리스트
+
+# 물체의 초기 위치와 방향 설정 함수
+def reset_enemy():
+    global enemies
+    enemies = []
+    number_of_enemies = random.randint(2, 10)  # 물체의 개수를 2에서 10 사이로 랜덤 설정
+    for _ in range(number_of_enemies):
+        enemy_size = random.randint(10, 50)
+        edge = random.choice(['top', 'bottom', 'left', 'right'])
 
 # 게임 변수 초기화 함수
 def initialize_game():
-    global player_pos, enemy_pos, score, start_time, game_started, game_over
+    global player_pos, score, start_time, game_started, game_over
     player_pos = [width / 2, height - 2 * player_size]
-    enemy_pos = [random.randint(0, width - enemy_size), 0]
     score = 0
     start_time = 0
     game_started = False
     game_over = False
-
-# 게임 변수 초기화
-initialize_game()
-
-# 시계 설정
-clock = pygame.time.Clock()
+    reset_enemy()
 
 # 물체의 초기 위치와 방향 설정 함수
 def reset_enemy():
@@ -65,25 +68,14 @@ def reset_enemy():
         
         enemies.append({'pos': enemy_pos, 'direction': enemy_direction, 'size': enemy_size})
 
-# 게임 시작 및 재시작 시 물체 재설정
-initialize_game() #호출 시 reset_enemy()를 포함하여 호출
-
-# 게임 변수 초기화 함수
-def initialize_game():
-    global player_pos, enemy_pos, score, start_time, game_started, game_over
-    player_pos = [width / 2, height - 2 * player_size]
-    enemy_pos = [random.randint(0, width - enemy_size), 0]
-    score = 0
-    start_time = 0
-    game_started = False
-    game_over = False
-    reset_enemy() # 물체의 초기 위치와 방향 설정
-
 # 게임 변수 초기화
 initialize_game()
 
 # 시계 설정
 clock = pygame.time.Clock()
+
+# 게임 시작 및 재시작 시 물체 재설정
+initialize_game() #호출 시 reset_enemy()를 포함하여 호출
 
 # 플레이어 설정
 player_size = 50
