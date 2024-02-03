@@ -83,9 +83,6 @@ def reset_enemy():
         
         enemies.append({'pos': enemy_pos, 'direction': enemy_direction, 'size': enemy_size})
 
-# 게임 변수 초기화
-initialize_game()
-
 # 시계 설정
 clock = pygame.time.Clock()
 
