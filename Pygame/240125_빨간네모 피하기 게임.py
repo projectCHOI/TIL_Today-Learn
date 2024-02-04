@@ -35,9 +35,6 @@ def initialize_game():
     game_started = False
     game_over = False
 
-# 게임 변수 초기화
-initialize_game()
-
 # 시계 설정
 clock = pygame.time.Clock()
 
