@@ -1,0 +1,9 @@
+8비트 음악을 만들어 봅시다.
+
+1.pydub 라이브러리
+오디오 파일을 생성하고 편집 기능
+
+2.simpleaudio 라이브러리
+생성된 오디오를 재생 기능
+
+설치 : pip install pydub simpleaudio
