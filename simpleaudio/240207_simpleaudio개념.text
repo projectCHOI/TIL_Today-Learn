@@ -6,4 +6,9 @@
 2.simpleaudio 라이브러리
 생성된 오디오를 재생 기능
 
-설치 : pip install pydub simpleaudio
+@ 설치
+pip install pydub simpleaudio
+pip install pydub
+
+@참고용
+https://github.com/FFmpeg/FFmpeg
