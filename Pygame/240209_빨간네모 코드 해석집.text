@@ -1,4 +1,7 @@
 @ 성격
-import pygame  : 
-import random  :
-import time    :
+import pygame  : 크로스 플랫폼 게임 개발 라이브러리
+                 주 기능 - 그래픽, 사운드, 텍스트, 입력 등 게임 개발
+import random  : 모듈은 난수를 생성
+                 주 기능 - 빨간 네모의 랜덤 등장 난의도와 재미를 위함.
+import time    : 게임 내에서 실제 시간
+                 주 기능 - 시간 측정 기능을 넣음. 플레이 시간 그리고 10초 단위로 빨간 네모 증가에 영향
