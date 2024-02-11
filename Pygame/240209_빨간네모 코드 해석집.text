@@ -1,4 +1,47 @@
-@ 성격
-import pygame  : 
-import random  :
-import time    :
+@ 라이브러리
+import pygame  : 크로스 플랫폼 게임 개발 라이브러리
+                 주 기능 - 그래픽, 사운드, 텍스트, 입력 등 게임 개발
+import random  : 모듈은 난수를 생성
+                 주 기능 - 빨간 네모의 랜덤 등장 난의도와 재미를 위함.
+import time    : 게임 내에서 실제 시간
+                 주 기능 - 시간 측정 기능을 넣음. 플레이 시간 그리고 10초 단위로 빨간 네모 증가에 영향
+
+@ 화면 설정
+게임 초기화 및 설정 : pygame.init()
+게임 플레이 창 설정 : width, height = 1000, 500
+                    win = pygame.display.set_mode((width, height))
+게임 타이틀 화면 생성 : pygame.display.set_caption("Dodge the Falling Objects")
+
+@ 색상 설정
+검정 : black = (0, 0, 0)
+흰색 : white = (255, 255, 255)
+빨강 : red = (255, 0, 0)
+
+@ 폰트 설정 : pygame.font.init()
+             font = pygame.font.SysFont("comicsans", 40)
+             호환성 이슈로 영문을 쓰자.
+
+@ 플레이어 설정
+크기 : player_size = 50
+스피드 : player_speed = 40
+
+@ 떨어지는 물체 설정
+크기 :  enemy_size = 50
+스피드 :  enemy_speed = 40
+
+@ 게임 변수 초기화 함수 : def initialize_game():
+    player_pos - 플레이어(나)의 위치
+    enemy_pos - 빨간 네모의 위치
+    score - 점수 (시간)
+    start_time - 게임 시간
+    game_started - 게임의 스타트 인지 (스페이스 바)
+    game_over - 게임의 종료 인지
+    
+    player_pos = [width / 2, height - 2 * player_size] - 가로 중앙과 세로 방향으로 아래에서 두 번째 플레이어 크기 위치에 설정
+    enemy_pos = [random.randint(0, width - enemy_size), 0] - 빨간 네모는 랜덤하게 나타나 되 게임 화면 안에서만 발생 한다.
+    score = 0 - 점수는 0점(0초)부터 시작한다.
+    start_time = 0 -위와 같음.
+    game_started = False - 게임의 스타트
+    game_over = False - 게임의 끝
+
+@ 플레이타임 시각화 설정 : clock = pygame.time.Clock()
