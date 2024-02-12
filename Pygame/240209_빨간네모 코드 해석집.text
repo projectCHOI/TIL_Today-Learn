@@ -62,3 +62,56 @@ reset_enemy(): reset_enemy - 게임이 시작 될때마다, 적의 상태 초기
 
 @ 떨어지는 물체 관리
 enemies = [] 리스트 만들고 시작.
+1. 떨어지는 물체 설정 (reset_enemies 함수)
+2. 게임 변수 초기화 함수 수정 (initialize_game 함수)
+3. 새로운 물체를 추가하는 함수 (add_enemy 함수)
+enemy_size = random.randint(10, 50): 새로운 적의 크기를 10에서 50 사이의 랜덤하게 등장
+
+@ 시작 화면 함수 (show_start_screen)
+win.fill(black) - 게임의 배경 화면 색은 검정으로 한다.
+title = font.render("A red box descends from the sky", True, white) - 게임의 타일틀 출력
+start_message = font.render("Start : Spacebar", True, white) - 게임 설명, 스페이스바를 누르란 메세지
+
+@ 게임 종료 화면 함수 (show_game_over_screen)
+win.fill(black) - 게임의 배경 화면 색은 검정으로 한다.
+game_over_message = font.render("Game Over", True, white) / score_message.get - 게임이 끝나면 메세지와 게임 플레이 타임(점수) 메세지 출력
+
+@ 게임 루트 설정
+run = True - 게임 루프는 True로 정의하며, 
+while run 은 run의 값이 True일 때 계속 반복한다.
+
+@ 키 입력 처리
+keys = pygame.key.get_pressed() - 키를 꾹 누르면 계속 적용 되게 하는 것.
+
+@ 게임 오버 상태 처리
+if keys[pygame.K_SPACE] 스페이스바를 누를 때
+initialize_game() 이건 게임 오버 후 다시 시작.
+
+@ 플레이어의 이동
+기본적으로 플레이어는 형성 된 창 밖으로 못 나게 함.
+player_pos[0] > player_speed 함수 동일 적용
+
+if keys[pygame.K_LEFT] and player_pos[0] > player_speed:
+player_pos[0] -= player_speed
+
+if keys[pygame.K_RIGHT] and player_pos[0] < width - player_size:
+player_pos[0] += player_speed
+
+if keys[pygame.K_UP] and player_pos[1] > player_speed:
+player_pos[1] -= player_speed
+
+if keys[pygame.K_DOWN] and player_pos[1] < height - player_size:
+player_pos[1] += player_speed
+
+@ 시간에 따라 새로운 물체 추가
+elapsed_time = time.time() - start_time - 시간을 측정하는 코드
+if len(enemies) < elapsed_time // 10 + 1 - 시간이 10초보다 1 높을 경우 적의 수 추가 add_enemy()(난이도)
+
+@ 충돌 검사
+if player_pos[0] < enemy['pos'][0] + enemy['size'] and player_pos[0] + player_size > enemy['pos'][0]:
+if player_pos[1] < enemy['pos'][1] + enemy['size'] and player_pos[1] + player_size > enemy['pos'][1]:
+플레이어와 빨간 네모의 X축과 Y축이 겹쳐지는 걸 확인하는 내용.
+
+@ 플레이 중 진행 상황 측정.
+win.blit(time_text, (10, 10))
+화면의 왼쪽 상단 모서리에서 오른쪽으로 10픽셀, 아래로 10픽셀 떨어진 위치한다.

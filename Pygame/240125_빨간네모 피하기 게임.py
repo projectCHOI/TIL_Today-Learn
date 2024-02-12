@@ -99,7 +99,7 @@ def add_enemy():
         new_enemy = {'pos': [random.randint(0, width - enemy_size), 0], 'direction': [0, enemy_speed], 'size': enemy_size}
     elif edge == 'left':
         new_enemy = {'pos': [0, random.randint(0, height - enemy_size)], 'direction': [enemy_speed, 0], 'size': enemy_size}
-    else:  # edge == 'right'
+    else:
         new_enemy = {'pos': [width - enemy_size, random.randint(0, height - enemy_size)], 'direction': [-enemy_speed, 0], 'size': enemy_size}
     enemies.append(new_enemy)
 
@@ -122,7 +122,6 @@ clock = pygame.time.Clock()
 # 게임 변수
 score = 0
 game_started = False
-# game_over = False
 
 # 시작 화면 함수
 def show_start_screen():
