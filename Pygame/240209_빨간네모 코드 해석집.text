@@ -45,3 +45,20 @@ import time    : 게임 내에서 실제 시간
     game_over = False - 게임의 끝
 
 @ 플레이타임 시각화 설정 : clock = pygame.time.Clock()
+
+@날아오는 물체의 변수
+reset_enemy : 크기, 초기 위치, 그리고 이동 방향의 설정
+enemy_size - random.randint(10, 50) 적의 크기 10에서 50 안에서 랜덤으로(난이도)
+edge = random.choice - 게임 화면 사방에서 등장
+이때 'top', 'bottom', 'left', 'right' 방향에서는 랜덤 등장(난이도)
+
+@ 게임 변수의 초기화 initialize_game
+player_pos = [width / 2, height - 2 * player_size] : 플레이어의 시작 위치는 가로 세로 중앙에서 플레이어 두번째 크기에서 시작한다.
+score, start_time = 0 게임이 시작 될때 점수와 시간을 0으로 만든다.
+game_started = False, game_over = False : 게임 시작과 끝을 False로 설정.
+reset_enemy(): reset_enemy - 게임이 시작 될때마다, 적의 상태 초기화, 연속되지 않게 방지한다.
+
+마무리 initialize_game() 한번 더 해서 게임을 플레이 할 때 마다. 초기화
+
+@ 떨어지는 물체 관리
+enemies = [] 리스트 만들고 시작.
