@@ -24,7 +24,39 @@ player_speed = 40
 # 떨어지는 물체 설정
 enemy_size = 50
 enemy_speed = 40
+#
+# pygame.mixer 모듈 초기화
+pygame.mixer.init()
 
+# 음악 파일 로드
+pygame.mixer.music.load('Pygame/240211_red box_music.wav') # 슬래시 사용
+
+# 게임 시작 화면에서 음악 재생 시작
+def show_start_screen():
+    global game_started
+    win.fill(black)
+    title = font.render("A red box descends from the sky", True, white)
+    start_message = font.render("Start : Spacebar", True, white)
+
+    # 타이틀과 시작 메시지의 중앙 정렬
+    title_rect = title.get_rect(center=(width / 2, height / 2 - 40))
+    start_message_rect = start_message.get_rect(center=(width / 2, height / 2 + 40))
+
+    win.blit(title, title_rect)
+    win.blit(start_message, start_message_rect)
+    pygame.display.update()
+
+    # 음악 재생이 아직 시작되지 않았다면 음악 재생 시작
+    if not game_started:
+        pygame.mixer.music.play(-1)  # -1은 음악을 무한 반복 재생
+
+# 게임 초기화 함수 내에 음악 중지 로직 추가
+def initialize_game():
+    global player_pos, enemies, score, start_time, game_started, game_over
+    # 이전 게임에서 음악이 재생되고 있다면 중지
+    pygame.mixer.music.stop()
+#
+    
 # 게임 변수 초기화 함수
 def initialize_game():
     global player_pos, enemy_pos, score, start_time, game_started, game_over
