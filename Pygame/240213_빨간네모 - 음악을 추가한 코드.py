@@ -29,7 +29,8 @@ enemy_speed = 40
 pygame.mixer.init()
 
 # 음악 파일 로드
-pygame.mixer.music.load('Pygame/240211_red box_music.wav') # 슬래시 사용
+pygame.mixer.music.load('C:/Users/HOME/Desktop/새싹_교육/GitHub_CHOI/TIL_Today-Learn/Pygame/240211_red box_music.wav')
+pygame.mixer.music.play(-1)  # -1은 음악을 무한 반복 재생
 
 # 게임 시작 화면에서 음악 재생 시작
 def show_start_screen():
@@ -46,15 +47,6 @@ def show_start_screen():
     win.blit(start_message, start_message_rect)
     pygame.display.update()
 
-    # 음악 재생이 아직 시작되지 않았다면 음악 재생 시작
-    if not game_started:
-        pygame.mixer.music.play(-1)  # -1은 음악을 무한 반복 재생
-
-# 게임 초기화 함수 내에 음악 중지 로직 추가
-def initialize_game():
-    global player_pos, enemies, score, start_time, game_started, game_over
-    # 이전 게임에서 음악이 재생되고 있다면 중지
-    pygame.mixer.music.stop()
 #
     
 # 게임 변수 초기화 함수
@@ -66,6 +58,11 @@ def initialize_game():
     start_time = 0
     game_started = False
     game_over = False
+    pygame.mixer.music.stop() # 이전 게임에서 음악이 재생되고 있다면 중지
+
+# 음악 볼륨 설정 (최대 볼륨)
+pygame.mixer.music.set_volume(1.0)
+
 
 # 시계 설정
 clock = pygame.time.Clock()
