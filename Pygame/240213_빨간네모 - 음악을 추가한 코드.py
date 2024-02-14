@@ -132,11 +132,25 @@ def add_enemy():
         new_enemy = {'pos': [width - enemy_size, random.randint(0, height - enemy_size)], 'direction': [-enemy_speed, 0], 'size': enemy_size}
     enemies.append(new_enemy)
 
+# 물체의 속도를 랜덤하게 만드는 함수
+def add_enemy():
+    global enemies
+    enemy_size = random.randint(10, 50)
+    enemy_speed = random.randint(10, 30)  # 여기에서 랜덤한 속도를 설정
+    edge = random.choice(['top', 'left', 'right'])
+    if edge == 'top':
+        new_enemy = {'pos': [random.randint(0, width - enemy_size), 0], 'direction': [0, enemy_speed], 'size': enemy_size}
+    elif edge == 'left':
+        new_enemy = {'pos': [0, random.randint(0, height - enemy_size)], 'direction': [enemy_speed, 0], 'size': enemy_size}
+    else:  # edge == 'right'
+        new_enemy = {'pos': [width - enemy_size, random.randint(0, height - enemy_size)], 'direction': [-enemy_speed, 0], 'size': enemy_size}
+    enemies.append(new_enemy)
+
 # 시계 설정
 clock = pygame.time.Clock()
 
 # 플레이어 설정
-player_size = 50
+player_size = 30
 player_pos = [width / 2, height - 2 * player_size]
 player_speed = 10
 
