@@ -17,11 +17,9 @@ font = pygame.font.SysFont("comicsans", 40)
 player_size = 50
 player_speed = 10  # 플레이어 속도 조정
 
-# pygame.mixer 모듈 초기화 및 음악 설정은 게임의 추가 기능으로 관련 코드는 생략 가능
-# pygame.mixer.init()
-# pygame.mixer.music.load('music_file_path')
-# pygame.mixer.music.play(-1)
-# pygame.mixer.music.set_volume(1.0)
+# 음악 파일 로드
+pygame.mixer.music.load('C:/Users/HOME/Desktop/새싹_교육/GitHub_CHOI/TIL_Today-Learn/Pygame/240211_red box_music.wav')
+pygame.mixer.music.play(-1)  # -1은 음악을 무한 반복 재생
 
 clock = pygame.time.Clock()
 score = 0
