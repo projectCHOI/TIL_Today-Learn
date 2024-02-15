@@ -114,8 +114,9 @@ while run:
                         game_over = True
 
             pygame.draw.rect(win, white, (player_pos[0], player_pos[1], player_size, player_size))
-            time_text = font.render(f"Time: {time.time() - start_time:.2f} seconds", True, white)
+            time_text = font.render(f"Time: {time.time() - start_time:.1f} seconds", True, white)
             win.blit(time_text, (10, 10))
+
 
     if game_over:
         show_game_over_screen()
