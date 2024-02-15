@@ -62,7 +62,7 @@ def show_start_screen():
 def show_game_over_screen():
     win.fill(black)
     game_over_message = font.render("Game Over", True, white)
-    score_message = font.render(f"Score: {score:.1f}", True, white)
+    score_message = font.render(f"Score: {score}", True, white)
     game_over_message_rect = game_over_message.get_rect(center=(width / 2, height / 2 - 40))
     score_message_rect = score_message.get_rect(center=(width / 2, height / 2 + 20))
     win.blit(game_over_message, game_over_message_rect)
