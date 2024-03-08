@@ -1,3 +1,7 @@
+# pip install Flask
+# Flask? = 기본적인 웹 서비스 기능을 제공
+
+
 from flask import Flask, request, render_template_string
 import random
 
