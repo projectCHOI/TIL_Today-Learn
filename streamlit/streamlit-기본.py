@@ -15,6 +15,3 @@ if st.button('카운터 증가'):
 
 # 현재 카운터 값을 화면에 표시
 st.write('카운터:', st.session_state.count)
-
-# 코드 종료
-# 터미널 입력 : streamlit run app.py
