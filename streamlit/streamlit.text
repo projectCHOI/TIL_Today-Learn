@@ -1,4 +1,4 @@
-streamlit이란?
+A. streamlit이란?
 데이터 애플리케이션을 만들고 쉽게 공유하는 라이브러리
 사용기능 : 웹 페이지를 만든다. - 시각화 대시보드 만들기
 
@@ -6,7 +6,7 @@ streamlit이란?
 pip install streamlit 라이브러리 설치
 
 
-프로그램 실행법
+B. 프로그램 실행법
 1. 코드를 다 작성 한 뒤에 터미널 입력
 [streamlit run 파일명.py]
 예시 : [streamlit run app.py]
@@ -18,3 +18,21 @@ pip install streamlit 라이브러리 설치
  = 파일의 경로를 재설정 하려면 파일- 우클릭-경로복사하면 좋다.
 
 4. 그리고 다시 1번을 실행한다.
+
+C. 랜덤을 포함한 streamlit 사용 코드
+1. 라이브러리 설치 (Streamlit )
+import streamlit as st로 웹 페이지 구성 준비.
+
+2. 랜덤 번호 생성 함수 (numbers + st.text_input)
+반드시 포함하길 원하는 숫자(required_numbers) & 제외하길 원하는 숫자(exclude_numbers)  st.text_input사용,
+입력한 조건에 맞게 랜덤 번호를 생성.
+*공백을 기준으로 숫자 분리
+
+3. 버튼을 통한 번호 생성(st.button)
+사용자가 '번호 생성' 버튼(st.button)을 클릭하면, 위에서 정의한 numbers 함수를 호출하여 랜덤 번호를 생성하고,
+이를 사용자에게 보여줌.
+
+4. 예외 처리(try-except)
+사용자 입력을 숫자로 변환할 때 ValueError가 발생 가능성(띄어쓰기 안함 지정 범위 외 숫자 등등)
+이를 구분하기 위해 try-except 구문을 사용, 숫자 이외의 값을 입력했을 때 오류 메시지를 출력
+
