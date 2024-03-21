@@ -1,0 +1,6 @@
+@ Streamlit을 학습해보자
+Streamlit는 파이썬으로 만드는 웹 어플리케이션 생성 기능이다.
+
+터미널 기본설치 : pip install streamlit
+
+참고 링크 : https://github.com/teddylee777/streamlit-tutorial
