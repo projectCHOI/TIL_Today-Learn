@@ -5,8 +5,7 @@ import csv
 file = open("230919_naver-J.csv", mode="w", encoding="utf-8", newline="")
 writer = csv.writer(file)
 
-for page_url in range(2, 5):
-    
+for page_url in range(1, 5):
     url = f'https://finance.naver.com/item/sise_day.naver?code=005930&page={page_url}'
     
     headers = {
