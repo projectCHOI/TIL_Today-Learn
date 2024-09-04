@@ -1,0 +1,8 @@
+# 윈도우 새로운 환경 install 문제 해결
+- Anaconda Prompt 사용 : VS코드에서 pip 명령어가 인식되지 않는 경우, Anaconda Prompt에서 pip를 실행
+
+1. 시작 메뉴에서 "Anaconda Prompt"를 검색하여 실행
+2. 검은 터미널 화면 활성화
+3. 명령어로 pip install "추가"
+
+이 과정으로 VS코드에서 install 문제 해결
