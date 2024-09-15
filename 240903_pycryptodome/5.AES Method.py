@@ -51,3 +51,23 @@ print(f"암호화된 텍스트: {encrypted.hex()}")
 # AES 복호화
 decrypted = decrypt_AES(encrypted, key)
 print(f"복호화된 텍스트: {decrypted}")
+
+"""
+"""
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
+
+# AES 암호화
+key = get_random_bytes(16)  # AES를 위한 비밀 키 만들기
+cipher = AES.new(key, AES.MODE_CBC)  # AES 암호화 객체 생성
+iv = cipher.iv  # 초기화 벡터(IV) 가져오기
+plaintext = b'Hello, World!'  # 암호화할 메시지
+ciphertext = cipher.encrypt(pad(plaintext, AES.block_size))  # 암호화
+
+# AES 복호화
+cipher = AES.new(key, AES.MODE_CBC, iv)  # 복호화를 위한 AES 객체 생성
+decrypted = unpad(cipher.decrypt(ciphertext), AES.block_size)  # 복호화
+
+print("암호화된 메시지:", ciphertext)
+print("복호화된 메시지:", decrypted)
