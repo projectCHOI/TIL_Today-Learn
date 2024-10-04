@@ -8,6 +8,7 @@ root = tk.Tk()
 root.title("덧셈 결과")
 root.geometry("400x300")  # 창의 크기를 너비 400픽셀, 높이 300픽셀로 설정
 root.resizable(False, False)  # 창 크기 변경 불가
+root.eval('tk::PlaceWindow . center')  # 창을 화면 중앙에 위치
 
 # 레이블 생성
 label = tk.Label(root, text=f"덧셈 결과는 {result}입니다.", font=("맑은 고딕", 16))
