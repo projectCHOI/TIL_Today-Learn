@@ -73,8 +73,8 @@ root.resizable(False, False)
 root.eval('tk::PlaceWindow . center')
 
 # 폰트 설정 (필요한 경우)
-# import tkinter.font as tkFont
-# font_default = tkFont.Font(family="서평원 꺾깎체", size=12)
+import tkinter.font as tkFont
+font_default = tkFont.Font(family="서평원 꺾깎체", size=12)
 
 # 포함할 숫자 입력 레이블 및 입력 필드
 label_required = tk.Label(root, text="반드시 포함해야 하는 숫자 (띄어쓰기로 구분):")  # , font=font_default
