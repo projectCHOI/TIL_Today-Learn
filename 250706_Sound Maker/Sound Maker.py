@@ -2,35 +2,43 @@ import numpy as np
 from scipy.io.wavfile import write
 import os
 
-# 저장 경로 설정
+# === 사용자 설정 ===
+duration     = 0.4       # 전체 소리 길이 (초)
+start_freq   = 1600.0    # 시작 주파수
+end_freq     = 300.0     # 끝 주파수
+volume       = 0.9       # 전체 음량 (0 ~ 1)
+decay_factor = 6         # 감쇠 강도 (볼륨 줄어드는 속도)
+vibrate_rate = 50        # 진동 추가 주파수 (Hz)
+noise_level  = 0.03      # 기계적 노이즈 정도
+filename     = "A_sound.wav"
+# ====================
+
+# 저장 경로
 download_dir = r"C:/Users/boss3/OneDrive/바탕 화면/GitHub/TIL_Today-Learn/250706_Sound Maker/Download"
 os.makedirs(download_dir, exist_ok=True)
 
-# 사운드 설정
-sample_rate = 44100  # 44.1kHz
-duration = 1.0       # 2초
+sample_rate = 44100
+t = np.linspace(0, duration, int(sample_rate * duration), False)
 
-# "삐" 소리: 고정된 고주파 (예: 1000Hz, 0.3초)
-def beep_part(duration=0.3, freq=1000.0):
-    t = np.linspace(0, duration, int(sample_rate * duration), False)
-    wave = 0.5 * np.sin(2 * np.pi * freq * t)
-    return wave
+# 주파수를 선형으로 변화 (고주파 → 저주파)
+freqs = np.linspace(start_freq, end_freq, t.shape[0])
+base_wave = np.sin(2 * np.pi * freqs * t)
 
-# "용" 소리: 점점 낮아지는 주파수 (sweeping from high to low)
-def yong_part(duration=0.7, start_freq=1000.0, end_freq=300.0):
-    t = np.linspace(0, duration, int(sample_rate * duration), False)
-    freqs = np.linspace(start_freq, end_freq, t.shape[0])
-    wave = 0.5 * np.sin(2 * np.pi * freqs * t)
-    return wave * np.exp(-2 * t)  # 자연스럽게 줄어들게 감쇠
+# 떨림 효과 (고주파 떨림 추가)
+vibrate = np.sin(2 * np.pi * vibrate_rate * t) * 0.2
+combined = base_wave + vibrate
 
-# 합치기
-beep = beep_part()
-yong = yong_part()
-full_sound = np.concatenate((beep, yong))
-sound_pcm = (full_sound * 32767).astype(np.int16)
+# 감쇠 곡선 적용
+combined *= np.exp(-decay_factor * t)
 
-# 파일 저장
-filename = "Attack_sound.wav" # 파일 이름
+# 노이즈 추가
+noise = np.random.normal(0, noise_level, t.shape[0])
+combined += noise
+
+# 음량 조정 및 PCM 변환
+sound_pcm = (combined * volume * 32767).astype(np.int16)
+
+# 저장
 filepath = os.path.join(download_dir, filename)
 write(filepath, sample_rate, sound_pcm)
 
