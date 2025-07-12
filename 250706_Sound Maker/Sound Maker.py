@@ -3,14 +3,21 @@ from scipy.io.wavfile import write
 import os
 import tkinter as tk
 from tkinter import messagebox
+import pygame
 
-# === 사운드 설정 ===
+# === 설정 ===
 sample_rate = 44100
 note_duration = 0.3
 pause_duration = 0.05
 volume = 0.5
+filename = "gui_custom_music.wav"
 output_dir = r"C:/Users/boss3/OneDrive/바탕 화면/GitHub/TIL_Today-Learn/250706_Sound Maker/Download"
+filepath = os.path.join(output_dir, filename)
 os.makedirs(output_dir, exist_ok=True)
+
+# pygame 초기화 (재생용)
+pygame.init()
+pygame.mixer.init()
 
 # === 음계 주파수 (C4 기준) ===
 note_base_freqs = {
@@ -43,7 +50,7 @@ def get_note_freq(note):
     else:
         return base
 
-# === GUI 동작 ===
+# === 음악 생성 함수 ===
 def generate_music():
     user_input = entry.get()
     notes = []
@@ -63,7 +70,6 @@ def generate_music():
         else:
             i += 1
 
-    # 파형 생성
     melody = []
     for note in notes:
         freq = get_note_freq(note)
@@ -73,17 +79,26 @@ def generate_music():
         melody.extend(pause)
 
     # 저장
-    filename = "gui_custom_music.wav"
-    filepath = os.path.join(output_dir, filename)
     sound_pcm = (np.array(melody) * 32767).astype(np.int16)
     write(filepath, sample_rate, sound_pcm)
 
     messagebox.showinfo("완료", f"'{filename}' 생성 완료!\n{filepath}")
 
+# === 음악 재생 함수 ===
+def play_music():
+    if not os.path.exists(filepath):
+        messagebox.showwarning("오류", "먼저 음악을 생성하세요.")
+        return
+    try:
+        pygame.mixer.music.load(filepath)
+        pygame.mixer.music.play()
+    except Exception as e:
+        messagebox.showerror("재생 오류", str(e))
+
 # === tkinter GUI ===
 root = tk.Tk()
-root.title("8비트 음악 생성기")
-root.geometry("400x140")
+root.title("🎵 8비트 음악 생성기")
+root.geometry("400x180")
 
 label = tk.Label(root, text="음계를 입력하세요 (예: 도미솔도+ 라+시도)", font=("맑은 고딕", 11))
 label.pack(pady=10)
@@ -91,7 +106,13 @@ label.pack(pady=10)
 entry = tk.Entry(root, width=40, font=("맑은 고딕", 12))
 entry.pack()
 
-button = tk.Button(root, text="🎵 음악 생성", command=generate_music, font=("맑은 고딕", 12))
-button.pack(pady=10)
+frame = tk.Frame(root)
+frame.pack(pady=12)
+
+btn_generate = tk.Button(frame, text="🎶 음악 생성", command=generate_music, font=("맑은 고딕", 11), width=14)
+btn_generate.pack(side="left", padx=5)
+
+btn_play = tk.Button(frame, text="▶️ 재생", command=play_music, font=("맑은 고딕", 11), width=14)
+btn_play.pack(side="left", padx=5)
 
 root.mainloop()
