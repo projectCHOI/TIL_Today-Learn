@@ -34,7 +34,7 @@ def square_wave(freq, duration, volume=1.0):
 
 # === 음계 해석 함수 (+ / - 처리 포함) ===
 def get_note_freq(note):
-    if note == "공백":
+    if note == "쉼표":
         return 0
     base = note_base_freqs.get(note[0], 0)
     if note.endswith("+"):
@@ -54,10 +54,13 @@ pygame.mixer.init()
 # === GUI 업데이트: 오선지에 선택된 음 표시 ===
 def update_staff():
     staff_canvas.delete("note")
+    max_per_row = 20
     for idx, note in enumerate(selected_notes):
-        x = 20 + idx * 30
-        y = 60
-        staff_canvas.create_text(x, y, text=note, tag="note", font=("맑은 고딕", 12))
+        row = idx // max_per_row
+        col = idx % max_per_row
+        x = 30 + col * 30
+        y = 30 + row * 100
+        staff_canvas.create_text(x, y + 40, text=note, tag="note", font=("맑은 고딕", 12))
 
 # === 노트 추가/초기화 함수 ===
 def add_note(note):
@@ -113,34 +116,43 @@ def play_music():
 # === tkinter GUI ===
 root = tk.Tk()
 root.title("마우스 클릭 8비트 작곡기")
-root.geometry("700x460")
+root.geometry("720x500")
 
 frame_low = tk.LabelFrame(root, text="낮은 음")
-frame_low.pack(fill="x", padx=10, pady=5)
+frame_low.pack(fill="x", padx=10, pady=3)
 for note in ["도-", "레-", "미-", "파-", "솔-", "라-", "시-"]:
     btn = tk.Button(frame_low, text=note, width=6, command=lambda n=note: add_note(n))
     btn.pack(side="left", padx=2, pady=2)
 
 frame_mid = tk.LabelFrame(root, text="일반 음")
-frame_mid.pack(fill="x", padx=10, pady=5)
+frame_mid.pack(fill="x", padx=10, pady=3)
 for note in ["도", "레", "미", "파", "솔", "라", "시"]:
     btn = tk.Button(frame_mid, text=note, width=6, command=lambda n=note: add_note(n))
     btn.pack(side="left", padx=2, pady=2)
 
 frame_high = tk.LabelFrame(root, text="높은 음")
-frame_high.pack(fill="x", padx=10, pady=5)
+frame_high.pack(fill="x", padx=10, pady=3)
 for note in ["도+", "레+", "미+", "파+", "솔+", "라+", "시+"]:
     btn = tk.Button(frame_high, text=note, width=6, command=lambda n=note: add_note(n))
     btn.pack(side="left", padx=2, pady=2)
 
-btn_blank = tk.Button(root, text="공백", width=6, command=lambda: add_note("공백"))
+btn_blank = tk.Button(root, text="쉼표", width=6, command=lambda: add_note("쉼표"))
 btn_blank.pack(pady=5)
 
-staff_canvas = tk.Canvas(root, width=680, height=120, bg="white")
+staff_canvas = tk.Canvas(root, width=690, height=240, bg="white")
 staff_canvas.pack(padx=10, pady=5)
-for i in range(5):
-    y = 30 + i * 20
-    staff_canvas.create_line(10, y, 670, y)
+
+for row in range(4):
+    y_offset = row * 100
+    for i in range(5):
+        y = 30 + i * 20 + y_offset
+        staff_canvas.create_line(10, y, 680, y, fill="black")
+    staff_canvas.create_text(10, 30 + y_offset, text=chr(97 + row), anchor="e", font=("맑은 고딕", 12), fill="green")
+
+for i in range(1, 6):
+    x = 30 * i * 4
+    staff_canvas.create_line(x, 20, x, 420, fill="orange")
+    staff_canvas.create_text(x - 5, 20, text=str(i), fill="orange", font=("맑은 고딕", 10))
 
 frame_repeat = tk.Frame(root)
 frame_repeat.pack(pady=5)
