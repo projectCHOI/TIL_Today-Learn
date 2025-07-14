@@ -139,7 +139,7 @@ for note in ["도+", "레+", "미+", "파+", "솔+", "라+", "시+"]:
 btn_blank = tk.Button(root, text="쉼표", width=6, command=lambda: add_note("쉼표"))
 btn_blank.pack(pady=5)
 
-staff_canvas = tk.Canvas(root, width=690, height=240, bg="white")
+staff_canvas = tk.Canvas(root, width=690, height=600, bg="white")
 staff_canvas.pack(padx=10, pady=5)
 
 for row in range(4):
