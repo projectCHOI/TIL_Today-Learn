@@ -116,7 +116,7 @@ def play_music():
 # === tkinter GUI ===
 root = tk.Tk()
 root.title("마우스 클릭 8비트 작곡기")
-root.geometry("720x500")
+root.geometry("720x850")
 
 frame_low = tk.LabelFrame(root, text="낮은 음")
 frame_low.pack(fill="x", padx=10, pady=3)
@@ -139,10 +139,10 @@ for note in ["도+", "레+", "미+", "파+", "솔+", "라+", "시+"]:
 btn_blank = tk.Button(root, text="쉼표", width=6, command=lambda: add_note("쉼표"))
 btn_blank.pack(pady=5)
 
-staff_canvas = tk.Canvas(root, width=690, height=600, bg="white")
+staff_canvas = tk.Canvas(root, width=690, height=540, bg="white")
 staff_canvas.pack(padx=10, pady=5)
 
-for row in range(4):
+for row in range(5):
     y_offset = row * 100
     for i in range(5):
         y = 30 + i * 20 + y_offset
