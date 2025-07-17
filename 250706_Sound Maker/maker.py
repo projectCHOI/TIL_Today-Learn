@@ -62,7 +62,7 @@ def update_staff():
         y = 30 + row * 100
         staff_canvas.create_text(x, y + 40, text=note, tag="note", font=("맑은 고딕", 12))
 
-# === 노트 추가/초기화 함수 ===
+# === 노트 추가/초기화/삭제 함수 ===
 def add_note(note):
     selected_notes.append(note)
     update_staff()
@@ -72,6 +72,11 @@ def reset_notes():
     update_staff()
     repeat_var.set(1)
     filename_var.set("click_composed.wav")
+
+def delete_last_note():
+    if selected_notes:
+        selected_notes.pop()
+        update_staff()
 
 # === 음악 생성 함수 ===
 def generate_music():
@@ -151,7 +156,7 @@ for row in range(5):
 
 for i in range(1, 6):
     x = 30 * i * 4
-    staff_canvas.create_line(x, 20, x, 420, fill="orange")
+    staff_canvas.create_line(x, 20, x, 520, fill="orange")
     staff_canvas.create_text(x - 5, 20, text=str(i), fill="orange", font=("맑은 고딕", 10))
 
 frame_repeat = tk.Frame(root)
@@ -172,6 +177,8 @@ frame_ctrl = tk.Frame(root)
 frame_ctrl.pack(pady=15)
 btn_reset = tk.Button(frame_ctrl, text="⏪ 초기화", command=reset_notes, width=10)
 btn_reset.pack(side="left", padx=10)
+btn_delete = tk.Button(frame_ctrl, text="❌ 삭제", command=delete_last_note, width=10)
+btn_delete.pack(side="left", padx=10)
 btn_gen = tk.Button(frame_ctrl, text="🎶 생성", command=generate_music, width=10)
 btn_gen.pack(side="left", padx=10)
 btn_play = tk.Button(frame_ctrl, text="▶️ 재생", command=play_music, width=10)
