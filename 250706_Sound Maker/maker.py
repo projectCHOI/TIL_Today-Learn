@@ -116,7 +116,7 @@ def play_music():
 # === tkinter GUI ===
 root = tk.Tk()
 root.title("마우스 클릭 8비트 작곡기")
-root.geometry("720x850")
+root.geometry("720x900")
 
 frame_low = tk.LabelFrame(root, text="낮은 음")
 frame_low.pack(fill="x", padx=10, pady=3)
