@@ -20,3 +20,11 @@ player_vel_y = 0
 gravity = 0.5
 jump_power = -10
 on_ground = False
+
+# 플랫폼 설정
+platforms = [
+    pygame.Rect(0, HEIGHT - 40, WIDTH, 40),      # 바닥
+    pygame.Rect(150, 300, 100, 20),
+    pygame.Rect(300, 220, 120, 20),
+    pygame.Rect(480, 150, 100, 20),
+]
