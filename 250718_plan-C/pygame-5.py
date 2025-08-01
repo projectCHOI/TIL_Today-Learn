@@ -75,3 +75,13 @@ while running:
     if player_y > HEIGHT:  # 화면 아래로 떨어지면 리셋
         player_x, player_y = 100, HEIGHT - player_height - 50
         player_vel_y = 0
+
+    # 그리기
+    pygame.draw.rect(win, BLUE, (player_x, player_y, player_width, player_height))  # 플레이어
+    for plat in platforms:
+        pygame.draw.rect(win, GREEN, plat)  # 플랫폼
+
+    pygame.display.update()
+
+pygame.quit()
+sys.exit()
