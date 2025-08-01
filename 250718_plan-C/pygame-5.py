@@ -58,3 +58,20 @@ while running:
 
     # 플레이어 직사각형 객체
     player_rect = pygame.Rect(player_x, player_y, player_width, player_height)
+
+    # 플랫폼 충돌 처리
+    on_ground = False
+    for plat in platforms:
+        if player_rect.colliderect(plat):
+            # 플레이어가 위에서 떨어질 때만 착지
+            if player_vel_y > 0 and player_rect.bottom - player_vel_y <= plat.top:
+                player_y = plat.top - player_height
+                player_vel_y = 0
+                on_ground = True
+
+    # 화면 밖으로 나가지 않도록
+    if player_x < 0: player_x = 0
+    if player_x > WIDTH - player_width: player_x = WIDTH - player_width
+    if player_y > HEIGHT:  # 화면 아래로 떨어지면 리셋
+        player_x, player_y = 100, HEIGHT - player_height - 50
+        player_vel_y = 0
