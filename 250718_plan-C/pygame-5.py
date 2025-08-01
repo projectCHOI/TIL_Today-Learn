@@ -28,3 +28,33 @@ platforms = [
     pygame.Rect(300, 220, 120, 20),
     pygame.Rect(480, 150, 100, 20),
 ]
+
+# 게임 루프
+clock = pygame.time.Clock()
+running = True
+
+while running:
+    clock.tick(60)
+    win.fill(WHITE)
+
+    # 이벤트 처리
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # 키 입력
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        player_x -= player_speed
+    if keys[pygame.K_RIGHT]:
+        player_x += player_speed
+    if keys[pygame.K_SPACE] and on_ground:  # 점프는 땅 위에서만 가능
+        player_vel_y = jump_power
+        on_ground = False
+
+    # 중력 적용
+    player_vel_y += gravity
+    player_y += player_vel_y
+
+    # 플레이어 직사각형 객체
+    player_rect = pygame.Rect(player_x, player_y, player_width, player_height)
