@@ -1,17 +1,19 @@
 import pygame
+
+# === 초기 설정 ===
 pygame.init()
 WIDTH, HEIGHT = 600, 600
 ROWS, COLS = 10, 10
 TILE_SIZE = WIDTH // COLS
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Mini Tactics Arena")
+pygame.display.set_caption("Mini Tactics Arena - Training Version")
 
 # 색상
 WHITE = (255, 255, 255)
 GRAY = (200, 200, 200)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
-
+BLACK = (0, 0, 0)
 class Unit:
     def __init__(self, x, y, color, move_range=3):
         self.x = x
