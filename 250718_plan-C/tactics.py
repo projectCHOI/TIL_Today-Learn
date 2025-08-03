@@ -49,15 +49,22 @@ units = [
 selected = None
 turn = "blue"
 
+# === 보드 그리기 ===
 def draw_grid():
     for row in range(ROWS):
         for col in range(COLS):
             rect = pygame.Rect(col*TILE_SIZE, row*TILE_SIZE, TILE_SIZE, TILE_SIZE)
             pygame.draw.rect(win, GRAY, rect, 1)
 
+# === 턴 전환 ===
+def next_turn():
+    global turn, selected
+    turn = "red" if turn == "blue" else "blue"
+    selected = None
 
+# === 메인 루프 ===
 def main():
-    global selected, turn
+    global selected
     clock = pygame.time.Clock()
     run = True
     while run:
@@ -67,6 +74,11 @@ def main():
         draw_grid()
         for u in units:
             u.draw(win)
+
+        # 턴 표시
+        font = pygame.font.SysFont(None, 30)
+        text = font.render(f"{turn.upper()} TURN", True, BLACK)
+        win.blit(text, (10, 10))
 
         pygame.display.update()
 
@@ -79,16 +91,28 @@ def main():
                 gx, gy = mx // TILE_SIZE, my // TILE_SIZE
 
                 if selected:
-                    # 이동 범위 제한
-                    dist = abs(selected.x - gx) + abs(selected.y - gy)
-                    if dist <= selected.move_range:
-                        selected.x, selected.y = gx, gy
-                        selected = None
-                        turn = "red" if turn == "blue" else "blue"
-                else:
-                    # 유닛 선택
+                    # === 공격 (인접한 적 클릭) ===
                     for u in units:
-                        if u.x == gx and u.y == gy and (
+                        if u.is_clicked(gx, gy) and u.color != selected.color:
+                            dist = abs(selected.x - u.x) + abs(selected.y - u.y)
+                            if dist == 1:  # 인접한 경우만 공격
+                                u.hp -= 1
+                                if u.hp <= 0:
+                                    units.remove(u)
+                                next_turn()
+                                break
+                    else:
+                        # === 이동 (빈칸 클릭) ===
+                        dist = abs(selected.x - gx) + abs(selected.y - gy)
+                        occupied = any(u.is_clicked(gx, gy) for u in units)
+                        if dist <= selected.move_range and not occupied:
+                            selected.x, selected.y = gx, gy
+                            next_turn()
+                    selected = None
+                else:
+                    # === 유닛 선택 ===
+                    for u in units:
+                        if u.is_clicked(gx, gy) and (
                             (turn == "blue" and u.color == BLUE) or
                             (turn == "red" and u.color == RED)
                         ):
