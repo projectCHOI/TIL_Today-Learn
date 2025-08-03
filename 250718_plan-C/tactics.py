@@ -14,12 +14,14 @@ GRAY = (200, 200, 200)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
+# === 유닛 클래스 ===
 class Unit:
-    def __init__(self, x, y, color, move_range=3):
+    def __init__(self, x, y, color, move_range=3, hp=3):
         self.x = x
         self.y = y
         self.color = color
         self.move_range = move_range
+        self.hp = hp
 
     def draw(self, win):
         pygame.draw.circle(
@@ -28,10 +30,20 @@ class Unit:
             (self.x * TILE_SIZE + TILE_SIZE//2, self.y * TILE_SIZE + TILE_SIZE//2),
             TILE_SIZE//3
         )
+        # 체력 표시
+        font = pygame.font.SysFont(None, 20)
+        text = font.render(str(self.hp), True, BLACK)
+        win.blit(text, (self.x*TILE_SIZE + TILE_SIZE//3, self.y*TILE_SIZE + TILE_SIZE//3))
 
+    def is_clicked(self, gx, gy):
+        return self.x == gx and self.y == gy
+
+# === 초기 유닛 배치 ===
 units = [
     Unit(0, 0, BLUE),
-    Unit(9, 9, RED)
+    Unit(1, 0, BLUE),
+    Unit(9, 9, RED),
+    Unit(8, 9, RED)
 ]
 
 selected = None
