@@ -8,6 +8,10 @@ x, y = 250, 250
 width, height = 40, 40
 vel = 5
 
+# 점수
+score = 0
+font = pygame.font.SysFont("comicsans", 30)
+
 run = True
 while run:
     pygame.time.delay(30)
