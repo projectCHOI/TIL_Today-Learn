@@ -25,9 +25,17 @@ while run:
     if keys[pygame.K_RIGHT]: x += vel
     if keys[pygame.K_UP]: y -= vel
     if keys[pygame.K_DOWN]: y += vel
+    
+    # 점수 증가
+    score += 1
 
     win.fill((0,0,0))
     pygame.draw.rect(win, (0, 255, 0), (x, y, width, height))
+
+    # 점수 표시
+    score_text = font.render(f"Score: {score}", True, (255, 255, 255))
+    win.blit(score_text, (10, 10))
+
     pygame.display.update()
 
 pygame.quit()
