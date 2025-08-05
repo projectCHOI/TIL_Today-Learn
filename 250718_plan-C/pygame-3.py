@@ -98,6 +98,17 @@ while running:
         pygame.time.delay(2000)
         running = False
 
+    hit_index = None
+    for i, brick in enumerate(bricks):
+        if brick.collidepoint(ball_x, ball_y):
+            hit_index = i
+            break
+
+    if hit_index is not None:
+        del bricks[hit_index]
+        ball_dy *= -1
+        bricks_destroyed += 1  
+
     # 승리 조건
     if not bricks:
         text = font.render("You Win!", True, BLUE)
