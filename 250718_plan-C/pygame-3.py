@@ -40,6 +40,10 @@ for row in range(brick_rows):
 # 폰트
 font = pygame.font.SysFont(None, 50)
 
+# 점수
+bricks_destroyed = 0
+font_small = pygame.font.SysFont(None, 30)
+
 # 게임 루프
 clock = pygame.time.Clock()
 running = True
