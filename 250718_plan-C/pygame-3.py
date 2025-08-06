@@ -89,6 +89,7 @@ while running:
     if hit_index is not None:
         del bricks[hit_index]
         ball_dy *= -1
+        bricks_destroyed += 1   # 점수
 
     # 공이 바닥으로 떨어짐
     if ball_y >= HEIGHT:
@@ -97,17 +98,6 @@ while running:
         pygame.display.update()
         pygame.time.delay(2000)
         running = False
-
-    hit_index = None
-    for i, brick in enumerate(bricks):
-        if brick.collidepoint(ball_x, ball_y):
-            hit_index = i
-            break
-
-    if hit_index is not None:
-        del bricks[hit_index]
-        ball_dy *= -1
-        bricks_destroyed += 1  
 
     # 승리 조건
     if not bricks:
