@@ -114,6 +114,10 @@ while running:
     for brick in bricks:
         pygame.draw.rect(win, RED, brick)
 
+    # 점수
+    score_text = font_small.render(f"Bricks Destroyed: {bricks_destroyed}", True, WHITE)
+    win.blit(score_text, (10, 10))
+
     pygame.display.update()
 
 pygame.quit()
