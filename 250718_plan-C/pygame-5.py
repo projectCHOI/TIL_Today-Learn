@@ -136,6 +136,49 @@ class Player:
 
     def draw(self, surf):
         pygame.draw.rect(surf, BLUE, self.rect)
-        
+
+# 레벨 구성
+platforms = [
+    Platform(0, HEIGHT-30, WIDTH, 30),               # 바닥
+    Platform(120, 300, 120, 18),
+    Platform(300, 240, 120, 18),
+    Platform(480, 180, 100, 18),
+    Platform(180, 150, 90, 18, vx=80, range_px=120), # 좌우로 움직이는 발판
+]
+
+player = Player(100, HEIGHT - 120)
+
+def draw_hud():
+    text = font.render("←/→ Move, SPACE Jump | R: Reset | ESC: Quit", True, BLACK)
+    win.blit(text, (10, 10))
+
+running = True
+while running:
+    dt = clock.tick(60) / 1000.0  # 초 단위
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT: running = False
+        if e.type == pygame.KEYDOWN:
+            if e.key == pygame.K_ESCAPE: running = False
+            if e.key == pygame.K_r: player.rect.topleft=(100, HEIGHT-120); player.vx=player.vy=0
+            if e.key == pygame.K_SPACE:
+                # 점프 입력 버퍼에 기록
+                player.queue_jump()
+
+    keys = pygame.key.get_pressed()
+
+    # 플랫폼 업데이트(이동 발판)
+    for p in platforms:
+        p.update(dt)
+
+    # 플레이어 업데이트
+    player.update(dt, platforms, keys)
+
+    # 렌더
+    win.fill(WHITE)
+    for p in platforms: p.draw(win)
+    player.draw(win)
+    draw_hud()
+    pygame.display.flip()
+    
 pygame.quit()
 sys.exit()
