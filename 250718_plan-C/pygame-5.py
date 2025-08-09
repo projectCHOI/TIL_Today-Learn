@@ -61,6 +61,29 @@ class Player:
             self.on_ground = False
             self.coyote = 0.0
             self.jump_buf = 0.0
-            
+
+    def update(self, dt, platforms, keys):
+        # 입력
+        ax = self.handle_input(keys)
+
+        # 수평 속도 업데이트 (가속 + 마찰)
+        self.vx += ax * dt
+        if self.on_ground and ax == 0:
+            self.vx *= FRICTION
+        # 속도 클램프
+        self.vx = max(-MAX_SPEED_X, min(MAX_SPEED_X, self.vx))
+
+        # 중력
+        self.vy += GRAVITY * dt
+        self.vy = min(self.vy, MAX_FALL)
+
+        # 코요테/버퍼 타이머 감소
+        if not self.on_ground:
+            self.coyote -= dt
+        self.jump_buf -= dt
+
+        # 점프 시도(버퍼·코요테 반영)
+        self.try_jump()
+        
 pygame.quit()
 sys.exit()
