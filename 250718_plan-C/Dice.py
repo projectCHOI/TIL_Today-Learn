@@ -42,6 +42,28 @@ rolling = False
 roll_end_time = 0
 next_tick_time = 0
 
+def draw_dice(surface, rect, value, highlight=False):
+    """숫자 주사위를 그립니다(둥근 모서리 + 숫자)."""
+    # 본체
+    body_color = WHITE if not highlight else (245, 250, 255)
+    pygame.draw.rect(surface, body_color, rect, border_radius=18)
+    pygame.draw.rect(surface, GRAY, rect, width=2, border_radius=18)
+
+    # 숫자
+    text = font_big.render(str(value), True, DARK)
+    text_rect = text.get_rect(center=rect.center)
+    surface.blit(text, text_rect)
+
+def draw_button(surface, rect, text, enabled=True, hover=False):
+    """버튼 렌더링"""
+    base = PRIMARY_DARK if hover and enabled else PRIMARY
+    if not enabled:
+        base = (170, 170, 170)
+    pygame.draw.rect(surface, base, rect, border_radius=12)
+    pygame.draw.rect(surface, BLACK, rect, 2, border_radius=12)
+    label = font_mid.render(text, True, WHITE if enabled else (230, 230, 230))
+    surface.blit(label, label.get_rect(center=rect.center))
+    
 pygame.quit()
 sys.exit()
 
