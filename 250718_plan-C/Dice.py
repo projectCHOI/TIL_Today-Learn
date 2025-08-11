@@ -63,7 +63,28 @@ def draw_button(surface, rect, text, enabled=True, hover=False):
     pygame.draw.rect(surface, BLACK, rect, 2, border_radius=12)
     label = font_mid.render(text, True, WHITE if enabled else (230, 230, 230))
     surface.blit(label, label.get_rect(center=rect.center))
-    
+def start_roll():
+    global rolling, roll_end_time, next_tick_time
+    rolling = True
+    now = pygame.time.get_ticks()
+    roll_duration_ms = 900  # 굴리는 시간
+    step_ms = 80            # 숫자가 바뀌는 간격
+    roll_end_time = now + roll_duration_ms
+    next_tick_time = now + step_ms
+
+def update_roll():
+    """굴리는 동안 숫자/위치 업데이트"""
+    global rolling, current_value, dice_rect
+    now = pygame.time.get_ticks()
+    if now >= roll_end_time:
+        # 굴림 종료
+        rolling = False
+        # 최종 값 고정
+        current_value = random.randint(1, 6)
+        # 주사위 위치 중앙 복귀
+        dice_rect.center = (WIDTH // 2, HEIGHT // 2 - 30)
+        return
+        
 pygame.quit()
 sys.exit()
 
