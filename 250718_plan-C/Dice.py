@@ -63,6 +63,7 @@ def draw_button(surface, rect, text, enabled=True, hover=False):
     pygame.draw.rect(surface, BLACK, rect, 2, border_radius=12)
     label = font_mid.render(text, True, WHITE if enabled else (230, 230, 230))
     surface.blit(label, label.get_rect(center=rect.center))
+
 def start_roll():
     global rolling, roll_end_time, next_tick_time
     rolling = True
@@ -84,7 +85,32 @@ def update_roll():
         # 주사위 위치 중앙 복귀
         dice_rect.center = (WIDTH // 2, HEIGHT // 2 - 30)
         return
-        
+
+    # 틱마다 숫자/위치 갱신 (작게 흔들리는 효과)
+    if now >= next_tick_time:
+        current_value = random.randint(1, 6)
+        dx = random.randint(-8, 8)
+        dy = random.randint(-8, 8)
+        dice_rect.center = (WIDTH // 2 + dx, HEIGHT // 2 - 30 + dy)
+        next_tick_time = now + 80  # 다음 틱 예약
+
+def main():
+    running = True
+    while running:
+        clock.tick(FPS)
+        mouse_pos = pygame.mouse.get_pos()
+        hover = button_rect.collidepoint(mouse_pos)
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                running = False
+            elif event.type == MOUSEBUTTONDOWN and event.button == 1:
+                if not rolling and button_rect.collidepoint(event.pos):
+                    start_roll()
+
+        if rolling:
+            update_roll()
+            
 pygame.quit()
 sys.exit()
 
