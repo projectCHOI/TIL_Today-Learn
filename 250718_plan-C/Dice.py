@@ -18,7 +18,7 @@ PRIMARY_DARK = (45, 95, 210)
 GREEN = (40, 160, 80)
 
 pygame.init()
-pygame.display.set_caption("주사위 굴리기 - Pygame Basic")
+pygame.display.set_caption("Dice Numbus")
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
@@ -113,16 +113,16 @@ def main():
 
         # 그리기
         screen.fill((245, 246, 250))
-        title = font_small.render("버튼을 눌러 주사위를 굴리세요", True, (80, 80, 80))
+        title = font_small.render("press the button", True, (80, 80, 80))
         screen.blit(title, (20, 16))
 
         draw_dice(screen, dice_rect, current_value, highlight=rolling)
 
-        btn_text = "굴리기" if not rolling else "굴리는 중..."
+        btn_text = "Button" if not rolling else "wooooo..."
         draw_button(screen, button_rect, btn_text, enabled=not rolling, hover=hover and not rolling)
 
         # 결과 안내
-        result_text = font_mid.render(f"결과: {current_value}", True, (50, 50, 50))
+        result_text = font_mid.render(f"'No.: {current_value}", True, (50, 50, 50))
         screen.blit(result_text, result_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 120)))
 
         pygame.display.flip()
