@@ -41,6 +41,8 @@ current_value = 1
 rolling = False
 roll_end_time = 0
 next_tick_time = 0
+roll_step_ms = 80          # 시작 틱 간격
+roll_step_growth = 18      # 틱 간격 증가량(감속 효과)
 
 def draw_dice(surface, rect, value, highlight=False):
     """숫자 주사위를 그립니다(둥근 모서리 + 숫자)."""
@@ -54,8 +56,8 @@ def draw_dice(surface, rect, value, highlight=False):
     text_rect = text.get_rect(center=rect.center)
     surface.blit(text, text_rect)
 
+    # 버튼 렌더링
 def draw_button(surface, rect, text, enabled=True, hover=False):
-    """버튼 렌더링"""
     base = PRIMARY_DARK if hover and enabled else PRIMARY
     if not enabled:
         base = (170, 170, 170)
@@ -65,25 +67,25 @@ def draw_button(surface, rect, text, enabled=True, hover=False):
     surface.blit(label, label.get_rect(center=rect.center))
 
 def start_roll():
-    global rolling, roll_end_time, next_tick_time
+    global rolling, roll_end_time, next_tick_time, roll_step_ms
+    if rolling:
+        return
     rolling = True
     now = pygame.time.get_ticks()
-    roll_duration_ms = 900  # 굴리는 시간
-    step_ms = 80            # 숫자가 바뀌는 간격
+    roll_duration_ms = 900     # 전체 굴리는 시간
+    roll_step_ms = 50          # 시작은 빠르게
     roll_end_time = now + roll_duration_ms
-    next_tick_time = now + step_ms
+    next_tick_time = now + roll_step_ms
 
+    # 굴리는 동안 숫자/위치 업데이트 (감속 애니메이션)
 def update_roll():
-    """굴리는 동안 숫자/위치 업데이트"""
-    global rolling, current_value, dice_rect
+    global rolling, current_value, dice_rect, next_tick_time, roll_end_time, roll_step_ms
     now = pygame.time.get_ticks()
+
     if now >= roll_end_time:
-        # 굴림 종료
         rolling = False
-        # 최종 값 고정
-        current_value = random.randint(1, 6)
-        # 주사위 위치 중앙 복귀
-        dice_rect.center = (WIDTH // 2, HEIGHT // 2 - 30)
+        current_value = random.randint(1, 6)  # 최종 값
+        dice_rect.center = (WIDTH // 2, HEIGHT // 2 - 30)  # 중앙 복귀
         return
 
     # 틱마다 숫자/위치 갱신 (작게 흔들리는 효과)
@@ -92,7 +94,9 @@ def update_roll():
         dx = random.randint(-8, 8)
         dy = random.randint(-8, 8)
         dice_rect.center = (WIDTH // 2 + dx, HEIGHT // 2 - 30 + dy)
-        next_tick_time = now + 80  # 다음 틱 예약
+        # 다음 틱을 더 느리게 해서 감속처럼 보이게
+        roll_step_ms += roll_step_growth
+        next_tick_time = now + roll_step_ms
 
 def main():
     running = True
@@ -106,6 +110,10 @@ def main():
                 running = False
             elif event.type == MOUSEBUTTONDOWN and event.button == 1:
                 if not rolling and button_rect.collidepoint(event.pos):
+                    start_roll()
+            elif event.type == KEYDOWN:
+                # 스페이스바로도 굴리기 시작
+                if event.key == K_SPACE and not rolling:
                     start_roll()
 
         if rolling:
@@ -121,8 +129,8 @@ def main():
         btn_text = "Button" if not rolling else "wooooo..."
         draw_button(screen, button_rect, btn_text, enabled=not rolling, hover=hover and not rolling)
 
-        # 결과 안내
-        result_text = font_mid.render(f"'No.: {current_value}", True, (50, 50, 50))
+        # 결과 안내 (앞의 작은 따옴표 제거)
+        result_text = font_mid.render(f"No.: {current_value}", True, (50, 50, 50))
         screen.blit(result_text, result_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 120)))
 
         pygame.display.flip()
