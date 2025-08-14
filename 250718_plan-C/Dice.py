@@ -41,7 +41,8 @@ button_rect = pygame.Rect(0, 0, 160, 48)
 button_rect.center = (WIDTH // 2, HEIGHT - 60)
 
 # 상태
-current_value = 1
+dice1_value = 1
+dice2_value = 1
 rolling = False
 roll_end_time = 0
 next_tick_time = 0
@@ -83,13 +84,14 @@ def start_roll():
 
     # 굴리는 동안 숫자/위치 업데이트 (감속 애니메이션)
 def update_roll():
-    global rolling, current_value, dice_rect, next_tick_time, roll_end_time, roll_step_ms
+    global rolling, dice1_value, dice2_value, dice1_rect, dice2_rect, next_tick_time
     now = pygame.time.get_ticks()
-
     if now >= roll_end_time:
         rolling = False
-        current_value = random.randint(1, 6)  # 최종 값
-        dice_rect.center = (WIDTH // 2, HEIGHT // 2 - 30)  # 중앙 복귀
+        dice1_value = random.randint(1, 6)
+        dice2_value = random.randint(1, 6)
+        dice1_rect.center = (WIDTH // 2 - 100, HEIGHT // 2 - 30)
+        dice2_rect.center = (WIDTH // 2 + 100, HEIGHT // 2 - 30)
         return
 
     # 틱마다 숫자/위치 갱신 (작게 흔들리는 효과)
