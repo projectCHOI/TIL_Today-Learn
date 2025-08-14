@@ -29,8 +29,12 @@ font_small = pygame.font.SysFont(None, 24)
 
 # 주사위 속성
 DICE_SIZE = 140
-dice_rect = pygame.Rect(0, 0, DICE_SIZE, DICE_SIZE)
-dice_rect.center = (WIDTH // 2, HEIGHT // 2 - 30)
+# 첫 번째 주사위
+dice1_rect = pygame.Rect(0, 0, DICE_SIZE, DICE_SIZE)
+dice1_rect.center = (WIDTH // 2 - 100, HEIGHT // 2 - 30)
+# 두 번째 주사위
+dice2_rect = pygame.Rect(0, 0, DICE_SIZE, DICE_SIZE)
+dice2_rect.center = (WIDTH // 2 + 100, HEIGHT // 2 - 30)
 
 # 버튼
 button_rect = pygame.Rect(0, 0, 160, 48)
