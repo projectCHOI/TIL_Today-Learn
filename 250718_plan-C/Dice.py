@@ -96,10 +96,13 @@ def update_roll():
 
     # 틱마다 숫자/위치 갱신 (작게 흔들리는 효과)
     if now >= next_tick_time:
-        current_value = random.randint(1, 6)
+        dice1_value = random.randint(1, 6)
+        dice2_value = random.randint(1, 6)
         dx = random.randint(-8, 8)
         dy = random.randint(-8, 8)
-        dice_rect.center = (WIDTH // 2 + dx, HEIGHT // 2 - 30 + dy)
+        dice1_rect.center = (WIDTH // 2 - 100 + dx, HEIGHT // 2 - 30 + dy)
+        dice2_rect.center = (WIDTH // 2 + 100 + dx, HEIGHT // 2 - 30 + dy)
+        next_tick_time = now + 80
         # 다음 틱을 더 느리게 해서 감속처럼 보이게
         roll_step_ms += roll_step_growth
         next_tick_time = now + roll_step_ms
@@ -130,13 +133,17 @@ def main():
         title = font_small.render("press the button", True, (80, 80, 80))
         screen.blit(title, (20, 16))
 
-        draw_dice(screen, dice_rect, current_value, highlight=rolling)
+        draw_dice(screen, dice1_rect, dice1_value, highlight=rolling)
+        draw_dice(screen, dice2_rect, dice2_value, highlight=rolling)
 
         btn_text = "Button" if not rolling else "wooooo..."
         draw_button(screen, button_rect, btn_text, enabled=not rolling, hover=hover and not rolling)
 
-        # 결과 안내 (앞의 작은 따옴표 제거)
-        result_text = font_mid.render(f"No.: {current_value}", True, (50, 50, 50))
+        # 결과 안내
+        result_text = font_mid.render(
+            f"No.: {dice1_value} + {dice2_value} = {dice1_value + dice2_value}",
+            True, (50, 50, 50)
+        )
         screen.blit(result_text, result_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 120)))
 
         pygame.display.flip()
