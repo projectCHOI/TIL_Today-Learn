@@ -82,10 +82,11 @@ def start_roll():
     roll_end_time = now + roll_duration_ms
     next_tick_time = now + roll_step_ms
 
-    # 굴리는 동안 숫자/위치 업데이트 (감속 애니메이션)
+# 굴리는 동안 숫자/위치 업데이트 (감속 애니메이션)
 def update_roll():
-    global rolling, dice1_value, dice2_value, dice1_rect, dice2_rect, next_tick_time
+    global rolling, dice1_value, dice2_value, dice1_rect, dice2_rect, next_tick_time, roll_end_time, roll_step_ms, roll_step_growth
     now = pygame.time.get_ticks()
+
     if now >= roll_end_time:
         rolling = False
         dice1_value = random.randint(1, 6)
@@ -94,16 +95,19 @@ def update_roll():
         dice2_rect.center = (WIDTH // 2 + 100, HEIGHT // 2 - 30)
         return
 
-    # 틱마다 숫자/위치 갱신 (작게 흔들리는 효과)
     if now >= next_tick_time:
+        # 값 갱신
         dice1_value = random.randint(1, 6)
         dice2_value = random.randint(1, 6)
-        dx = random.randint(-8, 8)
-        dy = random.randint(-8, 8)
-        dice1_rect.center = (WIDTH // 2 - 100 + dx, HEIGHT // 2 - 30 + dy)
-        dice2_rect.center = (WIDTH // 2 + 100 + dx, HEIGHT // 2 - 30 + dy)
-        next_tick_time = now + 80
-        # 다음 틱을 더 느리게 해서 감속처럼 보이게
+
+        # (선택) 두 주사위를 서로 다르게 흔들면 더 자연스러움
+        dx1, dy1 = random.randint(-8, 8), random.randint(-8, 8)
+        dx2, dy2 = random.randint(-8, 8), random.randint(-8, 8)
+
+        dice1_rect.center = (WIDTH // 2 - 100 + dx1, HEIGHT // 2 - 30 + dy1)
+        dice2_rect.center = (WIDTH // 2 + 100 + dx2, HEIGHT // 2 - 30 + dy2)
+
+        # 감속: 다음 틱 간격을 점점 늘림
         roll_step_ms += roll_step_growth
         next_tick_time = now + roll_step_ms
 
