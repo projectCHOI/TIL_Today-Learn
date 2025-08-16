@@ -127,9 +127,11 @@ def main():
         btn_text = "Roll Dice" if not rolling else "Rolling..."
         draw_button(screen, button_rect, btn_text, enabled=not rolling, hover=hover and not rolling)
 
-        # 합계 출력
-        total = sum(dice_values)
-        result_text = font_mid.render(f"Total: {total}", True, (50, 50, 50))
+        # 오름차순 출력
+        sorted_vals = sorted(dice_values)
+        nums_str = " ".join(str(v) for v in sorted_vals)
+
+        result_text = font_mid.render(f"Sorted: {nums_str}", True, (50, 50, 50))
         screen.blit(result_text, result_text.get_rect(center=(WIDTH // 2, HEIGHT - 100)))
 
         pygame.display.flip()
