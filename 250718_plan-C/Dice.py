@@ -83,7 +83,7 @@ def update_roll():
     now = pygame.time.get_ticks()
     if now >= roll_end_time:
         rolling = False
-        dice_values = [random.randint(1, 6) for _ in range(6)]
+        dice_values = [random.randint(DICE_MIN, DICE_MAX) for _ in range(6)]
         # 위치 원위치
         for i, rect in enumerate(dice_rects):
             row, col = divmod(i, 3)
@@ -91,7 +91,7 @@ def update_roll():
         return
 
     if now >= next_tick_time:
-        dice_values = [random.randint(1, 6) for _ in range(6)]
+        dice_values = [random.randint(DICE_MIN, DICE_MAX) for _ in range(6)]
         for i, rect in enumerate(dice_rects):
             dx, dy = random.randint(-6, 6), random.randint(-6, 6)
             rect.move_ip(dx, dy)
