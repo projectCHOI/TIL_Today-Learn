@@ -28,7 +28,9 @@ font_small = pygame.font.SysFont(None, 24)
 
 # 주사위 속성
 DICE_SIZE = 100
-dice_values = [1] * 6
+DICE_MIN = 1
+DICE_MAX = 45
+dice_values = [DICE_MIN] * 6
 dice_rects = []
 
 # 2행 3열 배치
