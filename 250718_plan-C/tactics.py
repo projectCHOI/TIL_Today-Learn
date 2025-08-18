@@ -14,6 +14,22 @@ GRAY = (200, 200, 200)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
+
+# === 이동 가능 칸 계산 ===  # NEW
+def in_bounds(x, y):
+    return 0 <= x < COLS and 0 <= y < ROWS
+
+def get_movable_tiles(unit):
+    tiles = []
+    occupied = {(u.x, u.y) for u in units}
+    for dx in range(-unit.move_range, unit.move_range + 1):
+        for dy in range(-unit.move_range, unit.move_range + 1):
+            if abs(dx) + abs(dy) <= unit.move_range:
+                x, y = unit.x + dx, unit.y + dy
+                if in_bounds(x, y) and (x, y) not in occupied and not (x == unit.x and y == unit.y):
+                    tiles.append((x, y))
+    return tiles
+
 # === 유닛 클래스 ===
 class Unit:
     def __init__(self, x, y, color, move_range=3, hp=3):
