@@ -88,8 +88,9 @@ def main():
         win.fill(WHITE)
 
         draw_grid()
-        for u in units:
-            u.draw(win)
+        for u in units: u.draw(win)
+        if selected:
+            for gx, gy in get_movable_tiles(selected):
 
         # 턴 표시
         font = pygame.font.SysFont(None, 30)
