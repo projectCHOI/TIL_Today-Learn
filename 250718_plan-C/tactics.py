@@ -91,6 +91,12 @@ def main():
         for u in units: u.draw(win)
         if selected:
             for gx, gy in get_movable_tiles(selected):
+                    pygame.draw.circle(
+                    win,
+                    BLACK,
+                    (gx * TILE_SIZE + TILE_SIZE // 2, gy * TILE_SIZE + TILE_SIZE // 2),
+                    4
+                )    
 
         # 턴 표시
         font = pygame.font.SysFont(None, 30)
