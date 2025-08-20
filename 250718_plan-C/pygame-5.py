@@ -171,9 +171,14 @@ while running:
         if e.type == pygame.QUIT: running = False
         if e.type == pygame.KEYDOWN:
             if e.key == pygame.K_ESCAPE: running = False
-            if e.key == pygame.K_r: player.rect.topleft=(100, HEIGHT-120); player.vx=player.vy=0
-            if e.key == pygame.K_SPACE:
-                # 점프 입력 버퍼에 기록
+            if e.key == pygame.K_r:
+                player.rect.topleft = (100, HEIGHT-120)
+                player.vx = player.vy = 0
+                player.on_ground = False
+                player.coyote = 0
+                player.jump_buf = 0
+                game_clear = False   # [NEW] 클리어 상태 초기화
+            if e.key == pygame.K_SPACE and not game_clear:
                 player.queue_jump()
 
     keys = pygame.key.get_pressed()
