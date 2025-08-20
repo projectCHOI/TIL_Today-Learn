@@ -153,6 +153,13 @@ goal_radius = max(8, int(player.rect.w * 0.5 * 0.5))  # 원 크기
 goal_pos = [WIDTH - 60, 120]  # 원하는 위치
 game_clear = False             # 게임 클리어 상태
 
+def rect_circle_collide(rect, cx, cy, r):
+    nearest_x = max(rect.left, min(cx, rect.right))
+    nearest_y = max(rect.top,  min(cy, rect.bottom))
+    dx = cx - nearest_x
+    dy = cy - nearest_y
+    return (dx*dx + dy*dy) <= r*r
+
 def draw_hud():
     text = font.render("←/→ Move, SPACE Jump | R: Reset | ESC: Quit", True, BLACK)
     win.blit(text, (10, 10))
