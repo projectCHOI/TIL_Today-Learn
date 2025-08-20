@@ -7,6 +7,7 @@ win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Simple Platformer - Improved")
 
 WHITE=(255,255,255); BLUE=(0,120,255); GREEN=(40,180,60); BLACK=(0,0,0)
+RED = (255, 0, 0)
 
 GRAVITY = 2000     # px/s^2
 MOVE_ACC = 4000    # 좌우 가속
@@ -147,6 +148,10 @@ platforms = [
 ]
 
 player = Player(100, HEIGHT - 120)
+
+goal_radius = max(8, int(player.rect.w * 0.5 * 0.5))  # 원 크기
+goal_pos = [WIDTH - 60, 120]  # 원하는 위치
+game_clear = False             # 게임 클리어 상태
 
 def draw_hud():
     text = font.render("←/→ Move, SPACE Jump | R: Reset | ESC: Quit", True, BLACK)
