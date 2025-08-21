@@ -184,6 +184,14 @@ while running:
     keys = pygame.key.get_pressed()
 
 if not game_clear:
+    # 타겟 원 그리기
+    pygame.draw.circle(win, RED, goal_pos, goal_radius)
+
+    # 플랫폼 그리기
+    for p in platforms:
+        p.draw(win)
+    player.draw(win)
+
     # 플랫폼 업데이트
     for p in platforms:
         p.update(dt)
