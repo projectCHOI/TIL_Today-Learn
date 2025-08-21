@@ -183,12 +183,17 @@ while running:
 
     keys = pygame.key.get_pressed()
 
-    # 플랫폼 업데이트(이동 발판)
+if not game_clear:
+    # 플랫폼 업데이트
     for p in platforms:
         p.update(dt)
 
     # 플레이어 업데이트
     player.update(dt, platforms, keys)
+
+    # [NEW] 목표물 충돌 체크
+    if rect_circle_collide(player.rect, goal_pos[0], goal_pos[1], goal_radius):
+        game_clear = True
 
     # 렌더
     win.fill(WHITE)
@@ -199,3 +204,6 @@ while running:
     
 pygame.quit()
 sys.exit()
+
+
+# (2) 업데이트 부분
