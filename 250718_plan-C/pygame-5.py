@@ -183,6 +183,10 @@ while running:
 
     keys = pygame.key.get_pressed()
 
+if game_clear:
+    msg = font.render("STAGE CLEAR! (R: Reset, ESC: Quit)", True, BLACK)
+    win.blit(msg, (WIDTH//2 - msg.get_width()//2, 40))
+
 if not game_clear:
     # 타겟 원 그리기
     pygame.draw.circle(win, RED, goal_pos, goal_radius)
