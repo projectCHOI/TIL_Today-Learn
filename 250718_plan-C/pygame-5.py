@@ -149,9 +149,14 @@ platforms = [
 
 player = Player(100, HEIGHT - 120)
 
-goal_radius = max(8, int(player.rect.w * 0.5 * 0.5))  # 원 크기
-goal_pos = [WIDTH - 60, 120]  # 원하는 위치
-game_clear = False             # 게임 클리어 상태
+# 목표물
+# 몇 번째 목표물 위인지 선택 (0=바닥, 1=첫 번째, 2=두 번째, ...)
+target_platform = 2  
+plat = platforms[target_platform]
+
+goal_radius = max(8, int(player.rect.w * 0.5 * 0.5))  # 플레이어 절반 크기
+goal_pos = [plat.rect.centerx, plat.rect.top - goal_radius]  # 목표물 위 중앙
+game_clear = False
 
 def rect_circle_collide(rect, cx, cy, r):
     nearest_x = max(rect.left, min(cx, rect.right))
