@@ -44,13 +44,29 @@ def adsr_envelope(total_samples, sr, A=0.005, D=0.03, S=0.8, R=0.02):
         env[a+d+s+r:] = 0.0
     return env
 
-# === 정사각파 생성 함수 ===
 def square_wave(freq, duration, volume=1.0):
+    n = int(sample_rate * duration)
+    if n <= 0:
+        return np.array([], dtype=np.float32)
     if freq == 0:
-        return np.zeros(int(sample_rate * duration))
-    t = np.linspace(0, duration, int(sample_rate * duration), False)
-    wave = 0.5 * np.sign(np.sin(2 * np.pi * freq * t))
-    return wave * volume
+        return np.zeros(n, dtype=np.float32)
+
+    t = np.arange(n) / sample_rate
+
+    # 기본 정사각파
+    wave = 0.5 * np.sign(np.sin(2 * np.pi * freq * t)).astype(np.float32)
+
+    # ADSR 적용
+    env = adsr_envelope(n, sample_rate, A=0.005, D=0.03, S=0.8, R=0.02)
+    wave *= env
+
+    # 미세 페이드(경계 클릭 더 줄이기, 2ms)
+    fade = int(0.002 * sample_rate)
+    if fade > 1 and fade*2 < n:
+        wave[:fade] *= np.linspace(0, 1, fade, endpoint=False).astype(np.float32)
+        wave[-fade:] *= np.linspace(1, 0, fade, endpoint=False).astype(np.float32)
+
+    return wave * float(volume)
 
 # === 음계 해석 함수 (+ / - 처리 포함) ===
 def get_note_freq(note):
