@@ -24,6 +24,10 @@ note_base_freqs = {
     "시": 493.88
 }
 
+def adsr_envelope(total_samples, sr, A=0.005, D=0.03, S=0.8, R=0.02):
+    a = int(A * sr); d = int(D * sr); r = int(R * sr)
+    s = max(total_samples - (a + d + r), 0)
+    
 # === 정사각파 생성 함수 ===
 def square_wave(freq, duration, volume=1.0):
     if freq == 0:
