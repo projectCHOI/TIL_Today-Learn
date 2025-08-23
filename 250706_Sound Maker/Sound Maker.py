@@ -27,7 +27,23 @@ note_base_freqs = {
 def adsr_envelope(total_samples, sr, A=0.005, D=0.03, S=0.8, R=0.02):
     a = int(A * sr); d = int(D * sr); r = int(R * sr)
     s = max(total_samples - (a + d + r), 0)
-    
+    env = np.zeros(total_samples, dtype=np.float32)
+    # Attack
+    if a > 0:
+        env[:a] = np.linspace(0.0, 1.0, a, endpoint=False)
+    # Decay
+    if d > 0:
+        env[a:a+d] = np.linspace(1.0, S, d, endpoint=False)
+    # Sustain
+    if s > 0:
+        env[a+d:a+d+s] = S
+    # Release
+    if r > 0:
+        env[a+d+s:a+d+s+r] = np.linspace(S, 0.0, r, endpoint=False)
+    if a + d + s + r < total_samples:
+        env[a+d+s+r:] = 0.0
+    return env
+
 # === 정사각파 생성 함수 ===
 def square_wave(freq, duration, volume=1.0):
     if freq == 0:
