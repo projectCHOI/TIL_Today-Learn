@@ -49,6 +49,15 @@ def adsr_envelope(total_samples, sr, A=0.005, D=0.03, S=0.8, R=0.02):
         env[a+d+s+r:] = 0.0
     return env
 
+def get_note_seconds(note_length_label: str):
+    # "2분", "4분", "8분" 중 선택된 라벨을 초 단위 길이로 변환
+    if note_length_label == "2분":
+        return quarter_sec * 2.0
+    elif note_length_label == "8분":
+        return quarter_sec * 0.5
+    else:
+        return quarter_sec  # 기본: 4분음표
+    
 def square_wave(freq, duration, volume=1.0):
     n = int(sample_rate * duration)
     if n <= 0:
