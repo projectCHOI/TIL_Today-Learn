@@ -13,6 +13,11 @@ volume = 0.5
 output_dir = r"C:/Users/boss3/OneDrive/바탕 화면/GitHub/TIL_Today-Learn/250706_Sound Maker/Download"
 os.makedirs(output_dir, exist_ok=True)
 
+# === 박자/BPM 설정 ===
+BPM = 120
+beat_per_sec = BPM / 60.0
+quarter_sec = 1.0 / beat_per_sec  # 4분음표 길이(초)
+
 # === 음계 주파수 (C4 기준) ===
 note_base_freqs = {
     "도": 261.63,
