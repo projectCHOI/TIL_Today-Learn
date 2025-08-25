@@ -223,6 +223,16 @@ filename_var = tk.StringVar(value="click_composed.wav")
 entry_filename = tk.Entry(frame_repeat, width=20, textvariable=filename_var)
 entry_filename.pack(side="left", padx=5)
 
+# 음 길이 선택
+frame_len = tk.Frame(root)
+frame_len.pack(pady=5)
+
+tk.Label(frame_len, text="음 길이:").pack(side="left")
+
+note_len_var = tk.StringVar(value="4분")  # 기본값
+opt_len = tk.OptionMenu(frame_len, note_len_var, "2분", "4분", "8분")
+opt_len.pack(side="left", padx=6)
+
 frame_ctrl = tk.Frame(root)
 frame_ctrl.pack(pady=15)
 btn_reset = tk.Button(frame_ctrl, text="⏪ 초기화", command=reset_notes, width=10)
