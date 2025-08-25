@@ -142,7 +142,8 @@ def generate_music():
     melody = []
     for note in sequence:
         freq = get_note_freq(note)
-        tone = square_wave(freq, note_duration, volume)
+        dur = get_note_seconds(note_len_var.get())  # 추가: 선택한 음 길이(초)
+        tone = square_wave(freq, dur, volume)
         pause = np.zeros(int(sample_rate * pause_duration))
         melody.extend(tone)
         melody.extend(pause)
