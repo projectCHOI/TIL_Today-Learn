@@ -95,7 +95,21 @@ def get_note_freq(note):
         return base
 
 # 미리듣기(짧게 0.15초)
-_preview_sound = None  # 마지막 프리뷰 참조(중첩 재생 방지용)
+_preview_sound = None
+
+def preview_tone(freq, dur=0.15, vol=0.6):
+    global _preview_sound
+    try:
+        if freq <= 0:
+            return
+        snd = square_wave(freq, dur, vol)
+        snd_pcm = (snd * 32767).astype(np.int16)
+
+        import pygame.sndarray
+        _preview_sound = pygame.sndarray.make_sound(snd_pcm)
+        _preview_sound.play()
+    except Exception:
+        pass
 
 # === 선택된 음 리스트 ===
 selected_notes = []
