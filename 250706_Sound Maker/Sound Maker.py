@@ -94,6 +94,9 @@ def get_note_freq(note):
     else:
         return base
 
+# 미리듣기(짧게 0.15초)
+_preview_sound = None  # 마지막 프리뷰 참조(중첩 재생 방지용)
+
 # === 선택된 음 리스트 ===
 selected_notes = []
 
