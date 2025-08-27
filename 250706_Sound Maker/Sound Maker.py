@@ -147,6 +147,9 @@ def delete_last_note():
 
 # === 음악 생성 함수 ===
 def generate_music():
+    if not selected_notes:
+        messagebox.showwarning("생성 오류", "먼저 음을 하나 이상 추가하세요.")
+        return
     pygame.mixer.music.stop()
     try:
         reps = int(repeat_var.get())
