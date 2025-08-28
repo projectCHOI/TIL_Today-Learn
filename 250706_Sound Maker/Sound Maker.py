@@ -4,6 +4,7 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 import pygame
+import json
 
 # === 사운드 설정 ===
 sample_rate = 44100
