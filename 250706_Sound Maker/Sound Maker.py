@@ -191,7 +191,6 @@ def play_music():
     pygame.mixer.music.play()
 
 def save_project():
-    """현재 악보/설정 상태를 output_dir/project.json에 저장합니다."""
     try:
         data = {
             "notes": selected_notes,                     # 선택한 음 리스트
@@ -208,6 +207,27 @@ def save_project():
         messagebox.showinfo("저장 완료", f"프로젝트 저장: {path}")
     except Exception as e:
         messagebox.showerror("저장 오류", f"프로젝트 저장 중 문제가 발생했습니다.\n{e}")
+
+def load_project():
+    global BPM, beat_per_sec, quarter_sec
+    try:
+        path = os.path.join(output_dir, "project.json")
+        if not os.path.exists(path):
+            messagebox.showwarning("불러오기", "project.json 파일이 없습니다.")
+            return
+
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        # 음 리스트 복원
+        selected_notes.clear()
+        selected_notes.extend(data.get("notes", []))
+        update_staff()
+
+        # BPM 및 파생값 복원
+        BPM = int(data.get("bpm", BPM))
+        beat_per_sec = BPM / 60.0
+        quarter_sec = 1.0 / beat_per_sec
 
 # === tkinter GUI ===
 root = tk.Tk()
