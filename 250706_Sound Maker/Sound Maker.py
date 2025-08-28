@@ -190,6 +190,25 @@ def play_music():
     pygame.mixer.music.load(filepath)
     pygame.mixer.music.play()
 
+def save_project():
+    """현재 악보/설정 상태를 output_dir/project.json에 저장합니다."""
+    try:
+        data = {
+            "notes": selected_notes,                     # 선택한 음 리스트
+            "bpm": BPM,                                  # 현재 BPM 값
+            "note_length": note_len_var.get(),           # "2분"/"4분"/"8분"
+            "repeat": repeat_var.get(),                  # 반복 횟수(문자열 그대로 저장)
+            "filename": filename_var.get(),              # 파일명 입력값
+            "pause_duration": pause_duration,            # 현재 휴지 길이(초)
+            "volume": volume                             # 현재 볼륨(0.0~1.0)
+        }
+        path = os.path.join(output_dir, "project.json")
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        messagebox.showinfo("저장 완료", f"프로젝트 저장: {path}")
+    except Exception as e:
+        messagebox.showerror("저장 오류", f"프로젝트 저장 중 문제가 발생했습니다.\n{e}")
+
 # === tkinter GUI ===
 root = tk.Tk()
 root.title("마우스 클릭 8비트 작곡기")
