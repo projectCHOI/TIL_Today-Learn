@@ -229,6 +229,14 @@ def load_project():
         beat_per_sec = BPM / 60.0
         quarter_sec = 1.0 / beat_per_sec
 
+        # 음 길이/반복/파일명/기타 복원
+        if "note_length" in data:
+            note_len_var.set(data["note_length"])
+        if "repeat" in data:
+            repeat_var.set(str(data["repeat"]))
+        if "filename" in data:
+            filename_var.set(data["filename"])
+            
 # === tkinter GUI ===
 root = tk.Tk()
 root.title("마우스 클릭 8비트 작곡기")
