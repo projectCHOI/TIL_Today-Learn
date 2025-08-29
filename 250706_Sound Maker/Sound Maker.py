@@ -236,7 +236,18 @@ def load_project():
             repeat_var.set(str(data["repeat"]))
         if "filename" in data:
             filename_var.set(data["filename"])
-            
+
+        # 휴지/볼륨
+        global pause_duration, volume
+        if "pause_duration" in data:
+            pause_duration = float(data["pause_duration"])
+        if "volume" in data:
+            volume = float(data["volume"])
+
+        messagebox.showinfo("불러오기 완료", "프로젝트를 불러왔습니다.")
+    except Exception as e:
+        messagebox.showerror("불러오기 오류", f"프로젝트 불러오기 중 문제가 발생했습니다.\n{e}")
+
 # === tkinter GUI ===
 root = tk.Tk()
 root.title("마우스 클릭 8비트 작곡기")
