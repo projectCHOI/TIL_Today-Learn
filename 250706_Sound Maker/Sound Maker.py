@@ -238,11 +238,11 @@ def load_project():
             filename_var.set(data["filename"])
 
         # 휴지/볼륨
-        global pause_duration, volume
-        if "pause_duration" in data:
-            pause_duration = float(data["pause_duration"])
-        if "volume" in data:
-            volume = float(data["volume"])
+        # global pause_duration, volume
+        # if "pause_duration" in data:
+        #     pause_duration = float(data["pause_duration"])
+        # if "volume" in data:
+        #     volume = float(data["volume"])
 
         messagebox.showinfo("불러오기 완료", "프로젝트를 불러왔습니다.")
     except Exception as e:
