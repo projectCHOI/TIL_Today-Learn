@@ -323,5 +323,7 @@ btn_gen = tk.Button(frame_ctrl, text="🎶 생성", command=generate_music, widt
 btn_gen.pack(side="left", padx=10)
 btn_play = tk.Button(frame_ctrl, text="▶️ 재생", command=play_music, width=10)
 btn_play.pack(side="left", padx=10)
+btn_save = tk.Button(frame_ctrl, text="💾 저장", command=save_project, width=10)
+btn_save.pack(side="left", padx=10)
 
 root.mainloop()
