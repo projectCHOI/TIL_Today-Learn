@@ -325,5 +325,7 @@ btn_play = tk.Button(frame_ctrl, text="▶️ 재생", command=play_music, width
 btn_play.pack(side="left", padx=10)
 btn_save = tk.Button(frame_ctrl, text="💾 저장", command=save_project, width=10)
 btn_save.pack(side="left", padx=10)
+btn_load = tk.Button(frame_ctrl, text="📂 불러오기", command=load_project, width=10)
+btn_load.pack(side="left", padx=10)
 
 root.mainloop()
