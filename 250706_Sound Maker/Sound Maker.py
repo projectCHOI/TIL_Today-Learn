@@ -35,6 +35,10 @@ NOTE_Y_OFFSET = {
     "도":   24, "레":   16, "미":    8, "파":    0, "솔":   -8, "라":  -16, "시":  -24,
     "도+": -32, "레+": -40, "미+": -48, "파+": -56, "솔+": -64, "라+": -72, "시+": -80,
 }
+DOT_RADIUS = 5
+STAFF_ROW_OFFSET = 30     # 각 행의 시작 y (이미 오선 그릴 때 쓰는 값과 맞춰둠)
+STAFF_ROW_GAP = 100       # 행 간 간격 (코드에서 row*100과 일치)
+DOT_BASE_OFFSET = 70      # 행 기준(base_y)에서 점의 기준 위치(중앙 부근)
 
 def adsr_envelope(total_samples, sr, A=0.005, D=0.03, S=0.8, R=0.02):
     a = int(A * sr); d = int(D * sr); r = int(R * sr)
