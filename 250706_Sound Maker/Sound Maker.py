@@ -133,12 +133,14 @@ pygame.mixer.init()
 def update_staff():
     staff_canvas.delete("note")
     max_per_row = 20
+
     for idx, note in enumerate(selected_notes):
         row = idx // max_per_row
         col = idx % max_per_row
+
+        # 좌표 계산
         x = 30 + col * 30
-        y = 30 + row * 100
-        staff_canvas.create_text(x, y + 40, text=note, tag="note", font=("맑은 고딕", 12))
+        base_y = STAFF_ROW_OFFSET + row * STAFF_ROW_GAP  # 행 시작 y (오선 첫 줄 y와 일치)
 
 # === 노트 추가/초기화/삭제 함수 ===
 def add_note(note):
