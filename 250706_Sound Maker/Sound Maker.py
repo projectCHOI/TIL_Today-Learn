@@ -150,7 +150,13 @@ def update_staff():
                 x + DOT_RADIUS, y_dot + DOT_RADIUS,
                 fill="black", outline="", tag="note"
             )
-            
+        else:
+            # 쉼표는 작은 사각형
+            y_rest = base_y + DOT_BASE_OFFSET
+            staff_canvas.create_rectangle(
+                x - 4, y_rest - 4, x + 4, y_rest + 4,
+                fill="", outline="black", tag="note"
+            )    
 # === 노트 추가/초기화/삭제 함수 ===
 def add_note(note):
     selected_notes.append(note)
