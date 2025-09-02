@@ -142,6 +142,15 @@ def update_staff():
         x = 30 + col * 30
         base_y = STAFF_ROW_OFFSET + row * STAFF_ROW_GAP  # 행 시작 y (오선 첫 줄 y와 일치)
 
+        # ● 점표기
+        if note != "쉼표":
+            y_dot = base_y + DOT_BASE_OFFSET + NOTE_Y_OFFSET.get(note, 0)
+            staff_canvas.create_oval(
+                x - DOT_RADIUS, y_dot - DOT_RADIUS,
+                x + DOT_RADIUS, y_dot + DOT_RADIUS,
+                fill="black", outline="", tag="note"
+            )
+            
 # === 노트 추가/초기화/삭제 함수 ===
 def add_note(note):
     selected_notes.append(note)
