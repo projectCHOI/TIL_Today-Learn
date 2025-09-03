@@ -156,7 +156,12 @@ def update_staff():
             staff_canvas.create_rectangle(
                 x - 4, y_rest - 4, x + 4, y_rest + 4,
                 fill="", outline="black", tag="note"
-            )    
+            )
+        # 음 이름 라벨(아래쪽에 작게)
+        staff_canvas.create_text(
+            x, base_y + 90,
+            text=note, tag="note", font=("맑은 고딕", 10)
+        )    
 # === 노트 추가/초기화/삭제 함수 ===
 def add_note(note):
     selected_notes.append(note)
