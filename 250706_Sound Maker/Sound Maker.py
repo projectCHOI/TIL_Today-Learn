@@ -162,6 +162,13 @@ def update_staff():
             x, base_y + 90,
             text=note, tag="note", font=("맑은 고딕", 10)
         )    
+
+def note_to_canvas_y(note, row):
+    base_y = STAFF_ROW_OFFSET + row * STAFF_ROW_GAP
+    if note == "쉼표":
+        return base_y + DOT_BASE_OFFSET
+    return base_y + DOT_BASE_OFFSET + NOTE_Y_OFFSET.get(note, 0)
+
 # === 노트 추가/초기화/삭제 함수 ===
 def add_note(note):
     selected_notes.append(note)
