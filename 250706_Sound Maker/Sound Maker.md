@@ -86,3 +86,21 @@
 * **반복** 횟수 입력, **파일명** 입력(`.wav` 기본)
 * **음 길이** 드롭다운: `2분/4분/8분` (기본 `4분`)
 * 버튼: `⏪ 초기화` / `❌ 삭제(마지막 음)` / `🎶 생성(파일 저장)` / `▶️ 재생` / `💾 저장(JSON)` / `📂 불러오기(JSON)`
+
+---
+
+## 5. 주요 함수 설명
+
+* `adsr_envelope(total_samples, sr, A, D, S, R)`: ADSR 곡선 생성
+* `get_note_seconds(label)`: UI 음 길이를 초로 변환
+* `square_wave(freq, duration, volume)`: 정사각파 생성 + ADSR + 페이드
+* `get_note_freq(note)`: 계이름을 Hz로 변환 (+/− 옥타브, 쉼표 처리 포함)
+* `preview_tone(freq, dur, vol)`: 짧은 미리듣기 (현재 UI에서 직접 연결되지 않음)
+* `update_staff()`: 오선지 캔버스 갱신(음표/쉼표/라벨)
+* `add_note(note)`: 선택한 음 리스트에 추가 후 갱신
+* `reset_notes()`: 초기화(리스트/반복/파일명)
+* `delete_last_note()`: 마지막 음 삭제 후 갱신
+* `generate_music()`: 시퀀스(반복 적용) → 파형 생성 → WAV 저장
+* `play_music()`: 지정 파일 로드 및 재생(pygame)
+* `save_project()`: 프로젝트 상태를 JSON으로 저장
+* `load_project()`: JSON 로드 후 상태 복원(BPM 재계산 포함)
