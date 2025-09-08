@@ -13,25 +13,21 @@ BLUE  = (0, 0, 255)
 RED   = (255, 0, 0)
 BLACK = (0, 0, 0)
 
+clock = pygame.time.Clock()
+font_big   = pygame.font.SysFont(None, 50)
+font_small = pygame.font.SysFont(None, 28)
+
 # 패들 설정
-paddle_width, paddle_height = 100, 10
-paddle_x = WIDTH // 2 - paddle_width // 2
-paddle_y = HEIGHT - 30
+paddle_width, paddle_height = 100, 12
 paddle_speed = 8
 
 # 공 설정
 ball_radius = 8
-ball_x = WIDTH // 2
-ball_y = HEIGHT // 2
-ball_dx = 4
-ball_dy = -4
+base_ball_speed = 4  # 스테이지마다 약간 빨라지게 활용
 
-# 벽돌 설정
-brick_rows = 5
-brick_cols = 8
-brick_width = WIDTH // brick_cols
-brick_height = 30
-bricks = []
+# 벽돌 설정(공통)
+BRICK_COLS = 8
+BRICK_HEIGHT = 26
 
 for row in range(brick_rows):
     for col in range(brick_cols):
