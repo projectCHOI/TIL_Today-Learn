@@ -29,6 +29,32 @@ base_ball_speed = 4  # 스테이지마다 약간 빨라지게 활용
 BRICK_COLS = 8
 BRICK_HEIGHT = 26
 
+def build_bricks(rows, cols=BRICK_COLS, top_offset=50, h=BRICK_HEIGHT, gap=4):
+    bricks = []
+    brick_width = WIDTH // cols
+    for r in range(rows):
+        for c in range(cols):
+            # 좌우/상하 간격(gap)을 살짝 주어 보기 좋게
+            rect = pygame.Rect(
+                c * brick_width + gap//2,
+                top_offset + r * h + gap//2,
+                brick_width - gap,
+                h - gap
+            )
+            bricks.append(rect)
+    return bricks
+
+def draw_center_text(text, color, dy=0, big=True):
+    surf = (font_big if big else font_small).render(text, True, color)
+    win.blit(surf, (WIDTH//2 - surf.get_width()//2, HEIGHT//2 - surf.get_height()//2 + dy))
+
+def reset_positions():
+    paddle_x = WIDTH // 2 - paddle_width // 2
+    paddle_y = HEIGHT - 30
+    ball_x   = WIDTH // 2
+    ball_y   = HEIGHT // 2
+    return paddle_x, paddle_y, ball_x, ball_y
+### 
 for row in range(brick_rows):
     for col in range(brick_cols):
         bricks.append(pygame.Rect(col * brick_width, row * brick_height, brick_width - 2, brick_height - 2))
