@@ -54,7 +54,20 @@ def reset_positions():
     ball_x   = WIDTH // 2
     ball_y   = HEIGHT // 2
     return paddle_x, paddle_y, ball_x, ball_y
-### 
+
+def run_game():
+    # 스테이지 구성: 줄 수만 다르게
+    stages_rows = [2, 4, 6]  # 1: 2줄, 2: 4줄, 3: 6줄
+    stage_index = 0          # 0 → 1스테이지
+
+    # 초기화
+    paddle_x, paddle_y, ball_x, ball_y = reset_positions()
+    ball_dx, ball_dy = base_ball_speed, -base_ball_speed
+    bricks = build_bricks(stages_rows[stage_index])
+    bricks_destroyed_total = 0
+
+    running = True
+    
 for row in range(brick_rows):
     for col in range(brick_cols):
         bricks.append(pygame.Rect(col * brick_width, row * brick_height, brick_width - 2, brick_height - 2))
