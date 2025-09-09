@@ -85,7 +85,26 @@ def run_game():
             paddle_x -= paddle_speed
         if keys[pygame.K_RIGHT] and paddle_x < WIDTH - paddle_width:
             paddle_x += paddle_speed
-            
+
+        # 공 이동
+        ball_x += ball_dx
+        ball_y += ball_dy
+
+        # 공/패들/벽돌 사각형
+        ball_rect   = pygame.Rect(int(ball_x - ball_radius), int(ball_y - ball_radius), ball_radius*2, ball_radius*2)
+        paddle_rect = pygame.Rect(int(paddle_x), int(paddle_y), paddle_width, paddle_height)
+
+        # 벽 충돌 (반지름 고려)
+        if ball_x - ball_radius <= 0:
+            ball_x = ball_radius
+            ball_dx *= -1
+        elif ball_x + ball_radius >= WIDTH:
+            ball_x = WIDTH - ball_radius
+            ball_dx *= -1
+        if ball_y - ball_radius <= 0:
+            ball_y = ball_radius
+            ball_dy *= -1
+
 for row in range(brick_rows):
     for col in range(brick_cols):
         bricks.append(pygame.Rect(col * brick_width, row * brick_height, brick_width - 2, brick_height - 2))
