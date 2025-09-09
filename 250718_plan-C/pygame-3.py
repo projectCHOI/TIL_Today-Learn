@@ -67,7 +67,25 @@ def run_game():
     bricks_destroyed_total = 0
 
     running = True
-    
+
+    while running:
+        clock.tick(60)
+        win.fill(BLACK)
+
+        # 이벤트
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # 입력
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            running = False
+        if keys[pygame.K_LEFT] and paddle_x > 0:
+            paddle_x -= paddle_speed
+        if keys[pygame.K_RIGHT] and paddle_x < WIDTH - paddle_width:
+            paddle_x += paddle_speed
+            
 for row in range(brick_rows):
     for col in range(brick_cols):
         bricks.append(pygame.Rect(col * brick_width, row * brick_height, brick_width - 2, brick_height - 2))
