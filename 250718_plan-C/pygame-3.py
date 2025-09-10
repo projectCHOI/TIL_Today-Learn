@@ -154,7 +154,19 @@ def run_game():
             pygame.display.update()
             pygame.time.delay(1500)
             return  # 함수 종료 → 프로그램 종료
-                
+
+        # 스테이지 클리어 → 다음 스테이지로
+        if not bricks:
+            stage_index += 1
+            if stage_index >= len(stages_rows):
+                # 모든 스테이지 클리어 → 승리
+                win.fill(BLACK)
+                draw_center_text("You Win!", BLUE)
+                draw_center_text(f"Total Bricks: {bricks_destroyed_total}", WHITE, dy=50, big=False)
+                pygame.display.update()
+                pygame.time.delay(1500)
+                return
+                            
 for row in range(brick_rows):
     for col in range(brick_cols):
         bricks.append(pygame.Rect(col * brick_width, row * brick_height, brick_width - 2, brick_height - 2))
