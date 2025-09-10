@@ -105,6 +105,16 @@ def run_game():
             ball_y = ball_radius
             ball_dy *= -1
 
+        # 패들 충돌 (사각형 충돌)
+        if ball_rect.colliderect(paddle_rect) and ball_dy > 0:
+            # 튕길 때, 맞은 위치에 따라 약간의 각도 변화
+            hit_pos = (ball_x - paddle_rect.centerx) / (paddle_width / 2)
+            ball_dy *= -1
+            ball_dx = max(min(ball_dx + hit_pos * 2.0, 8), -8)  # 좌우 속도 살짝 조정
+
+            # 패들 위로 살짝 올려서 끼임 방지
+            ball_y = paddle_rect.top - ball_radius - 1
+        
 for row in range(brick_rows):
     for col in range(brick_cols):
         bricks.append(pygame.Rect(col * brick_width, row * brick_height, brick_width - 2, brick_height - 2))
