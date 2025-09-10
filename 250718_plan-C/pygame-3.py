@@ -114,7 +114,47 @@ def run_game():
 
             # 패들 위로 살짝 올려서 끼임 방지
             ball_y = paddle_rect.top - ball_radius - 1
-        
+
+        # 벽돌 충돌
+        hit_idx = -1
+        for i, brick in enumerate(bricks):
+            if brick.colliderect(ball_rect):
+                hit_idx = i
+                # 어느 축으로 반사할지 겹침량으로 판정
+                overlap_left   = ball_rect.right - brick.left
+                overlap_right  = brick.right - ball_rect.left
+                overlap_top    = ball_rect.bottom - brick.top
+                overlap_bottom = brick.bottom - ball_rect.top
+                min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+
+                if min_overlap == overlap_left:
+                    ball_x -= overlap_left
+                    ball_dx *= -1
+                elif min_overlap == overlap_right:
+                    ball_x += overlap_right
+                    ball_dx *= -1
+                elif min_overlap == overlap_top:
+                    ball_y -= overlap_top
+                    ball_dy *= -1
+                else:
+                    ball_y += overlap_bottom
+                    ball_dy *= -1
+                break
+
+        if hit_idx >= 0:
+            bricks.pop(hit_idx)
+            bricks_destroyed_total += 1
+            # ball_rect 갱신
+            ball_rect.x = int(ball_x - ball_radius)
+            ball_rect.y = int(ball_y - ball_radius)
+
+        # 바닥으로 떨어짐 → 게임오버
+        if ball_y - ball_radius >= HEIGHT:
+            draw_center_text("Game Over", RED)
+            pygame.display.update()
+            pygame.time.delay(1500)
+            return  # 함수 종료 → 프로그램 종료
+                
 for row in range(brick_rows):
     for col in range(brick_cols):
         bricks.append(pygame.Rect(col * brick_width, row * brick_height, brick_width - 2, brick_height - 2))
