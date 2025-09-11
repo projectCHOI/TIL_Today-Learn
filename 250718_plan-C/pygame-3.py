@@ -166,93 +166,38 @@ def run_game():
                 pygame.display.update()
                 pygame.time.delay(1500)
                 return
-                            
-for row in range(brick_rows):
-    for col in range(brick_cols):
-        bricks.append(pygame.Rect(col * brick_width, row * brick_height, brick_width - 2, brick_height - 2))
+            else:
+                # 다음 스테이지 준비
+                win.fill(BLACK)
+                draw_center_text(f"Stage {stage_index + 1}", WHITE)
+                pygame.display.update()
+                pygame.time.delay(800)
 
-# 폰트
-font = pygame.font.SysFont(None, 50)
+                # 난이도 소폭 상승(공 속도 증가)
+                speed = base_ball_speed + stage_index  # 1스테이지: 4, 2:5, 3:6
+                ball_dx = speed if ball_dx >= 0 else -speed
+                ball_dy = -speed
 
-# 점수
-bricks_destroyed = 0
-font_small = pygame.font.SysFont(None, 30)
+                bricks = build_bricks(stages_rows[stage_index])
+                paddle_x, paddle_y, ball_x, ball_y = reset_positions()
+        # 그리기
+        pygame.draw.circle(win, WHITE, (int(ball_x), int(ball_y)), ball_radius)
+        pygame.draw.rect(win, BLUE, paddle_rect)
+        for brick in bricks:
+            pygame.draw.rect(win, RED, brick)
 
-# 게임 루프
-clock = pygame.time.Clock()
-running = True
+        # HUD (스테이지/점수)
+        stage_text = font_small.render(f"Stage: {stage_index + 1} / {len(stages_rows)}", True, WHITE)
+        score_text = font_small.render(f"Bricks: {bricks_destroyed_total}", True, WHITE)
+        win.blit(stage_text, (10, 8))
+        win.blit(score_text, (10, 32))
 
-while running:
-    clock.tick(60)
-    win.fill(BLACK)
-
-    # 이벤트 처리
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    # 키 입력
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and paddle_x > 0:
-        paddle_x -= paddle_speed
-    if keys[pygame.K_RIGHT] and paddle_x < WIDTH - paddle_width:
-        paddle_x += paddle_speed
-
-    # 공 이동
-    ball_x += ball_dx
-    ball_y += ball_dy
-
-    # 충돌 처리: 벽
-    if ball_x <= 0 or ball_x >= WIDTH:
-        ball_dx *= -1
-    if ball_y <= 0:
-        ball_dy *= -1
-
-    # 충돌 처리: 패들
-    paddle_rect = pygame.Rect(paddle_x, paddle_y, paddle_width, paddle_height)
-    if paddle_rect.collidepoint(ball_x, ball_y + ball_radius):
-        ball_dy *= -1
-
-    # 충돌 처리: 벽돌
-    hit_index = None
-    for i, brick in enumerate(bricks):
-        if brick.collidepoint(ball_x, ball_y):
-            hit_index = i
-            break
-
-    if hit_index is not None:
-        del bricks[hit_index]
-        ball_dy *= -1
-        bricks_destroyed += 1   # 점수
-
-    # 공이 바닥으로 떨어짐
-    if ball_y >= HEIGHT:
-        text = font.render("Game Over", True, RED)
-        win.blit(text, (WIDTH//2 - 100, HEIGHT//2 - 25))
         pygame.display.update()
-        pygame.time.delay(2000)
-        running = False
 
-    # 승리 조건
-    if not bricks:
-        text = font.render("You Win!", True, BLUE)
-        win.blit(text, (WIDTH//2 - 90, HEIGHT//2 - 25))
-        pygame.display.update()
-        pygame.time.delay(2000)
-        running = False
+def main():
+    run_game()
+    pygame.quit()
+    sys.exit()
 
-    # 그리기
-    pygame.draw.circle(win, WHITE, (ball_x, ball_y), ball_radius)
-    pygame.draw.rect(win, BLUE, paddle_rect)
-
-    for brick in bricks:
-        pygame.draw.rect(win, RED, brick)
-
-    # 점수
-    score_text = font_small.render(f"Bricks Destroyed: {bricks_destroyed}", True, WHITE)
-    win.blit(score_text, (10, 10))
-
-    pygame.display.update()
-
-pygame.quit()
-sys.exit()
+if __name__ == "__main__":
+    main()
