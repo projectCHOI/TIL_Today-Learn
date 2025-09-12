@@ -25,6 +25,11 @@ DIRECTIONS = [
     {"name":"RIGHT", "key":pygame.K_RIGHT, "symbol":"▶"},
 ]
 
+def spawn_prompt(prompt_ms):
+    choice = random.choice(DIRECTIONS)
+    deadline = pygame.time.get_ticks() + prompt_ms
+    return choice, deadline
+
 while run:
     clock.tick(FPS)  # 프레임 제한
 
