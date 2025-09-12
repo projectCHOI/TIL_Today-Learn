@@ -1,31 +1,30 @@
 import pygame
-pygame.init()
+import random
 
-# 창 설정
+pygame.init()
 WIDTH, HEIGHT = 500, 500
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Move the Box - Improved")
+pygame.display.set_caption("Arrow Prompt Game")
 
 # 색상
-BLACK = (0, 0, 0)
-GREEN = (0, 255, 0)
-WHITE = (255, 255, 255)
+BLACK = (0,0,0); WHITE=(255,255,255); GREEN=(0,255,0); RED=(255,60,60); GRAY=(120,120,120)
 
-# 사각형 설정
-x, y = WIDTH // 2, HEIGHT // 2
-width, height = 40, 40
-vel = 5
+# 폰트
+font_big  = pygame.font.SysFont(None, 140)
+font_mid  = pygame.font.SysFont(None, 36)
+font_small= pygame.font.SysFont(None, 24)
 
-# 점수 관련
-score = 0
-font = pygame.font.SysFont("comicsans", 30)
-last_score_update = pygame.time.get_ticks()
-
-# 시계 설정
 clock = pygame.time.Clock()
 FPS = 60
 
-run = True
+# 방향 정의
+DIRECTIONS = [
+    {"name":"UP",    "key":pygame.K_UP,    "symbol":"▲"},
+    {"name":"DOWN",  "key":pygame.K_DOWN,  "symbol":"▼"},
+    {"name":"LEFT",  "key":pygame.K_LEFT,  "symbol":"◀"},
+    {"name":"RIGHT", "key":pygame.K_RIGHT, "symbol":"▶"},
+]
+
 while run:
     clock.tick(FPS)  # 프레임 제한
 
