@@ -30,6 +30,11 @@ def spawn_prompt(prompt_ms):
     deadline = pygame.time.get_ticks() + prompt_ms
     return choice, deadline
 
+def draw_center_text(surface, text, font, color, y):
+    img = font.render(text, True, color)
+    rect = img.get_rect(center=(WIDTH//2, y))
+    surface.blit(img, rect)
+    
 while run:
     clock.tick(FPS)  # 프레임 제한
 
