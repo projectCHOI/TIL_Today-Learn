@@ -68,7 +68,34 @@ def game_loop():
                         if lives <= 0:
                             return game_over_screen(score)
                         current, deadline = spawn_prompt(prompt_ms)
-                        
+
+        # 시간 초과 판정
+        now = pygame.time.get_ticks()
+        if now > deadline:
+            lives -= 1
+            if lives <= 0:
+                return game_over_screen(score)
+            current, deadline = spawn_prompt(prompt_ms)
+
+        # 그리기
+        win.fill(BLACK)
+
+        # 중앙 방향표시
+        draw_center_text(win, current["symbol"], font_big, WHITE, HEIGHT//2)
+
+        # 상단 HUD
+        hud = f"Score: {score}   Lives: {lives}   Time: {prompt_ms}ms"
+        draw_center_text(win, hud, font_small, GRAY, 24)
+
+        # 타이머 바(남은 시간 비율)
+        remain = max(0, deadline - now)
+        ratio = remain / prompt_ms
+        bar_w = int((WIDTH - 80) * ratio)
+        pygame.draw.rect(win, GRAY, (40, HEIGHT - 60, WIDTH - 80, 18), border_radius=6)
+        pygame.draw.rect(win, GREEN if ratio > 0.35 else RED, (40, HEIGHT - 60, bar_w, 18), border_radius=6)
+
+        pygame.display.flip()
+        
 while run:
     clock.tick(FPS)  # 프레임 제한
 
