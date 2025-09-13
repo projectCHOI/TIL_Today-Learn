@@ -44,7 +44,31 @@ def game_loop():
     current, deadline = spawn_prompt(prompt_ms)
 
     running = True
-      
+
+    while running:
+        dt = clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False  # 앱 종료
+            if event.type == pygame.KEYDOWN:
+                # ESC로 즉시 종료
+                if event.key == pygame.K_ESCAPE:
+                    return False
+                # 입력 판정
+                if event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT):
+                    if event.key == current["key"]:
+                        # 정답
+                        score += 1
+                        prompt_ms = max(min_prompt_ms, prompt_ms - decay)
+                        current, deadline = spawn_prompt(prompt_ms)
+                    else:
+                        # 오답
+                        lives -= 1
+                        if lives <= 0:
+                            return game_over_screen(score)
+                        current, deadline = spawn_prompt(prompt_ms)
+                        
 while run:
     clock.tick(FPS)  # 프레임 제한
 
