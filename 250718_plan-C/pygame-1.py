@@ -95,7 +95,21 @@ def game_loop():
         pygame.draw.rect(win, GREEN if ratio > 0.35 else RED, (40, HEIGHT - 60, bar_w, 18), border_radius=6)
 
         pygame.display.flip()
-        
+
+def game_over_screen(score):
+    while True:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            if event.type == pygame.KEYDOWN:
+                # R 재시작
+                if event.key == pygame.K_r:
+                    return game_loop()
+                # ESC 종료
+                if event.key == pygame.K_ESCAPE:
+                    return False
+                
 while run:
     clock.tick(FPS)  # 프레임 제한
 
