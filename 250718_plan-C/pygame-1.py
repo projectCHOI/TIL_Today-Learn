@@ -25,6 +25,19 @@ DIRECTIONS = [
     {"name":"RIGHT", "key":pygame.K_RIGHT, "symbol":"▶"},
 ]
 
+def draw_arrow(surface, direction, center, size=100, color=(255,255,255)):
+    cx, cy = center
+    s = size // 2
+    if direction == "UP":
+        pts = [(cx, cy - s), (cx - s, cy + s), (cx + s, cy + s)]
+    elif direction == "DOWN":
+        pts = [(cx, cy + s), (cx - s, cy - s), (cx + s, cy - s)]
+    elif direction == "LEFT":
+        pts = [(cx - s, cy), (cx + s, cy - s), (cx + s, cy + s)]
+    elif direction == "RIGHT":
+        pts = [(cx + s, cy), (cx - s, cy - s), (cx - s, cy + s)]
+    pygame.draw.polygon(surface, color, pts)
+
 def spawn_prompt(prompt_ms):
     choice = random.choice(DIRECTIONS)
     deadline = pygame.time.get_ticks() + prompt_ms
