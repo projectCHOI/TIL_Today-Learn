@@ -94,7 +94,7 @@ def game_loop():
         win.fill(BLACK)
 
         # 중앙 방향표시
-        draw_center_text(win, current["symbol"], font_big, WHITE, HEIGHT//2)
+        draw_arrow(win, current["name"], (WIDTH//2, HEIGHT//2), size=160, color=WHITE)
 
         # 상단 HUD
         hud = f"Score: {score}   Lives: {lives}   Time: {prompt_ms}ms"
