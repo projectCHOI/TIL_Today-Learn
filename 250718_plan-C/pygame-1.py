@@ -19,10 +19,10 @@ FPS = 60
 
 # 방향 정의
 DIRECTIONS = [
-    {"name":"UP",    "key":pygame.K_UP,    "symbol":"▲"},
-    {"name":"DOWN",  "key":pygame.K_DOWN,  "symbol":"▼"},
-    {"name":"LEFT",  "key":pygame.K_LEFT,  "symbol":"◀"},
-    {"name":"RIGHT", "key":pygame.K_RIGHT, "symbol":"▶"},
+    {"name":"UP",    "key":pygame.K_UP},
+    {"name":"DOWN",  "key":pygame.K_DOWN},
+    {"name":"LEFT",  "key":pygame.K_LEFT},
+    {"name":"RIGHT", "key":pygame.K_RIGHT},
 ]
 
 def draw_arrow(surface, direction, center, size=100, color=(255,255,255)):
