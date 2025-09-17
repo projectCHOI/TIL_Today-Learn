@@ -41,7 +41,7 @@ def get_dino_rect():
 running = True
 
 while running:
-    clock.tick(60)  # FPS 설정
+    dt = clock.tick(60) / 16.6667  # 60fps 기준 보정(대략 1.0)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
