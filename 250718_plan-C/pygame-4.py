@@ -33,6 +33,13 @@ on_ground = True
 is_ducking = False
 ground_offset = 0      # 지면 스크롤용 라인
 
+def get_dino_rect():
+    h = DINO_DUCK_HEIGHT if is_ducking else DINO_HEIGHT
+    y = GROUND_Y - h if on_ground else (dino_y + (DINO_HEIGHT - h))
+    return pygame.Rect(int(dino_x), int(y), DINO_WIDTH, h)
+
+running = True
+
 while running:
     clock.tick(60)  # FPS 설정
 
