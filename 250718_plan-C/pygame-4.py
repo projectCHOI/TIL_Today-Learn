@@ -3,20 +3,20 @@ import sys
 
 # 초기화
 pygame.init()
-WIDTH, HEIGHT = 600, 400
+WIDTH, HEIGHT = 800, 300
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Bouncing Ball")
+pygame.display.set_caption("Mini")
+clock = pygame.time.Clock()
 
 # 색상
+WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-ORANGE = (255, 165, 0)
+RED   = (220, 40, 40)
+GREEN = (40, 200, 60)
 
-# 공 설정
-ball_radius = 20
-ball_x = WIDTH // 2
-ball_y = HEIGHT // 2
-ball_dx = 4   # x 방향 속도
-ball_dy = 3   # y 방향 속도
+# 월드(지면) 설정
+GROUND_Y = 240  # 지면 y좌표(선)
+SCROLL_SPEED = 4  # 배경선 스크롤 느낌 (옵션)
 
 clock = pygame.time.Clock()
 running = True
