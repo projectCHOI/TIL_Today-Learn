@@ -18,8 +18,20 @@ GREEN = (40, 200, 60)
 GROUND_Y = 240  # 지면 y좌표(선)
 SCROLL_SPEED = 4  # 배경선 스크롤 느낌 (옵션)
 
-clock = pygame.time.Clock()
-running = True
+# Dino(캐릭터) 설정
+DINO_WIDTH, DINO_HEIGHT = 44, 50
+DINO_DUCK_HEIGHT = 32  # 숙였을 때 높이
+dino_x = 80
+dino_y = GROUND_Y - DINO_HEIGHT
+dino_vel_x = 0
+dino_vel_y = 0
+
+MOVE_SPEED = 6         # 좌우 이동 속도
+GRAVITY = 1.2          # 중력
+JUMP_POWER = -18       # 점프 초기 속도
+on_ground = True
+is_ducking = False
+ground_offset = 0      # 지면 스크롤용 라인
 
 while running:
     clock.tick(60)  # FPS 설정
