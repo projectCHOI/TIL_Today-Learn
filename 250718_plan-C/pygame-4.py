@@ -42,11 +42,13 @@ running = True
 
 while running:
     dt = clock.tick(60) / 16.6667  # 60fps 기준 보정(대략 1.0)
-
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
+    keys = pygame.key.get_pressed()
+    
     # 공 위치 업데이트
     ball_x += ball_dx
     ball_y += ball_dy
