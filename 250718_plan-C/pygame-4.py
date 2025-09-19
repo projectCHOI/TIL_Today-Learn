@@ -78,7 +78,10 @@ while running:
             dino_y = GROUND_Y - DINO_HEIGHT
             dino_vel_y = 0
             on_ground = True
-                
+
+    # 배경 지면 라인 스크롤(장식)
+    ground_offset = (ground_offset - SCROLL_SPEED) % 40
+    
     # 공 위치 업데이트
     ball_x += ball_dx
     ball_y += ball_dy
