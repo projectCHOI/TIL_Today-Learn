@@ -63,7 +63,22 @@ while running:
 
     # 숙이기: 아래 화살표 유지 시
     is_ducking = keys[pygame.K_DOWN] and on_ground
-    
+
+    # 수평 이동
+    dino_x += dino_vel_x * dt
+    dino_x = max(0, min(WIDTH - DINO_WIDTH, dino_x))
+
+    # 수직(중력/점프)
+    if not on_ground:
+        dino_vel_y += GRAVITY * dt * 60  # 프레임 보정
+        dino_y += dino_vel_y * dt
+
+        # 바닥 충돌
+        if dino_y >= GROUND_Y - DINO_HEIGHT:
+            dino_y = GROUND_Y - DINO_HEIGHT
+            dino_vel_y = 0
+            on_ground = True
+                
     # 공 위치 업데이트
     ball_x += ball_dx
     ball_y += ball_dy
