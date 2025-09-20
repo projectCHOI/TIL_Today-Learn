@@ -81,7 +81,19 @@ while running:
 
     # 배경 지면 라인 스크롤(장식)
     ground_offset = (ground_offset - SCROLL_SPEED) % 40
-    
+
+    win.fill(WHITE)
+
+    # 지면
+    pygame.draw.line(win, BLACK, (0, GROUND_Y), (WIDTH, GROUND_Y), 2)
+    # 지면에 작은 틱 표시(스크롤 느낌)
+    for x in range(-40, WIDTH + 40, 40):
+        pygame.draw.line(win, GREEN, (x + ground_offset, GROUND_Y), (x + 10 + ground_offset, GROUND_Y), 2)
+
+    # Dino캐릭터
+    dino_rect = get_dino_rect()
+    pygame.draw.rect(win, RED, dino_rect)
+
     # 공 위치 업데이트
     ball_x += ball_dx
     ball_y += ball_dy
