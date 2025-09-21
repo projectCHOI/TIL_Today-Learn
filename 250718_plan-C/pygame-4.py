@@ -101,6 +101,10 @@ while running:
     win.blit(text, (10, 10))
 
     pygame.display.flip()
+
+    # ESC로 종료
+    if keys[pygame.K_ESCAPE]:
+        running = False
         
 pygame.quit()
 sys.exit()
