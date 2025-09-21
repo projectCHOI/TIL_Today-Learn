@@ -94,20 +94,13 @@ while running:
     dino_rect = get_dino_rect()
     pygame.draw.rect(win, RED, dino_rect)
 
-    # 공 위치 업데이트
-    ball_x += ball_dx
-    ball_y += ball_dy
+    # 안내 텍스트
+    font = pygame.font.SysFont(None, 20)
+    info = "←/→ move, ↑ jump, ↓ duck (ESC to quit)"
+    text = font.render(info, True, BLACK)
+    win.blit(text, (10, 10))
 
-    # 화면 경계와 충돌 시 튕기기
-    if ball_x - ball_radius <= 0 or ball_x + ball_radius >= WIDTH:
-        ball_dx *= -1
-    if ball_y - ball_radius <= 0 or ball_y + ball_radius >= HEIGHT:
-        ball_dy *= -1
-
-    # 화면 그리기
-    win.fill(BLACK)
-    pygame.draw.circle(win, ORANGE, (ball_x, ball_y), ball_radius)
-    pygame.display.update()
-
+    pygame.display.flip()
+        
 pygame.quit()
 sys.exit()
