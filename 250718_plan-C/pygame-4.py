@@ -41,7 +41,7 @@ def get_dino_rect():
 running = True
 
 while running:
-    dt = clock.tick(60) / 16.6667  # 60fps 기준 보정(대략 1.0)
+    dt = clock.tick(60) / 1000.0
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -59,7 +59,7 @@ while running:
 
     # 수직(중력/점프)
     if not on_ground:
-        dino_vel_y += GRAVITY * dt * 60  # 프레임 보정
+        dino_vel_y += GRAVITY * dt
         dino_y += dino_vel_y * dt
 
         # 바닥 충돌
