@@ -27,8 +27,8 @@ dino_vel_x = 0
 dino_vel_y = 0
 
 MOVE_SPEED = 6         # 좌우 이동 속도
-GRAVITY = 1.2          # 중력
-JUMP_POWER = -18       # 점프 초기 속도
+GRAVITY = 2000.0          # 중력
+JUMP_POWER = -650.0       # 점프 초기 속도
 on_ground = True
 is_ducking = False
 ground_offset = 0      # 지면 스크롤용 라인
