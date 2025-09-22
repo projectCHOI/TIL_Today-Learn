@@ -49,24 +49,13 @@ while running:
 
     keys = pygame.key.get_pressed()
 
-    # 좌우 이동
-    dino_vel_x = 0
-    if keys[pygame.K_LEFT]:
-        dino_vel_x = -MOVE_SPEED
-    if keys[pygame.K_RIGHT]:
-        dino_vel_x = MOVE_SPEED
-
-    # 점프: 지면에 있을 때만 위 화살표로 점프
+    # 점프
     if keys[pygame.K_UP] and on_ground:
         dino_vel_y = JUMP_POWER
         on_ground = False
 
     # 숙이기: 아래 화살표 유지 시
     is_ducking = keys[pygame.K_DOWN] and on_ground
-
-    # 수평 이동
-    dino_x += dino_vel_x * dt
-    dino_x = max(0, min(WIDTH - DINO_WIDTH, dino_x))
 
     # 수직(중력/점프)
     if not on_ground:
