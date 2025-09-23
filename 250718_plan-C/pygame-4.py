@@ -84,9 +84,9 @@ while running:
     pygame.draw.rect(win, RED, dino_rect)
 
     # 안내 텍스트
-    font = pygame.font.SysFont(None, 20)
-    info = "←/→ move, ↑ jump, ↓ duck (ESC to quit)"
-    text = font.render(info, True, BLACK)
+    FONT_PATH = r"C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\Open Font License\서평원 꺾깎체\TTF\SLEIGothicTTF.ttf"
+    font = pygame.font.Font(FONT_PATH, 20)
+    text = font.render("↑ jump, ↓ duck (ESC to quit)", True, BLACK)
     win.blit(text, (10, 10))
 
     pygame.display.flip()
