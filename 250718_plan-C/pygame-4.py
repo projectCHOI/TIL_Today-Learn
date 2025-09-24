@@ -51,6 +51,25 @@ def get_dino_rect():
     y = GROUND_Y - h if on_ground else (dino_y + (DINO_HEIGHT - h))
     return pygame.Rect(int(dino_x), int(y), DINO_WIDTH, h)
 
+class Cactus:
+    def __init__(self):
+        self.w = random.choice([28, 34, 44])    # 장애물 폭 가변
+        self.h = random.choice([46, 60, 72])    # 장애물 높이 가변
+        self.x = WIDTH + 10
+        self.y = GROUND_Y - self.h
+        self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
+
+    def update(self, speed):
+        self.x -= speed
+        self.rect.x = int(self.x)
+
+    def draw(self, surf):
+        pygame.draw.rect(surf, (34, 139, 34), self.rect)  # 초록
+
+    @property
+    def offscreen(self):
+        return self.rect.right < -20
+    
 running = True
 
 while running:
