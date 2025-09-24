@@ -1,4 +1,5 @@
 import pygame
+import random
 import sys
 
 # 초기화
@@ -32,6 +33,18 @@ JUMP_POWER = -650.0       # 점프 초기 속도
 on_ground = True
 is_ducking = False
 ground_offset = 0      # 지면 스크롤용 라인
+
+# --- 장애물 공통 설정 ---
+GROUND_Y = HEIGHT - 80              # 바닥선(y). 게임에 맞게 조정
+SCROLL_SPEED = 8                    # 배경/장애물 기본 속도
+SPEED_GAIN = 0.0008                 # 시간 경과에 따른 속도 증가량(프레임마다 더해짐)
+
+obstacles = []
+last_spawn = 0
+spawn_cooldown = 900                # 최소 생성 간격(ms)
+spawn_variation = (0, 900)          # 추가 랜덤 간격(ms)
+game_time_ms = 0
+current_speed = SCROLL_SPEED
 
 def get_dino_rect():
     h = DINO_DUCK_HEIGHT if is_ducking else DINO_HEIGHT
