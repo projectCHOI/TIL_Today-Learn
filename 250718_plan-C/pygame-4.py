@@ -1,12 +1,11 @@
 import pygame
-import random
 import sys
+import random
 
-# 초기화
 pygame.init()
 WIDTH, HEIGHT = 800, 300
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Mini")
+pygame.display.set_caption("Mini Dino (Obstacles)")
 clock = pygame.time.Clock()
 
 # 색상
@@ -14,25 +13,32 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED   = (220, 40, 40)
 GREEN = (40, 200, 60)
+GRAY  = (120, 120, 120)
 
-# 월드(지면) 설정
-GROUND_Y = 240  # 지면 y좌표(선)
-SCROLL_SPEED = 4  # 배경선 스크롤 느낌 (옵션)
+# 지면 설정
+GROUND_Y = 240
+SCROLL_SPEED_BASE = 260.0  # px/s (장식용)
+world_speed = 380.0        # 장애물 이동 속도 (px/s)
+speed_growth = 0.04        # 초당 속도 증가량
 
-# Dino(캐릭터) 설정
+# Dino
 DINO_WIDTH, DINO_HEIGHT = 44, 50
-DINO_DUCK_HEIGHT = 32  # 숙였을 때 높이
+DINO_DUCK_HEIGHT = 32
 dino_x = 80
 dino_y = GROUND_Y - DINO_HEIGHT
-dino_vel_x = 0
-dino_vel_y = 0
+dino_vel_y = 0.0
 
-MOVE_SPEED = 6         # 좌우 이동 속도
-GRAVITY = 2000.0          # 중력
-JUMP_POWER = -650.0       # 점프 초기 속도
+GRAVITY = 2000.0     # px/s^2
+JUMP_POWER = -650.0  # px/s
 on_ground = True
 is_ducking = False
-ground_offset = 0      # 지면 스크롤용 라인
+
+ground_offset = 0.0
+
+def get_dino_rect():
+    h = DINO_DUCK_HEIGHT if is_ducking else DINO_HEIGHT
+    y = GROUND_Y - h if on_ground else (dino_y + (DINO_HEIGHT - h))
+    return pygame.Rect(int(dino_x), int(y), DINO_WIDTH, h)
 
 # --- 장애물 공통 설정 ---
 GROUND_Y = HEIGHT - 80              # 바닥선(y). 게임에 맞게 조정
