@@ -65,11 +65,16 @@ class Obstacle:
 
         self.x = x
 
-def get_dino_rect():
-    h = DINO_DUCK_HEIGHT if is_ducking else DINO_HEIGHT
-    y = GROUND_Y - h if on_ground else (dino_y + (DINO_HEIGHT - h))
-    return pygame.Rect(int(dino_x), int(y), DINO_WIDTH, h)
+    @property
+    def rect(self):
+        return pygame.Rect(int(self.x), int(self.y), self.w, self.h)
 
+    def update(self, dt, speed):
+        self.x -= speed * dt
+
+    def draw(self, surf):
+        color = BLACK if "cactus" in self.kind else GRAY
+        pygame.draw.rect(surf, color, self.rect)
 class Cactus:
     def __init__(self):
         self.w = random.choice([28, 34, 44])    # 장애물 폭 가변
