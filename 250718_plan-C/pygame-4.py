@@ -41,16 +41,29 @@ def get_dino_rect():
     return pygame.Rect(int(dino_x), int(y), DINO_WIDTH, h)
 
 # --- 장애물 공통 설정 ---
-GROUND_Y = HEIGHT - 80              # 바닥선(y). 게임에 맞게 조정
-SCROLL_SPEED = 8                    # 배경/장애물 기본 속도
-SPEED_GAIN = 0.0008                 # 시간 경과에 따른 속도 증가량(프레임마다 더해짐)
+class Obstacle:
+    def __init__(self, kind, x, speed):
+        self.kind = kind
+        self.speed = speed
+        if kind == "cactus_small":
+            self.w, self.h = 22, 40
+            self.y = GROUND_Y - self.h
+        elif kind == "cactus_tall":
+            self.w, self.h = 28, 60
+            self.y = GROUND_Y - self.h
+        elif kind == "bird_low":
+            self.w, self.h = 46, 30
+            # 숙이기(32px)로 피하도록 낮은 높이
+            self.y = GROUND_Y - DINO_DUCK_HEIGHT - self.h - 4
+        elif kind == "bird_high":
+            self.w, self.h = 46, 30
+            # 그냥 지나가거나 점프 타이밍 교란
+            self.y = GROUND_Y - DINO_HEIGHT - self.h - 12
+        else:
+            self.w, self.h = 20, 40
+            self.y = GROUND_Y - self.h
 
-obstacles = []
-last_spawn = 0
-spawn_cooldown = 900                # 최소 생성 간격(ms)
-spawn_variation = (0, 900)          # 추가 랜덤 간격(ms)
-game_time_ms = 0
-current_speed = SCROLL_SPEED
+        self.x = x
 
 def get_dino_rect():
     h = DINO_DUCK_HEIGHT if is_ducking else DINO_HEIGHT
