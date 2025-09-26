@@ -90,6 +90,18 @@ game_over = False
 def schedule_next_spawn():
     global time_to_next_spawn
     time_to_next_spawn = random.randint(min_spawn_ms, max_spawn_ms)
+
+def spawn_obstacle():
+    x = WIDTH + 30
+    # 간단한 가중치
+    kinds = (
+        ["cactus_small"] * 4 +
+        ["cactus_tall"]  * 3 +
+        ["bird_low"]     * 2 +
+        ["bird_high"]    * 1
+    )
+    kind = random.choice(kinds)
+    obstacles.append(Obstacle(kind, x, world_speed))
     
 class Cactus:
     def __init__(self):
