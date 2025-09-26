@@ -102,7 +102,26 @@ def spawn_obstacle():
     )
     kind = random.choice(kinds)
     obstacles.append(Obstacle(kind, x, world_speed))
-    
+
+def reset_game():
+    global dino_y, dino_vel_y, on_ground, is_ducking
+    global obstacles, score, game_over, world_speed, ground_offset
+    dino_y = GROUND_Y - DINO_HEIGHT
+    dino_vel_y = 0.0
+    on_ground = True
+    is_ducking = False
+    obstacles = []
+    score = 0
+    game_over = False
+    world_speed = 380.0
+    ground_offset = 0.0
+    schedule_next_spawn()
+
+# 초기 스폰 예약
+schedule_next_spawn()
+
+running = True
+
 class Cactus:
     def __init__(self):
         self.w = random.choice([28, 34, 44])    # 장애물 폭 가변
