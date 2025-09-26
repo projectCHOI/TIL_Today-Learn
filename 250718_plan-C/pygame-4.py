@@ -75,6 +75,22 @@ class Obstacle:
     def draw(self, surf):
         color = BLACK if "cactus" in self.kind else GRAY
         pygame.draw.rect(surf, color, self.rect)
+
+# 스폰 관리
+obstacles = []
+time_to_next_spawn = 0  # ms
+min_spawn_ms = 800
+max_spawn_ms = 1600
+
+# 점수/상태
+score = 0
+best_score = 0
+game_over = False
+
+def schedule_next_spawn():
+    global time_to_next_spawn
+    time_to_next_spawn = random.randint(min_spawn_ms, max_spawn_ms)
+    
 class Cactus:
     def __init__(self):
         self.w = random.choice([28, 34, 44])    # 장애물 폭 가변
