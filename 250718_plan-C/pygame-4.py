@@ -121,7 +121,45 @@ def reset_game():
 schedule_next_spawn()
 
 running = True
+while running:
+    dt = clock.tick(60) / 1000.0  # 초 단위 dt
 
+    # 이벤트
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    keys = pygame.key.get_pressed()
+
+    if not game_over:
+        # 입력
+        if keys[pygame.K_UP] and on_ground:
+            dino_vel_y = JUMP_POWER
+            on_ground = False
+        is_ducking = keys[pygame.K_DOWN] and on_ground
+
+        # 물리
+        if not on_ground:
+            dino_vel_y += GRAVITY * dt
+            dino_y += dino_vel_y * dt
+            if dino_y >= GROUND_Y - DINO_HEIGHT:
+                dino_y = GROUND_Y - DINO_HEIGHT
+                dino_vel_y = 0.0
+                on_ground = True
+
+        # 난이도 증가
+        world_speed += speed_growth
+
+        # 장애물 스폰 타이머(ms)
+        time_to_next_spawn -= int(dt * 1000)
+        if time_to_next_spawn <= 0:
+            # 연속 피하기가 가능하도록, 바로 앞 장애물과 최소 간격 보정
+            if not obstacles or (obstacles and obstacles[-1].x < WIDTH - 160):
+                spawn_obstacle()
+                schedule_next_spawn()
+            else:
+                # 간격이 너무 좁으면 조금 뒤로 미룸
+                time_to_next_spawn = 150
 class Cactus:
     def __init__(self):
         self.w = random.choice([28, 34, 44])    # 장애물 폭 가변
