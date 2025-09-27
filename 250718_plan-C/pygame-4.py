@@ -160,6 +160,31 @@ while running:
             else:
                 # 간격이 너무 좁으면 조금 뒤로 미룸
                 time_to_next_spawn = 150
+
+        # 장애물 업데이트/정리
+        for ob in obstacles:
+            ob.update(dt, world_speed)
+        obstacles = [ob for ob in obstacles if ob.x + ob.w > -30]
+
+        # 점수 (생존 시간 기반)
+        score += int(60 * dt)
+
+        # 충돌 판정
+        dino_rect = get_dino_rect()
+        for ob in obstacles:
+            if dino_rect.colliderect(ob.rect):
+                game_over = True
+                break
+
+        # 지면 장식 스크롤
+        ground_offset = (ground_offset - SCROLL_SPEED_BASE * dt) % 40
+
+    else:
+        # 재시작
+        if keys[pygame.K_r]:
+            best_score = max(best_score, score)
+            reset_game()
+            
 class Cactus:
     def __init__(self):
         self.w = random.choice([28, 34, 44])    # 장애물 폭 가변
