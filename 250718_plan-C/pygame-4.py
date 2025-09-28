@@ -186,4 +186,17 @@ while running:
             reset_game()
 
     win.fill(WHITE)
-    
+    # 지면
+    pygame.draw.line(win, BLACK, (0, GROUND_Y), (WIDTH, GROUND_Y), 2)
+    x = -40
+    while x < WIDTH + 40:
+        pygame.draw.line(win, GREEN, (int(x + ground_offset), GROUND_Y),
+                        (int(x + 10 + ground_offset), GROUND_Y), 2)
+        x += 40
+
+    # Dino
+    pygame.draw.rect(win, RED, get_dino_rect())
+
+    # 장애물
+    for ob in obstacles:
+        ob.draw(win)    
