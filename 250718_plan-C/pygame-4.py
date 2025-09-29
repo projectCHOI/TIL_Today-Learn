@@ -200,3 +200,13 @@ while running:
     # 장애물
     for ob in obstacles:
         ob.draw(win)    
+
+    # UI
+    if not game_over:
+        ui = f"↑ jump, ↓ duck | Score: {score} | Speed: {int(world_speed)} (R: reset)"
+    else:
+        ui = f"GAME OVER  Score: {score}  Best: {best_score}  (Press R to restart)"
+    text = font.render(ui, True, BLACK)
+    win.blit(text, (10, 10))
+
+    pygame.display.flip()
