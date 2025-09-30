@@ -207,14 +207,15 @@ while running:
     else:
         ui = f"GAME OVER  Score: {score}  Best: {best_score}  (Press R to restart)"
 
-    win.blit(text, (10, 10))
+    text = font.render(ui, True, BLACK)  
+    win.blit(text, (10, 10))              
 
     pygame.display.flip()
 
     # 글꼴 불러오기 (크기 22px)
     FONT_PATH = r"C:/Users/boss3/OneDrive/바탕 화면/GitHub/TIL_Today-Learn/Open Font License/서평원 꺾깎체/TTF/SLEIGothicTTF.ttf"
     font = pygame.font.Font(FONT_PATH, 22)
-    
+
     if keys[pygame.K_ESCAPE]:
         running = False
 
