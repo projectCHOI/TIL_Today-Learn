@@ -199,7 +199,11 @@ while running:
 
     # 장애물
     for ob in obstacles:
-        ob.draw(win)    
+        ob.draw(win)  
+
+    # 글꼴 불러오기 (크기 22px)
+    FONT_PATH = r"C:/Users/boss3/OneDrive/바탕 화면/GitHub/TIL_Today-Learn/Open Font License/서평원 꺾깎체/TTF/SLEIGothicTTF.ttf"
+    font = pygame.font.Font(FONT_PATH, 22)
 
     # UI
     if not game_over:
