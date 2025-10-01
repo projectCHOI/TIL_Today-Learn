@@ -211,8 +211,8 @@ while running:
     else:
         ui = f"GAME OVER  Score: {score}  Best: {best_score}  (Press R to restart)"
 
-    text = font.render(ui, True, BLACK)  
-    win.blit(text, (10, 10))              
+    text = font.render(ui, True, BLACK)
+    win.blit(text, (10, 10))          
 
     pygame.display.flip()
 
