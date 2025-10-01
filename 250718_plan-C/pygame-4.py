@@ -35,6 +35,10 @@ is_ducking = False
 
 ground_offset = 0.0
 
+# font
+FONT_PATH = r"C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\Open Font License\서평원 꺾깎체\TTF\SLEIGothicTTF.ttf"
+font = pygame.font.Font(FONT_PATH, 22)
+
 def get_dino_rect():
     h = DINO_DUCK_HEIGHT if is_ducking else DINO_HEIGHT
     y = GROUND_Y - h if on_ground else (dino_y + (DINO_HEIGHT - h))
