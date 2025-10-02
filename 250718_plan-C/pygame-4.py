@@ -207,7 +207,7 @@ while running:
 
     # UI
     if not game_over:
-        ui = f"↑ jump, ↓ duck | Score: {score} | Speed: {int(world_speed)} (R: reset)"
+        ui = f"↑ jump, ↓ duck | Score: {score}"
     else:
         ui = f"GAME OVER  Score: {score}  Best: {best_score}  (Press R to restart)"
 
