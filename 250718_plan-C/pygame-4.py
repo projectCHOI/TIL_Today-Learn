@@ -209,7 +209,7 @@ while running:
     if not game_over:
         ui = f"↑ jump, ↓ duck | Score: {score}"
     else:
-        ui = f"GAME OVER  Score: {score}  Best: {best_score}  (Press R to restart)"
+        ui = f"GAME OVER  Score: {score}"
 
     text = font.render(ui, True, BLACK)
     win.blit(text, (10, 10))          
