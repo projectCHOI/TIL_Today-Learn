@@ -32,3 +32,11 @@ def create_star_surface(size, color):
         points.append((x, y))
     pygame.draw.polygon(surf, color, points)
     return surf
+
+# 플레이어
+class Player:
+    def __init__(self, x, y, size=50, speed=4):
+        self.size = size
+        self.speed = speed
+        self.base_color = YELLOW
+        self.select_color = BLUE
