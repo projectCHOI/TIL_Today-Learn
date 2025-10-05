@@ -40,11 +40,14 @@ class Player:
         self.speed = speed
         self.base_color = YELLOW
         self.select_color = BLUE
-
         # 기본/선택 상태 별 Surface
         self.surf_base = create_star_surface(self.size, self.base_color)
         self.surf_select = create_star_surface(self.size, self.select_color)
-
         # 위치는 중심 좌표로 관리
         self.x = x
         self.y = y
+        # 회전 애니메이션 상태
+        self.rotating = False
+        self.angle = 0
+        self.rotate_ms = 400  # 애니메이션 총 길이(ms)
+        self.rotate_start_time = 0
