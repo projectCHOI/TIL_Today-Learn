@@ -57,3 +57,10 @@ class Player:
             self.rotating = True
             self.rotate_start_time = pygame.time.get_ticks()
             self.angle = 0
+
+    def update(self, dt, keys):
+        # 이동 (화살표)
+        dx = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.speed
+        dy = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.speed
+        self.x += dx
+        self.y += dy
