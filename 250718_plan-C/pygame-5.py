@@ -51,3 +51,9 @@ class Player:
         self.angle = 0
         self.rotate_ms = 400  # 애니메이션 총 길이(ms)
         self.rotate_start_time = 0
+
+    def start_select_animation(self):
+        if not self.rotating:
+            self.rotating = True
+            self.rotate_start_time = pygame.time.get_ticks()
+            self.angle = 0
