@@ -64,3 +64,7 @@ class Player:
         dy = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.speed
         self.x += dx
         self.y += dy
+        # 화면 경계 클램프 (별의 크기 고려: 기본 정사각 50 기준)
+        half = self.size / 2
+        self.x = max(half, min(WIDTH - half, self.x))
+        self.y = max(half, min(HEIGHT - half, self.y))
