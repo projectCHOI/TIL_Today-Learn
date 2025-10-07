@@ -68,3 +68,11 @@ class Player:
         half = self.size / 2
         self.x = max(half, min(WIDTH - half, self.x))
         self.y = max(half, min(HEIGHT - half, self.y))
+        # 회전 애니메이션 진행
+        if self.rotating:
+            elapsed = pygame.time.get_ticks() - self.rotate_start_time
+            t = max(0.0, min(1.0, elapsed / self.rotate_ms))
+            self.angle = 360 * t
+            if t >= 1.0:
+                self.rotating = False
+                self.angle = 0
