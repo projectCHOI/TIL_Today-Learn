@@ -83,3 +83,10 @@ class Player:
             src = self.surf_select
         else:
             src = self.surf_base
+        if self.rotating:
+            rotated = pygame.transform.rotate(src, self.angle)
+            rect = rotated.get_rect(center=(self.x, self.y))
+            surface.blit(rotated, rect.topleft)
+        else:
+            rect = src.get_rect(center=(self.x, self.y))
+            surface.blit(src, rect.topleft)
