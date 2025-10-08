@@ -76,3 +76,10 @@ class Player:
             if t >= 1.0:
                 self.rotating = False
                 self.angle = 0
+
+    def draw(self, surface):
+        if self.rotating:
+            # 선택 상태(파란 별)로 회전
+            src = self.surf_select
+        else:
+            src = self.surf_base
