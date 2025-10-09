@@ -94,3 +94,8 @@ class Player:
 def main():
     player = Player(WIDTH/2, HEIGHT/2, size=50, speed=4)
     running = True
+    while running:
+        dt = CLOCK.tick(FPS)  # ms
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
