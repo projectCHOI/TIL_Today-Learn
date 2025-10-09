@@ -90,3 +90,7 @@ class Player:
         else:
             rect = src.get_rect(center=(self.x, self.y))
             surface.blit(src, rect.topleft)
+
+def main():
+    player = Player(WIDTH/2, HEIGHT/2, size=50, speed=4)
+    running = True
