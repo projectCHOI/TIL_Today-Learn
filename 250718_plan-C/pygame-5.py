@@ -102,3 +102,10 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     player.start_select_animation()
+
+        keys = pygame.key.get_pressed()
+        player.update(dt, keys)
+
+        # 그리기
+        win.fill(WHITE)
+        player.draw(win)
