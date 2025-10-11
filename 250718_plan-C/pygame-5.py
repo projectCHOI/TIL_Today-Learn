@@ -109,3 +109,9 @@ def main():
         # 그리기
         win.fill(WHITE)
         player.draw(win)
+
+        font = pygame.font.SysFont(None, 20)
+        info = font.render("Arrow keys: move | Space: select (360° blue spin)", True, (0,0,0))
+        win.blit(info, (10, 10))
+
+        pygame.display.flip()
