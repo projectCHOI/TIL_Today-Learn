@@ -115,3 +115,8 @@ def main():
         win.blit(info, (10, 10))
 
         pygame.display.flip()
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
