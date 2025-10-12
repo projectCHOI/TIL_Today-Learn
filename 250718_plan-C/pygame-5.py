@@ -6,6 +6,7 @@ pygame.init()
 WIDTH, HEIGHT = 640, 400
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("숫자 범위 선택 게임 - 베이스")
+FONT_PATH = r"C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\Open Font License\서평원 꺾깎체\TTF\SLEIGothicTTF.ttf"
 
 # 색상
 WHITE = (255, 255, 255)
