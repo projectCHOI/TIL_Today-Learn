@@ -95,6 +95,11 @@ class Player:
 def main():
     player = Player(WIDTH/2, HEIGHT/2, size=50, speed=4)
     running = True
+    try:
+        font = pygame.font.Font(FONT_PATH, 24)
+    except:
+        print("폰트 에러")
+        font = pygame.font.SysFont(None, 24)
     while running:
         dt = CLOCK.tick(FPS)  # ms
         for event in pygame.event.get():
