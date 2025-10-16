@@ -21,6 +21,24 @@ BLUE   = (0, 120, 255)
 FPS = 60
 CLOCK = pygame.time.Clock()
 
+# 맵
+def load_stage_json(filename):
+    path = os.path.join(MAP_DIR, filename)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"[오류] 스테이지 파일을 찾을 수 없습니다: {path}")
+
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # 기본 키 검증
+    required_keys = ["tile", "map"]
+    for key in required_keys:
+        if key not in data:
+            raise ValueError(f"[오류] JSON에 '{key}' 항목이 없습니다: {filename}")
+
+    print(f"[로드 완료] {filename} | 타일 크기: {data['tile']}px, 줄 수: {len(data['map'])}")
+    return data
+
 # 유닛
 def create_star_surface(size, color):
     surf = pygame.Surface((size, size), pygame.SRCALPHA)
