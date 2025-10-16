@@ -1,5 +1,10 @@
 import pygame
-import math
+import os
+import json
+
+# 불러오기 경로
+BASE_DIR = os.path.dirname(__file__)
+MAP_DIR = os.path.join(BASE_DIR, "pygame_maps")
 
 # 초기 설정
 pygame.init()
