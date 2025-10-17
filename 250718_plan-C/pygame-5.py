@@ -39,6 +39,9 @@ def load_stage_json(filename):
     print(f"[로드 완료] {filename} | 타일 크기: {data['tile']}px, 줄 수: {len(data['map'])}")
     return data
 
+if __name__ == "__main__":
+    stage_data = load_stage_json("stage1.json")
+    
 # 유닛
 def create_star_surface(size, color):
     surf = pygame.Surface((size, size), pygame.SRCALPHA)
