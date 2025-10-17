@@ -22,6 +22,17 @@ BLUE   = (0, 120, 255)
 FPS = 60
 clock = pygame.time.Clock()
 
+# 경로
+BASE_DIR = os.path.dirname(__file__)
+MAP_DIR  = os.path.join(BASE_DIR, "pygame_maps")
+
+# 폰트
+FONT_PATH = r"C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\Open Font License\서평원 꺾깎체\TTF\SLEIGothicTTF.ttf"
+try:
+    ui_font = pygame.font.Font(FONT_PATH, 18)
+except Exception:
+    ui_font = pygame.font.SysFont(None, 18)
+
 # 맵
 def load_stage_json(filename):
     path = os.path.join(MAP_DIR, filename)
