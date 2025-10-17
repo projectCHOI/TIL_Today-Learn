@@ -1,25 +1,26 @@
-import pygame
 import os
 import json
+import math
+import pygame
 
-# 불러오기 경로
-BASE_DIR = os.path.dirname(__file__)
-MAP_DIR = os.path.join(BASE_DIR, "pygame_maps")
-
-# 초기 설정
+# === 기본 설정 ===
 pygame.init()
 WIDTH, HEIGHT = 640, 400
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("숫자 범위 선택 게임 - 베이스")
-FONT_PATH = r"C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\Open Font License\서평원 꺾깎체\TTF\SLEIGothicTTF.ttf"
+pygame.display.set_caption("미로 탐험형 - JSON 스테이지 로더")
 
 # 색상
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+WALL  = (35, 35, 35)
+PATH  = (230, 230, 230)
+GOAL  = (70, 170, 255)
+START = (255, 200, 0)
 YELLOW = (255, 244, 79)
 BLUE   = (0, 120, 255)
 
 FPS = 60
-CLOCK = pygame.time.Clock()
+clock = pygame.time.Clock()
 
 # 맵
 def load_stage_json(filename):
@@ -41,7 +42,12 @@ def load_stage_json(filename):
 
 if __name__ == "__main__":
     stage_data = load_stage_json("stage1.json")
-    
+
+    # 로드 확인용 출력
+    print("스테이지 이름:", stage_data.get("name", "이름 없음"))
+    print("타일 크기:", stage_data["tile"])
+    print("첫 번째 줄:", stage_data["map"][0])
+
 # 유닛
 def create_star_surface(size, color):
     surf = pygame.Surface((size, size), pygame.SRCALPHA)
