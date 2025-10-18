@@ -47,6 +47,18 @@ def load_stage_json(filename: str) -> dict:
         raise ValueError(f"[오류] 'tile' 키가 없습니다: {filename}")
     if "map" not in data:
         raise ValueError(f"[오류] 'map' 키가 없습니다: {filename}")
+
+    # 줄 길이 일관성
+    widths = {len(row) for row in data["map"]}
+    if len(widths) != 1:
+        raise ValueError(f"[오류] 모든 줄의 길이가 동일해야 합니다: {filename}")
+
+    # legend 없으면 기본값 부여
+    if "legend" not in data:
+        data["legend"] = {"#": "wall", ".": "floor", "S": "start", "G": "goal"}
+
+    print(f"[로드 완료] {filename} | tile={data['tile']} | rows={len(data['map'])}")
+    return data
     
 # 맵
 def load_stage_json(filename):
