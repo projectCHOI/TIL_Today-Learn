@@ -33,6 +33,15 @@ try:
 except Exception:
     ui_font = pygame.font.SysFont(None, 18)
 
+# JSON 로더
+def load_stage_json(filename: str) -> dict:
+    path = os.path.join(MAP_DIR, filename)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"[오류] 스테이지 파일을 찾을 수 없습니다: {path}")
+
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
 # 맵
 def load_stage_json(filename):
     path = os.path.join(MAP_DIR, filename)
