@@ -42,6 +42,12 @@ def load_stage_json(filename: str) -> dict:
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    # 필수 키
+    if "tile" not in data:
+        raise ValueError(f"[오류] 'tile' 키가 없습니다: {filename}")
+    if "map" not in data:
+        raise ValueError(f"[오류] 'map' 키가 없습니다: {filename}")
+    
 # 맵
 def load_stage_json(filename):
     path = os.path.join(MAP_DIR, filename)
