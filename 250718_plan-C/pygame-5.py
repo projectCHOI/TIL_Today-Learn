@@ -79,6 +79,9 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
     start_pos = None
     goal_rect = None
 
+    def is_type(ch: str, type_name: str) -> bool:
+        return legend.get(ch) == type_name
+    
 # 유닛
 def create_star_surface(size, color):
     surf = pygame.Surface((size, size), pygame.SRCALPHA)
