@@ -61,30 +61,23 @@ def load_stage_json(filename: str) -> dict:
     return data
     
 # 맵
-def load_stage_json(filename):
-    path = os.path.join(MAP_DIR, filename)
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"[오류] 스테이지 파일을 찾을 수 없습니다: {path}")
+def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
+    tile   = int(data["tile"])
+    grid   = data["map"]
+    legend = data["legend"]
 
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    rows = len(grid)
+    cols = len(grid[0])
 
-    # 기본 키 검증
-    required_keys = ["tile", "map"]
-    for key in required_keys:
-        if key not in data:
-            raise ValueError(f"[오류] JSON에 '{key}' 항목이 없습니다: {filename}")
+    map_w = cols * tile
+    map_h = rows * tile
 
-    print(f"[로드 완료] {filename} | 타일 크기: {data['tile']}px, 줄 수: {len(data['map'])}")
-    return data
+    off_x = (screen_w - map_w) // 2
+    off_y = (screen_h - map_h) // 2
 
-if __name__ == "__main__":
-    stage_data = load_stage_json("stage1.json")
-
-    # 로드 확인용 출력
-    print("스테이지 이름:", stage_data.get("name", "이름 없음"))
-    print("타일 크기:", stage_data["tile"])
-    print("첫 번째 줄:", stage_data["map"][0])
+    walls = []
+    start_pos = None
+    goal_rect = None
 
 # 유닛
 def create_star_surface(size, color):
