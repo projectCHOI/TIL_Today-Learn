@@ -81,6 +81,38 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
 
     def is_type(ch: str, type_name: str) -> bool:
         return legend.get(ch) == type_name
+
+    for r, line in enumerate(grid):
+        for c, ch in enumerate(line):
+            x = off_x + c * tile
+            y = off_y + r * tile
+            rect = pygame.Rect(x, y, tile, tile)
+
+            if is_type(ch, "wall"):
+                walls.append(rect)
+            elif is_type(ch, "start"):
+                start_pos = rect.center
+            elif is_type(ch, "goal"):
+                goal_rect = rect
+            # floor는 별도 저장 불필요
+
+    if start_pos is None:
+        raise ValueError("[맵 오류] 'start(S)'가 없습니다.")
+    if goal_rect is None:
+        raise ValueError("[맵 오류] 'goal(G)'이 없습니다.")
+
+    return {
+        "name": data.get("name", "Unnamed Stage"),
+        "tile": tile,
+        "grid": grid,
+        "legend": legend,
+        "walls": walls,
+        "start": start_pos,
+        "goal": goal_rect,
+        "offset": (off_x, off_y),
+        "map_px": (map_w, map_h),
+        "size": (cols, rows),
+    }
     
 # 유닛
 def create_star_surface(size, color):
