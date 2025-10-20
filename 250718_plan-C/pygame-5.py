@@ -94,7 +94,6 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
                 start_pos = rect.center
             elif is_type(ch, "goal"):
                 goal_rect = rect
-            # floor는 별도 저장 불필요
 
     if start_pos is None:
         raise ValueError("[맵 오류] 'start(S)'가 없습니다.")
@@ -113,6 +112,23 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
         "map_px": (map_w, map_h),
         "size": (cols, rows),
     }
+
+# 유닛
+def create_star_surface(size, color):
+    surf = pygame.Surface((size, size), pygame.SRCALPHA)
+    cx, cy = size / 2, size / 2
+    R = size * 0.48
+    r = R * 0.5
+    pts = []
+    start_angle = -math.pi / 2
+    for i in range(10):
+        ang = start_angle + i * (math.pi / 5)
+        radius = R if i % 2 == 0 else r
+        x = cx + radius * math.cos(ang)
+        y = cy + radius * math.sin(ang)
+        pts.append((x, y))
+    pygame.draw.polygon(surf, color, pts)
+    return surf
     
 # 유닛
 def create_star_surface(size, color):
