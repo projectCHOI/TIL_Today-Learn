@@ -130,23 +130,23 @@ def create_star_surface(size, color):
     pygame.draw.polygon(surf, color, pts)
     return surf
     
-# 유닛
-def create_star_surface(size, color):
-    surf = pygame.Surface((size, size), pygame.SRCALPHA)
-    cx, cy = size / 2, size / 2
-    R = size * 0.48       # 바깥 반지름
-    r = R * 0.5           # 안쪽 반지름
-    points = []
-    # 꼭대기가 위를 향하도록 -90도(= -pi/2)에서 시작
-    start_angle = -math.pi / 2
-    for i in range(10):
-        ang = start_angle + i * (math.pi / 5)  # 36도 간격
-        radius = R if i % 2 == 0 else r
-        x = cx + radius * math.cos(ang)
-        y = cy + radius * math.sin(ang)
-        points.append((x, y))
-    pygame.draw.polygon(surf, color, points)
-    return surf
+# 플레이어
+class Player:
+    def __init__(self, spawn_xy, tile):
+        # 타일 크기에 맞춰 크기/속도 자동 스케일
+        self.size = max(10, int(tile * 0.8))
+        self.speed = max(2.0, tile * 0.15)
+        self.x, self.y = spawn_xy
+
+        self.base_color = YELLOW
+        self.select_color = BLUE
+        self.surf_base = create_star_surface(self.size, self.base_color)
+        self.surf_select = create_star_surface(self.size, self.select_color)
+
+        self.rotating = False
+        self.angle = 0
+        self.rotate_ms = 300
+        self.rotate_start = 0
 
 # 플레이어
 class Player:
