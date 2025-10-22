@@ -133,7 +133,6 @@ def create_star_surface(size, color):
 # 플레이어
 class Player:
     def __init__(self, spawn_xy, tile):
-        # 타일 크기에 맞춰 크기/속도 자동 스케일
         self.size = max(10, int(tile * 0.8))
         self.speed = max(2.0, tile * 0.15)
         self.x, self.y = spawn_xy
@@ -148,6 +147,7 @@ class Player:
         self.rotate_ms = 300
         self.rotate_start = 0
 
+    @property
     def rect(self):
         half = self.size / 2
         return pygame.Rect(int(self.x - half), int(self.y - half), self.size, self.size)
@@ -158,6 +158,18 @@ class Player:
             self.rotate_start = pygame.time.get_ticks()
             self.angle = 0
 
+    def move_and_collide(self, dx, dy, walls):
+        # 축 분리 충돌 처리
+        # X
+        self.x += dx
+        r = self.rect
+        for w in walls:
+            if r.colliderect(w):
+                if dx > 0:
+                    self.x = w.left - r.width / 2
+                elif dx < 0:
+                    self.x = w.right + r.width / 2
+                r = self.rect
 class Player:
     def __init__(self, x, y, size=50, speed=4):
         self.size = size
