@@ -159,8 +159,6 @@ class Player:
             self.angle = 0
 
     def move_and_collide(self, dx, dy, walls):
-        # 축 분리 충돌 처리
-        # X
         self.x += dx
         r = self.rect
         for w in walls:
@@ -169,6 +167,15 @@ class Player:
                     self.x = w.left - r.width / 2
                 elif dx < 0:
                     self.x = w.right + r.width / 2
+                r = self.rect
+        self.y += dy
+        r = self.rect
+        for w in walls:
+            if r.colliderect(w):
+                if dy > 0:
+                    self.y = w.top - r.height / 2
+                elif dy < 0:
+                    self.y = w.bottom + r.height / 2
                 r = self.rect
 class Player:
     def __init__(self, x, y, size=50, speed=4):
