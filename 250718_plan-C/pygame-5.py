@@ -177,6 +177,13 @@ class Player:
                 elif dy < 0:
                     self.y = w.bottom + r.height / 2
                 r = self.rect
+
+    def update(self, dt, keys, walls):
+        dx = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.speed * dt
+        dy = (keys[pygame.K_DOWN]  - keys[pygame.K_UP])   * self.speed * dt
+        self.move_and_collide(dx, dy, walls)
+        
+############################
 class Player:
     def __init__(self, x, y, size=50, speed=4):
         self.size = size
