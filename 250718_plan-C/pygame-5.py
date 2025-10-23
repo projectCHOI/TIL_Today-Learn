@@ -190,7 +190,17 @@ class Player:
             if t >= 1.0:
                 self.rotating = False
                 self.angle = 0
-############################
+
+    def draw(self, surface):
+        src = self.surf_select if self.rotating else self.surf_base
+        if self.rotating:
+            rotated = pygame.transform.rotate(src, self.angle)
+            rect = rotated.get_rect(center=(self.x, self.y))
+            surface.blit(rotated, rect.topleft)
+        else:
+            rect = src.get_rect(center=(self.x, self.y))
+            surface.blit(src, rect.topleft)
+            
 class Player:
     def __init__(self, x, y, size=50, speed=4):
         self.size = size
