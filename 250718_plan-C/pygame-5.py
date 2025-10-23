@@ -182,7 +182,14 @@ class Player:
         dx = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.speed * dt
         dy = (keys[pygame.K_DOWN]  - keys[pygame.K_UP])   * self.speed * dt
         self.move_and_collide(dx, dy, walls)
-        
+
+        if self.rotating:
+            elapsed = pygame.time.get_ticks() - self.rotate_start
+            t = max(0.0, min(1.0, elapsed / self.rotate_ms))
+            self.angle = 360 * t
+            if t >= 1.0:
+                self.rotating = False
+                self.angle = 0
 ############################
 class Player:
     def __init__(self, x, y, size=50, speed=4):
