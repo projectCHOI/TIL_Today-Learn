@@ -200,7 +200,12 @@ class Player:
         else:
             rect = src.get_rect(center=(self.x, self.y))
             surface.blit(src, rect.topleft)
-            
+
+# 맵
+def draw_map(info, surf):
+    tile = info["tile"]
+    off_x, off_y = info["offset"]
+    grid = info["grid"]
 class Player:
     def __init__(self, x, y, size=50, speed=4):
         self.size = size
