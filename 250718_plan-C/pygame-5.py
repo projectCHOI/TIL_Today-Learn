@@ -206,6 +206,21 @@ def draw_map(info, surf):
     tile = info["tile"]
     off_x, off_y = info["offset"]
     grid = info["grid"]
+    # 바닥(경계)
+    pygame.draw.rect(surf, PATH, (off_x, off_y, info["map_px"][0], info["map_px"][1]))
+
+    for r, line in enumerate(grid):
+        for c, ch in enumerate(line):
+            x = off_x + c * tile
+            y = off_y + r * tile
+            rect = pygame.Rect(x, y, tile, tile)
+            if info["legend"].get(ch) == "wall":
+                pygame.draw.rect(surf, WALL, rect)
+            elif info["legend"].get(ch) == "start":
+                pygame.draw.rect(surf, START, rect, width=2)
+            elif info["legend"].get(ch) == "goal":
+                pygame.draw.rect(surf, GOAL, rect)
+                
 class Player:
     def __init__(self, x, y, size=50, speed=4):
         self.size = size
