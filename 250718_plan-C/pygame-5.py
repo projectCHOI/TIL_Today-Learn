@@ -238,3 +238,4 @@ def main():
     stage_data = load_stage_json(stage_files[stage_idx])
     info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
     player = Player(info["start"], info["tile"])
+    running = True
