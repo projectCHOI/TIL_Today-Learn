@@ -235,3 +235,6 @@ def find_stage_files():
 def main():
     stage_files = find_stage_files()  # 예: ['stage1.json', 'stage2.json', ...]
     stage_idx = 0
+    stage_data = load_stage_json(stage_files[stage_idx])
+    info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
+    player = Player(info["start"], info["tile"])
