@@ -230,3 +230,8 @@ def find_stage_files():
     if not files:
         raise FileNotFoundError(f"[오류] JSON 스테이지 파일이 없습니다: {MAP_DIR}")
     return files
+
+# 메인 루프
+def main():
+    stage_files = find_stage_files()  # 예: ['stage1.json', 'stage2.json', ...]
+    stage_idx = 0
