@@ -245,3 +245,6 @@ def main():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 running = False
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_SPACE:
+                    player.start_select()
