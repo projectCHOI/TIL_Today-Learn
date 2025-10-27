@@ -248,3 +248,5 @@ def main():
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_SPACE:
                     player.start_select()
+        keys = pygame.key.get_pressed()
+        player.update(dt, keys, info["walls"])
