@@ -239,3 +239,9 @@ def main():
     info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
     player = Player(info["start"], info["tile"])
     running = True
+
+    while running:
+        dt = clock.tick(FPS) / 1000.0
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                running = False
