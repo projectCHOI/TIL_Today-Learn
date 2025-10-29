@@ -253,3 +253,6 @@ def main():
         # 목표 도달 시 다음 스테이지
         if info["goal"] and player.rect.colliderect(info["goal"]):
             stage_idx += 1
+            if stage_idx >= len(stage_files):
+                print("[클리어] 모든 스테이지를 완료했습니다!")
+                running = False
