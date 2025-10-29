@@ -250,3 +250,6 @@ def main():
                     player.start_select()
         keys = pygame.key.get_pressed()
         player.update(dt, keys, info["walls"])
+        # 목표 도달 시 다음 스테이지
+        if info["goal"] and player.rect.colliderect(info["goal"]):
+            stage_idx += 1
