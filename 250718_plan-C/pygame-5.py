@@ -256,3 +256,7 @@ def main():
             if stage_idx >= len(stage_files):
                 print("[클리어] 모든 스테이지를 완료했습니다!")
                 running = False
+            else:
+                stage_data = load_stage_json(stage_files[stage_idx])
+                info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
+                player = Player(info["start"], info["tile"])
