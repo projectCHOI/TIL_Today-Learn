@@ -269,3 +269,10 @@ def main():
         # UI
         hud1 = ui_font.render(f"{stage_data.get('name', f'Stage {stage_idx+1}')} | tile={info['tile']}px", True, BLACK)
         hud2 = ui_font.render("←↑↓→ 이동, Space 선택(360° 회전)", True, BLACK)
+        win.blit(hud1, (10, 10))
+        win.blit(hud2, (10, 32))
+
+        pygame.display.flip()
+
+    pygame.quit()
+
