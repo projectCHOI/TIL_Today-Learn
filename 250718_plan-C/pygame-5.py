@@ -134,7 +134,7 @@ def create_star_surface(size, color):
 class Player:
     def __init__(self, spawn_xy, tile):
         self.size = max(10, int(tile * 0.8))
-        self.speed = max(2.0, tile * 0.15)
+        self.speed = max(120.0, tile * 6.0)
         self.x, self.y = spawn_xy
 
         self.base_color = YELLOW
