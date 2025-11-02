@@ -62,6 +62,8 @@ def load_stage_json(filename: str) -> dict:
     return data
     
 # 맵
+ALLOW_UNKNOWN_AS_FLOOR = False
+
 def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
     tile   = int(data["tile"])
     grid   = data["map"]
