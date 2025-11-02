@@ -108,7 +108,7 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
                 start_pos = rect.center
             elif ch_type == "goal":
                 goal_rect = rect
-                
+
     if start_pos is None:
         raise ValueError("[맵 오류] 'start(S)'가 없습니다.")
     if goal_rect is None:
