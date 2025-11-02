@@ -228,11 +228,13 @@ def draw_map(info, surf):
             x = off_x + c * tile
             y = off_y + r * tile
             rect = pygame.Rect(x, y, tile, tile)
-            if info["legend"].get(ch) == "wall":
+            ch_type = info["legend"].get(ch)
+
+            if ch_type == "wall":
                 pygame.draw.rect(surf, WALL, rect)
-            elif info["legend"].get(ch) == "start":
+            elif ch_type == "start":
                 pygame.draw.rect(surf, START, rect, width=2)
-            elif info["legend"].get(ch) == "goal":
+            elif ch_type == "goal":
                 pygame.draw.rect(surf, GOAL, rect)
 
 # 스테이지 로드
