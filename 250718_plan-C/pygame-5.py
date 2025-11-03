@@ -250,6 +250,13 @@ def find_stage_files():
         raise FileNotFoundError(f"[오류] JSON 스테이지 파일이 없습니다: {MAP_DIR}")
     return files
 
+# 스테이지 로드/리셋/이동에 사용할 헬퍼
+def build_runtime(idx: int):
+    sd = load_stage_json(stage_files[idx])
+    inf = build_stage_from_json(sd, WIDTH, HEIGHT)
+    l = Player(inf["start"], inf["tile"])
+    return sd, inf, pl
+    
 # 메인 루프
 def main():
     stage_files = find_stage_files()  # 예: ['stage1.json', 'stage2.json', ...]
@@ -258,6 +265,8 @@ def main():
     info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
     player = Player(info["start"], info["tile"])
     running = True
+    stage_files = find_stage_files()
+    stage_idx = 0 
 
     while running:
         dt = clock.tick(FPS) / 1000.0
