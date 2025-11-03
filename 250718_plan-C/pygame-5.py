@@ -261,7 +261,7 @@ def build_runtime(idx: int):
 def main():
     stage_files = find_stage_files()  # 예: ['stage1.json', 'stage2.json', ...]
     stage_idx = 0
-    stage_data = load_stage_json(stage_files[stage_idx])
+    stage_data, info, player = build_runtime(stage_idx)
     info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
     player = Player(info["start"], info["tile"])
     running = True
@@ -285,7 +285,7 @@ def main():
                 print("[클리어] 모든 스테이지를 완료했습니다!")
                 running = False
             else:
-                stage_data = load_stage_json(stage_files[stage_idx])
+                stage_data, info, player = build_runtime(stage_idx)
                 info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
                 player = Player(info["start"], info["tile"])
 
