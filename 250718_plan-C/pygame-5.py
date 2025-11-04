@@ -259,7 +259,7 @@ def build_runtime(idx: int):
     
 # 메인 루프
 def main():
-    stage_files = find_stage_files()  # 예: ['stage1.json', 'stage2.json', ...]
+    stage_files = find_stage_files()
     stage_idx = 0
     stage_data, info, player = build_runtime(stage_idx)
     info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
@@ -274,8 +274,24 @@ def main():
             if e.type == pygame.QUIT:
                 running = False
             elif e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_SPACE:
+                if e.key == pygame.K_ESCAPE:
+                    # ESC: 종료
+                    running = False
+
+                elif e.key == pygame.K_r:
+                    # R: 현재 스테이지 리셋
+                    stage_data, info, player = build_runtime(stage_idx)
+                    print(f"[디버그] 스테이지 리셋: {stage_files[stage_idx]}")
+
+                elif e.key == pygame.K_n:
+                    # N: 다음 스테이지 (순환)
+                    stage_idx = (stage_idx + 1) % len(stage_files)
+                    stage_data, info, player = build_runtime(stage_idx)
+                    print(f"[디버그] 다음 스테이지: {stage_files[stage_idx]}")
+
+                elif e.key == pygame.K_SPACE:
                     player.start_select()
+
         keys = pygame.key.get_pressed()
         player.update(dt, keys, info["walls"])
         # 목표 도달 시 다음 스테이지
