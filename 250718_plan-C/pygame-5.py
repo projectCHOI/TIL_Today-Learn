@@ -281,13 +281,16 @@ def main():
                 elif e.key == pygame.K_r:
                     # R: 현재 스테이지 리셋
                     stage_data, info, player = build_runtime(stage_idx)
-                    print(f"[디버그] 스테이지 리셋: {stage_files[stage_idx]}")
+                    print(f"스테이지 리셋: {stage_files[stage_idx]}")
 
                 elif e.key == pygame.K_n:
-                    # N: 다음 스테이지 (순환)
-                    stage_idx = (stage_idx + 1) % len(stage_files)
-                    stage_data, info, player = build_runtime(stage_idx)
-                    print(f"[디버그] 다음 스테이지: {stage_files[stage_idx]}")
+                    stage_idx += 1
+                    if stage_idx >= len(stage_files):
+                        print("마지막 스테이지 이후이므로 종료합니다.")
+                        running = False
+                    else:
+                        stage_data, info, player = build_runtime(stage_idx)
+                        print(f"다음 스테이지: {stage_files[stage_idx]}")
 
                 elif e.key == pygame.K_SPACE:
                     player.start_select()
