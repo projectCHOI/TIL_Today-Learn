@@ -251,11 +251,11 @@ def find_stage_files():
     return files
 
 # 스테이지 로드/리셋/이동에 사용할 헬퍼
-def build_runtime(idx: int):
+def build_runtime(idx: int, stage_files):
     sd = load_stage_json(stage_files[idx])
     inf = build_stage_from_json(sd, WIDTH, HEIGHT)
-    l = Player(inf["start"], inf["tile"])
-    return sd, inf, pl
+    player = Player(inf["start"], inf["tile"])
+    return sd, inf, player
     
 # 메인 루프
 def main():
