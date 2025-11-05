@@ -261,12 +261,8 @@ def build_runtime(idx: int, stage_files):
 def main():
     stage_files = find_stage_files()
     stage_idx = 0
-    stage_data, info, player = build_runtime(stage_idx)
-    info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
-    player = Player(info["start"], info["tile"])
+    stage_data, info, player = build_runtime(stage_idx, stage_files)
     running = True
-    stage_files = find_stage_files()
-    stage_idx = 0 
 
     while running:
         dt = clock.tick(FPS) / 1000.0
