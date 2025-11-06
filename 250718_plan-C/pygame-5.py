@@ -275,9 +275,8 @@ def main():
                     running = False
 
                 elif e.key == pygame.K_r:
-                    # R: 현재 스테이지 리셋
-                    stage_data, info, player = build_runtime(stage_idx)
-                    print(f"스테이지 리셋: {stage_files[stage_idx]}")
+    stage_data, info, player = build_runtime(stage_idx, stage_files)
+    print(f"스테이지 리셋: {stage_files[stage_idx]}")
 
                 elif e.key == pygame.K_n:
                     stage_idx += 1
