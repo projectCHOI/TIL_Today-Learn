@@ -271,7 +271,6 @@ def main():
                 running = False
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
-                    # ESC: 종료
                     running = False
 
                 elif e.key == pygame.K_r:
