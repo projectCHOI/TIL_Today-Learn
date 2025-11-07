@@ -274,16 +274,16 @@ def main():
                     running = False
 
                 elif e.key == pygame.K_r:
-    stage_data, info, player = build_runtime(stage_idx, stage_files)
-    print(f"스테이지 리셋: {stage_files[stage_idx]}")
+                    stage_data, info, player = build_runtime(stage_idx, stage_files)
+                    print(f"스테이지 리셋: {stage_files[stage_idx]}")
 
                 elif e.key == pygame.K_n:
-    stage_idx += 1
-    if stage_idx >= len(stage_files):
-        print("마지막 스테이지 이후이므로 종료합니다.")
-        running = False
+                    stage_idx += 1
+                    if stage_idx >= len(stage_files):
+                        print("마지막 스테이지 이후이므로 종료합니다.")
+                        running = False
                     else:
-                        stage_data, info, player = build_runtime(stage_idx)
+                        stage_data, info, player = build_runtime(stage_idx, stage_files)
                         print(f"다음 스테이지: {stage_files[stage_idx]}")
 
                 elif e.key == pygame.K_SPACE:
