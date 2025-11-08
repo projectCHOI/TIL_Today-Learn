@@ -299,7 +299,6 @@ def main():
                 running = False
             else:
                 stage_data, info, player = build_runtime(stage_idx)
-                info = build_stage_from_json(stage_data, WIDTH, HEIGHT)
                 player = Player(info["start"], info["tile"])
 
         # 그리기
