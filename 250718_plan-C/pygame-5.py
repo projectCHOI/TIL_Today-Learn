@@ -299,7 +299,6 @@ def main():
                 running = False
             else:
                 stage_data, info, player = build_runtime(stage_idx)
-                player = Player(info["start"], info["tile"])
 
         # 그리기
         win.fill(WHITE)
