@@ -82,8 +82,6 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
     start_pos = None
     goal_rect = None
 
-    def is_type(ch: str, type_name: str) -> bool:
-        return legend.get(ch) == type_name
     unknown_warned = False
     for r, line in enumerate(grid):
         for c, ch in enumerate(line):
