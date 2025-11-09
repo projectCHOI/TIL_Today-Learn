@@ -298,7 +298,7 @@ def main():
                 print("[클리어] 모든 스테이지를 완료했습니다!")
                 running = False
             else:
-                stage_data, info, player = build_runtime(stage_idx)
+                stage_data, info, player = build_runtime(stage_idx, stage_files)
 
         # 그리기
         win.fill(WHITE)
