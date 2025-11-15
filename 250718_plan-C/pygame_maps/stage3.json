@@ -1,6 +1,6 @@
 {
   "name": "Stage 3",
-  "tile": 24,
+  "tile": 23,
   "legend": { "#": "wall", ".": "floor", "S": "start", "G": "goal" },
   "map": [
     "##################################",
