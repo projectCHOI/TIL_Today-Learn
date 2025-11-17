@@ -19,3 +19,49 @@ GOAL  = (70, 170, 255)
 START = (255, 200, 0)
 YELLOW = (255, 244, 79)
 BLUE   = (0, 120, 255)
+
+# 추가 색상 (코인/열쇠/문)
+COIN_COLOR = (255, 215, 0)    # 금색 느낌
+KEY_COLOR  = (255, 140, 0)    # 주황색
+DOOR_COLOR = (120, 70, 0)     # 갈색(문)
+
+FPS = 60
+clock = pygame.time.Clock()
+
+# 경로
+BASE_DIR = os.path.dirname(__file__)
+MAP_DIR  = os.path.join(BASE_DIR, "pygame_maps")
+
+# 폰트
+FONT_PATH = r"C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\Open Font License\서평원 꺾깎체\TTF\SLEIGothicTTF.ttf"
+try:
+    ui_font = pygame.font.Font(FONT_PATH, 18)
+except Exception:
+    ui_font = pygame.font.SysFont(None, 18)
+
+# JSON 로더
+def load_stage_json(filename: str) -> dict:
+    path = os.path.join(MAP_DIR, filename)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"[오류] 스테이지 파일을 찾을 수 없습니다: {path}")
+
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # 필수 키
+    if "tile" not in data:
+        raise ValueError(f"[오류] 'tile' 키가 없습니다: {filename}")
+    if "map" not in data:
+        raise ValueError(f"[오류] 'map' 키가 없습니다: {filename}")
+
+    # 줄 길이 일관성
+    widths = {len(row) for row in data["map"]}
+    if len(widths) != 1:
+        raise ValueError(f"[오류] 모든 줄의 길이가 동일해야 합니다: {filename}")
+
+    # legend 없으면 기본값 부여
+    if "legend" not in data:
+        data["legend"] = {"#": "wall", ".": "floor", "S": "start", "G": "goal"}
+
+    print(f"[로드 완료] {filename} | tile={data['tile']} | rows={len(data['map'])}")
+    return data
