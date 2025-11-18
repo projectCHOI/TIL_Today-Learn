@@ -65,3 +65,6 @@ def load_stage_json(filename: str) -> dict:
 
     print(f"[로드 완료] {filename} | tile={data['tile']} | rows={len(data['map'])}")
     return data
+
+# 맵
+ALLOW_UNKNOWN_AS_FLOOR = False
