@@ -68,3 +68,26 @@ def load_stage_json(filename: str) -> dict:
 
 # 맵
 ALLOW_UNKNOWN_AS_FLOOR = False
+
+def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
+    tile   = int(data["tile"])
+    grid   = data["map"]
+    legend = data["legend"]
+
+    rows = len(grid)
+    cols = len(grid[0])
+
+    map_w = cols * tile
+    map_h = rows * tile
+
+    off_x = (screen_w - map_w) // 2
+    off_y = (screen_h - map_h) // 2
+
+    walls = []
+    start_pos = None
+    goal_rect = None
+
+    # 추가: 코인 / 열쇠 / 문 리스트
+    coins = []
+    keys = []
+    doors = []
