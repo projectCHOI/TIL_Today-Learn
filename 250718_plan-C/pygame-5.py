@@ -91,3 +91,5 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
     coins = []
     keys = []
     doors = []
+
+    unknown_warned = False
