@@ -109,3 +109,21 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
                 else:
                     raise ValueError(f"[맵 오류] legend에 없는 문자 '{ch}' 발견 (r={r}, c={c})")
                 continue
+
+            if ch_type == "wall":
+                walls.append(rect)
+            elif ch_type == "start":
+                start_pos = rect.center
+            elif ch_type == "goal":
+                goal_rect = rect
+            elif ch_type == "coin":
+                coins.append(rect)
+            elif ch_type == "key":
+                keys.append(rect)
+            elif ch_type == "door":
+                doors.append(rect)
+
+    if start_pos is None:
+        raise ValueError("[맵 오류] 'start(S)'가 없습니다.")
+    if goal_rect is None:
+        raise ValueError("[맵 오류] 'goal(G)'이 없습니다.")
