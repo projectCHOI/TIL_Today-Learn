@@ -93,3 +93,19 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
     doors = []
 
     unknown_warned = False
+    for r, line in enumerate(grid):
+        for c, ch in enumerate(line):
+            x = off_x + c * tile
+            y = off_y + r * tile
+            rect = pygame.Rect(x, y, tile, tile)
+
+            ch_type = legend.get(ch, None)
+
+            if ch_type is None:
+                if ALLOW_UNKNOWN_AS_FLOOR:
+                    if not unknown_warned:
+                        print(f"[경고] legend에 없는 문자 '{ch}' 발견 → floor로 처리합니다. (r={r}, c={c})")
+                        unknown_warned = True
+                else:
+                    raise ValueError(f"[맵 오류] legend에 없는 문자 '{ch}' 발견 (r={r}, c={c})")
+                continue
