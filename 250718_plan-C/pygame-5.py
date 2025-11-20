@@ -127,3 +127,22 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
         raise ValueError("[맵 오류] 'start(S)'가 없습니다.")
     if goal_rect is None:
         raise ValueError("[맵 오류] 'goal(G)'이 없습니다.")
+    
+    return {
+        "name": data.get("name", "Unnamed Stage"),
+        "tile": tile,
+        "grid": grid,
+        "legend": legend,
+        "walls": walls,
+        "start": start_pos,
+        "goal": goal_rect,
+        "offset": (off_x, off_y),
+        "map_px": (map_w, map_h),
+        "size": (cols, rows),
+
+        # 새로 추가된 정보들
+        "coins": coins,
+        "keys": keys,
+        "doors": doors,
+        "coins_total": len(coins),
+    }
