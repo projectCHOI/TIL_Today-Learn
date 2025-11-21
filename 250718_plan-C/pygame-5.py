@@ -146,3 +146,6 @@ def build_stage_from_json(data: dict, screen_w: int, screen_h: int):
         "doors": doors,
         "coins_total": len(coins),
     }
+
+# 유닛
+def create_star_surface(size, color):
