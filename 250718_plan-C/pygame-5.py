@@ -1,11 +1,5 @@
 
 
-# === 기본 설정 ===
-pygame.init()
-WIDTH, HEIGHT = 800, 600
-win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("미로 탐험형 - JSON 스테이지 로더")
-
 # 색상
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
