@@ -1,8 +1,4 @@
-import os
-import json
-import math
-import pygame
-import re
+
 
 # === 기본 설정 ===
 pygame.init()
