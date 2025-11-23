@@ -175,3 +175,7 @@ class Player:
         self.select_color = BLUE
         self.surf_base = create_star_surface(self.size, self.base_color)
         self.surf_select = create_star_surface(self.size, self.select_color)
+        self.rotating = False
+        self.angle = 0
+        self.rotate_ms = 300
+        self.rotate_start = 0
