@@ -1,4 +1,14 @@
+import os
+import json
+import math
+import pygame
+import re
 
+# === 기본 설정 ===
+pygame.init()
+WIDTH, HEIGHT = 800, 600
+win = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("미로 탐험형 - JSON 스테이지 로더")
 
 # 색상
 WHITE = (255, 255, 255)
@@ -153,3 +163,6 @@ def create_star_surface(size, color):
         pts.append((x, y))
     pygame.draw.polygon(surf, color, pts)
     return surf
+
+    # 플레이어
+    class Player:
