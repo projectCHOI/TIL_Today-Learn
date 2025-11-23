@@ -164,5 +164,14 @@ def create_star_surface(size, color):
     pygame.draw.polygon(surf, color, pts)
     return surf
 
-    # 플레이어
-    class Player:
+# 플레이어
+class Player:
+    def __init__(self, spawn_xy, tile):
+        self.size = max(10, int(tile * 0.8))
+        self.speed = max(120.0, tile * 6.0)
+        self.x, self.y = spawn_xy
+
+        self.base_color = YELLOW
+        self.select_color = BLUE
+        self.surf_base = create_star_surface(self.size, self.base_color)
+        self.surf_select = create_star_surface(self.size, self.select_color)
