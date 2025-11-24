@@ -184,3 +184,9 @@ class Player:
     def rect(self):
         half = self.size / 2
         return pygame.Rect(int(self.x - half), int(self.y - half), self.size, self.size)
+
+    def start_select(self):
+        if not self.rotating:
+            self.rotating = True
+            self.rotate_start = pygame.time.get_ticks()
+            self.angle = 0
