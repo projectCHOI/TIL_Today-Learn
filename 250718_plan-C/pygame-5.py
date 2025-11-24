@@ -190,3 +190,8 @@ class Player:
             self.rotating = True
             self.rotate_start = pygame.time.get_ticks()
             self.angle = 0
+
+    def move_and_collide(self, dx, dy, walls):
+        self.x += dx
+        r = self.rect
+        for w in walls:
