@@ -179,3 +179,8 @@ class Player:
         self.angle = 0
         self.rotate_ms = 300
         self.rotate_start = 0
+    
+    @property
+    def rect(self):
+        half = self.size / 2
+        return pygame.Rect(int(self.x - half), int(self.y - half), self.size, self.size)
