@@ -195,3 +195,18 @@ class Player:
         self.x += dx
         r = self.rect
         for w in walls:
+            if r.colliderect(w):
+                if dx > 0:
+                    self.x = w.left - r.width / 2
+                elif dx < 0:
+                    self.x = w.right + r.width / 2
+                r = self.rect
+        self.y += dy
+        r = self.rect
+        for w in walls:
+            if r.colliderect(w):
+                if dy > 0:
+                    self.y = w.top - r.height / 2
+                elif dy < 0:
+                    self.y = w.bottom + r.height / 2
+                r = self.rect
