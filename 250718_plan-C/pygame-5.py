@@ -233,3 +233,10 @@ class Player:
         else:
             rect = src.get_rect(center=(self.x, self.y))
             surface.blit(src, rect.topleft)
+
+def draw_map(info, surf, coins, keys, doors):
+    tile = info["tile"]
+    off_x, off_y = info["offset"]
+    grid = info["grid"]
+    # 바닥(경계)
+    pygame.draw.rect(surf, PATH, (off_x, off_y, info["map_px"][0], info["map_px"][1]))
