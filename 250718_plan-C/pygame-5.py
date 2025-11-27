@@ -240,3 +240,6 @@ def draw_map(info, surf, coins, keys, doors):
     grid = info["grid"]
     # 바닥(경계)
     pygame.draw.rect(surf, PATH, (off_x, off_y, info["map_px"][0], info["map_px"][1]))
+
+    for r, line in enumerate(grid):
+        for c, ch in enumerate(line):
