@@ -247,3 +247,10 @@ def draw_map(info, surf, coins, keys, doors):
             y = off_y + r * tile
             rect = pygame.Rect(x, y, tile, tile)
             ch_type = info["legend"].get(ch)
+
+            if ch_type == "wall":
+                pygame.draw.rect(surf, WALL, rect)
+            elif ch_type == "start":
+                pygame.draw.rect(surf, START, rect, width=2)
+            elif ch_type == "goal":
+                pygame.draw.rect(surf, GOAL, rect)
