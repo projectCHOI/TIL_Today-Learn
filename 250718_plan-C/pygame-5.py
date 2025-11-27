@@ -243,3 +243,7 @@ def draw_map(info, surf, coins, keys, doors):
 
     for r, line in enumerate(grid):
         for c, ch in enumerate(line):
+            x = off_x + c * tile
+            y = off_y + r * tile
+            rect = pygame.Rect(x, y, tile, tile)
+            ch_type = info["legend"].get(ch)
