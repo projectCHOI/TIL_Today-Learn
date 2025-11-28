@@ -254,3 +254,13 @@ def draw_map(info, surf, coins, keys, doors):
                 pygame.draw.rect(surf, START, rect, width=2)
             elif ch_type == "goal":
                 pygame.draw.rect(surf, GOAL, rect)
+
+    for rect in coins:
+        pygame.draw.circle(surf, COIN_COLOR, rect.center, rect.width // 4)
+
+    for rect in doors:
+        pygame.draw.rect(surf, DOOR_COLOR, rect)
+
+    for rect in keys:
+        inner = rect.inflate(-rect.width // 3, -rect.height // 3)
+        pygame.draw.rect(surf, KEY_COLOR, inner)
