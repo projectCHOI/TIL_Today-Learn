@@ -264,3 +264,7 @@ def draw_map(info, surf, coins, keys, doors):
     for rect in keys:
         inner = rect.inflate(-rect.width // 3, -rect.height // 3)
         pygame.draw.rect(surf, KEY_COLOR, inner)
+
+# 스테이지 로드
+def _natural_key(s: str):
+    return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
