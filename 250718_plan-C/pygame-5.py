@@ -268,3 +268,7 @@ def draw_map(info, surf, coins, keys, doors):
 # 스테이지 로드
 def _natural_key(s: str):
     return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
+
+def find_stage_files():
+    if not os.path.exists(MAP_DIR):
+        raise FileNotFoundError(f"[오류] 맵 폴더가 없습니다: {MAP_DIR}")
