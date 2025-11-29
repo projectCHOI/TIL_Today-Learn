@@ -272,3 +272,8 @@ def _natural_key(s: str):
 def find_stage_files():
     if not os.path.exists(MAP_DIR):
         raise FileNotFoundError(f"[오류] 맵 폴더가 없습니다: {MAP_DIR}")
+    files = [f for f in os.listdir(MAP_DIR) if f.lower().endswith(".json")]
+    files.sort(key=_natural_key)
+    if not files:
+        raise FileNotFoundError(f"[오류] JSON 스테이지 파일이 없습니다: {MAP_DIR}")
+    return files
