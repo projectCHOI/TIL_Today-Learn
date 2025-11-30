@@ -277,3 +277,5 @@ def find_stage_files():
     if not files:
         raise FileNotFoundError(f"[오류] JSON 스테이지 파일이 없습니다: {MAP_DIR}")
     return files
+
+def build_runtime(idx: int, stage_files):
