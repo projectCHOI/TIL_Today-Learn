@@ -279,3 +279,14 @@ def find_stage_files():
     return files
 
 def build_runtime(idx: int, stage_files):
+    sd = load_stage_json(stage_files[idx])
+    inf = build_stage_from_json(sd, WIDTH, HEIGHT)
+    player = Player(inf["start"], inf["tile"])
+    runtime = {
+        "coins": list(inf.get("coins", [])),           # 현재 남은 코인
+        "keys": list(inf.get("keys", [])),             # 아직 남아 있는 열쇠
+        "doors": list(inf.get("doors", [])),           # 아직 닫혀 있는 문
+        "has_key": False,                              # 열쇠 보유 여부
+        "stage_coin_total": inf.get("coins_total", len(inf.get("coins", []))),
+    }
+    return sd, inf, player, runtime
