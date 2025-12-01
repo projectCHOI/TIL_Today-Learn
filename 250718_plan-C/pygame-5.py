@@ -293,3 +293,8 @@ def build_runtime(idx: int, stage_files):
 
 # 메인 루프
 def main():
+    stage_files = find_stage_files()
+    stage_idx = 0
+    stage_data, info, player, runtime = build_runtime(stage_idx, stage_files)
+    running = True
+    total_coins_collected = 0  # 전체 스테이지 통합 코인 수
