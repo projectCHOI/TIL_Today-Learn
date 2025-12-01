@@ -290,3 +290,6 @@ def build_runtime(idx: int, stage_files):
         "stage_coin_total": inf.get("coins_total", len(inf.get("coins", []))),
     }
     return sd, inf, player, runtime
+
+# 메인 루프
+def main():
