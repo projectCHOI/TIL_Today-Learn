@@ -297,4 +297,13 @@ def main():
     stage_idx = 0
     stage_data, info, player, runtime = build_runtime(stage_idx, stage_files)
     running = True
-    total_coins_collected = 0  # 전체 스테이지 통합 코인 수
+    total_coins_collected = 0
+
+    while running:
+        dt = clock.tick(FPS) / 1000.0
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                running = False
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE:
+                    running = False
