@@ -319,3 +319,7 @@ def main():
                     else:
                         stage_data, info, player, runtime = build_runtime(stage_idx, stage_files)
                         print(f"다음 스테이지: {stage_files[stage_idx]}")
+                elif e.key == pygame.K_SPACE:
+                    player.start_select()
+
+        keys = pygame.key.get_pressed()
