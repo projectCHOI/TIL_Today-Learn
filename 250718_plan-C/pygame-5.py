@@ -307,3 +307,7 @@ def main():
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
                     running = False
+
+                elif e.key == pygame.K_r:
+                    stage_data, info, player, runtime = build_runtime(stage_idx, stage_files)
+                    print(f"스테이지 리셋: {stage_files[stage_idx]}")
