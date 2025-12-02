@@ -311,3 +311,8 @@ def main():
                 elif e.key == pygame.K_r:
                     stage_data, info, player, runtime = build_runtime(stage_idx, stage_files)
                     print(f"스테이지 리셋: {stage_files[stage_idx]}")
+                elif e.key == pygame.K_n:
+                    stage_idx += 1
+                    if stage_idx >= len(stage_files):
+                        print("마지막 스테이지 이후이므로 종료합니다.")
+                        running = False
