@@ -326,3 +326,12 @@ def main():
         # 문은 열쇠를 얻기 전까지만 벽처럼 취급
         current_walls = info["walls"] + runtime["doors"]
         player.update(dt, keys, current_walls)
+        # 열쇠 획득 체크
+        if not runtime["has_key"]:
+            for krect in runtime["keys"][:]:
+                if player.rect.colliderect(krect):
+                    runtime["has_key"] = True
+                    runtime["keys"].remove(krect)
+                    runtime["doors"].clear()  # 모든 문 개방
+                    print("열쇠를 얻었습니다! 문이 열립니다.")
+                    break
