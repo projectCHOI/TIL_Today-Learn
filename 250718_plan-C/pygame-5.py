@@ -323,3 +323,6 @@ def main():
                     player.start_select()
 
         keys = pygame.key.get_pressed()
+        # 문은 열쇠를 얻기 전까지만 벽처럼 취급
+        current_walls = info["walls"] + runtime["doors"]
+        player.update(dt, keys, current_walls)
