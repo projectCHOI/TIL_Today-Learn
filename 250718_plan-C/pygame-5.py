@@ -341,3 +341,12 @@ def main():
                 runtime["coins"].remove(crect)
                 total_coins_collected += 1
                 print(f"코인 획득! 현재까지 {total_coins_collected}개")
+
+        # 목표 도달 시 다음 스테이지
+        if info["goal"] and player.rect.colliderect(info["goal"]):
+            stage_idx += 1
+            if stage_idx >= len(stage_files):
+                print("[클리어] 모든 스테이지를 완료했습니다!")
+                running = False
+            else:
+                stage_data, info, player, runtime = build_runtime(stage_idx, stage_files)
