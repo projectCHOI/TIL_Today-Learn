@@ -335,3 +335,9 @@ def main():
                     runtime["doors"].clear()  # 모든 문 개방
                     print("열쇠를 얻었습니다! 문이 열립니다.")
                     break
+        # 코인 획득 체크
+        for crect in runtime["coins"][:]:
+            if player.rect.colliderect(crect):
+                runtime["coins"].remove(crect)
+                total_coins_collected += 1
+                print(f"코인 획득! 현재까지 {total_coins_collected}개")
