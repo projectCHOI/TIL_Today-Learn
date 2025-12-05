@@ -350,3 +350,8 @@ def main():
                 running = False
             else:
                 stage_data, info, player, runtime = build_runtime(stage_idx, stage_files)
+
+        # 그리기
+        win.fill(WHITE)
+        draw_map(info, win, runtime["coins"], runtime["keys"], runtime["doors"])
+        player.draw(win)
