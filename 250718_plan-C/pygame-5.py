@@ -359,3 +359,5 @@ def main():
         hud1 = ui_font.render(f"{stage_data.get('name', f'Stage {stage_idx+1}')} | tile={info['tile']}px", True, BLACK)
         hud2 = ui_font.render("←↑↓→ 이동, Space 선택(360° 회전)", True, BLACK)
         hud3 = ui_font.render("[ESC] 종료  [R] 리셋  [N] 다음 스테이지", True, BLACK)
+        stage_coin_total = runtime.get("stage_coin_total", len(info.get("coins", [])))
+        stage_coin_collected = stage_coin_total - len(runtime["coins"])
