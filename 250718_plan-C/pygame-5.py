@@ -361,3 +361,6 @@ def main():
         hud3 = ui_font.render("[ESC] 종료  [R] 리셋  [N] 다음 스테이지", True, BLACK)
         stage_coin_total = runtime.get("stage_coin_total", len(info.get("coins", [])))
         stage_coin_collected = stage_coin_total - len(runtime["coins"])
+        hud4 = ui_font.render(f"Stage Coin: {stage_coin_collected}/{stage_coin_total}", True, BLACK)
+        hud5 = ui_font.render(f"Total Coin: {total_coins_collected}", True, BLACK)
+        hud6 = ui_font.render(f"Key: {'O' if runtime['has_key'] else 'X'}", True, BLACK)
