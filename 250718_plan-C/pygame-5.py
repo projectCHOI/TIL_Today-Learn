@@ -364,3 +364,12 @@ def main():
         hud4 = ui_font.render(f"Stage Coin: {stage_coin_collected}/{stage_coin_total}", True, BLACK)
         hud5 = ui_font.render(f"Total Coin: {total_coins_collected}", True, BLACK)
         hud6 = ui_font.render(f"Key: {'O' if runtime['has_key'] else 'X'}", True, BLACK)
+
+        win.blit(hud1, (10, 10))
+        win.blit(hud2, (10, 32))
+        win.blit(hud3, (10, 54))
+        win.blit(hud4, (10, 76))
+        win.blit(hud5, (10, 98))
+        win.blit(hud6, (10, 120))
+
+        pygame.display.flip()
