@@ -373,3 +373,8 @@ def main():
         win.blit(hud6, (10, 120))
 
         pygame.display.flip()
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
