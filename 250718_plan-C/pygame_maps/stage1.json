@@ -1,8 +1,7 @@
 {
   "name": "Stage 1",
   "tile": 23,
-  "legend": {"#": "wall", ".": "floor", "S": "start", "G": "goal", "C": "coin", "K": "key", "D": "door"
-},
+  "legend": {"#": "wall", ".": "floor", "S": "start", "G": "goal", "C": "coin", "K": "key", "D": "door"},
   "map": [
     "##################################",
     "#S.............C#................#",
