@@ -6,7 +6,7 @@ import re
 
 # === 기본 설정 ===
 pygame.init()
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 900, 800
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("미로 탐험형 - JSON 스테이지 로더")
 
