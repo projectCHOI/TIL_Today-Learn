@@ -50,3 +50,19 @@
 ```
 
 ---
+
+## 🚀 실행 방법
+
+### 1️⃣ 필수 라이브러리 설치
+
+```bash
+pip install numpy scipy pygame
+```
+
+### 2️⃣ 실행
+
+```bash
+python main.py
+```
+
+---
