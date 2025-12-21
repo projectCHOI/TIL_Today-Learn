@@ -1,4 +1,4 @@
-# Sound Maker 
+ㅇ# Sound Maker 
 - Mouse Click 8-bit Composer
 
 **마우스 클릭 기반 8비트 작곡기 (Python / Tkinter / NumPy / Pygame)**
@@ -39,3 +39,14 @@
 
 ---
 
+## 📂 프로젝트 구조
+
+```
+250706_Sound Maker/
+├─ main.py                # 작곡기 메인 코드
+├─ Download/
+│  ├─ click_composed.wav  # 생성된 음악 파일
+│  └─ project.json        # 저장된 프로젝트 데이터
+```
+
+---
