@@ -11,6 +11,7 @@ pygame.display.set_caption("Pygame-6")
 # 색상
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
 
 # === 폰트 경로 ===
 FONT_PATH = r"C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\Open Font License\KCC한빛체\KCC한빛체\KCC-Hanbit.ttf"
@@ -50,11 +51,16 @@ while running:
     # 배경
     screen.fill(WHITE)
 
+    pygame.draw.rect(
+        screen,
+        RED,
+        (player_x, player_y, PLAYER_SIZE, PLAYER_SIZE)
+    )
+
     # 텍스트 그리기
     screen.blit(text_surface, text_rect)
-
     pygame.display.flip()
-    clock.tick(60)  # FPS 제한
+    clock.tick(60)
 
 pygame.quit()
 sys.exit()
