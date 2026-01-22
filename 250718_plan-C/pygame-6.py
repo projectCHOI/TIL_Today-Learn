@@ -1,10 +1,9 @@
 import pygame
 import sys
 
-# pygame 초기화
 pygame.init()
 
-# 화면 크기
+# 화면 설정
 WIDTH, HEIGHT = 900, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pygame-6")
@@ -15,10 +14,12 @@ BLACK = (0, 0, 0)
 
 # === 폰트 경로 ===
 FONT_PATH = r"C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\Open Font License\KCC한빛체\KCC한빛체\KCC-Hanbit.ttf"
-
-# 폰트 객체 생성
-font = pygame.font.Font(FONT_PATH, 32)  # 32 = 폰트 크기
-
+font = pygame.font.Font(FONT_PATH, 24)
+# 플레이어 설정
+PLAYER_SIZE = 50
+PLAYER_SPEED = 5
+player_x = WIDTH // 2 - PLAYER_SIZE // 2
+player_y = HEIGHT // 2 - PLAYER_SIZE // 2
 # 텍스트 생성
 text_surface = font.render("Pygame + KCC 한빛체", True, BLACK)
 text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
