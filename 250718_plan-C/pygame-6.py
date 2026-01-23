@@ -22,9 +22,6 @@ PLAYER_SPEED = 5
 player_x = WIDTH // 2 - PLAYER_SIZE // 2
 player_y = HEIGHT // 2 - PLAYER_SIZE // 2
 
-clock = pygame.time.Clock()
-running = True
-
 # 텍스트 생성
 text_surface = font.render("Pygame + KCC 한빛체", True, BLACK)
 text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
