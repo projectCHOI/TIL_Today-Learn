@@ -45,6 +45,9 @@ while running:
     if keys[pygame.K_d]:
         player_x += PLAYER_SPEED
 
+    player_x = max(0, min(player_x, WIDTH - PLAYER_SIZE))
+    player_y = max(0, min(player_y, HEIGHT - PLAYER_SIZE))
+    
     # 배경
     screen.fill(WHITE)
 
