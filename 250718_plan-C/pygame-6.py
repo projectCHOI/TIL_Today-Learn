@@ -32,6 +32,16 @@ MAX_DRAG = 200
 MAX_LEVEL = 10
 POWER_TABLE = [0, 0, 8, 10, 12, 14, 16, 18, 20, 22, 25]
 
+# 드래그 상태
+dragging = False
+press_pos = (0, 0)
+current_pos = (0, 0)
+
+projectiles = []
+
+clock = pygame.time.Clock()
+running = True
+
 # 텍스트 생성
 text_surface = font.render("Pygame", True, BLACK)
 text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
