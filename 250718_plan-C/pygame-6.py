@@ -42,45 +42,16 @@ projectiles = []
 clock = pygame.time.Clock()
 running = True
 
-# 텍스트 생성
-text_surface = font.render("Pygame", True, BLACK)
-text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+class Projectile:
+    def __init__(self, pos, velocity):
+        self.pos = pygame.Vector2(pos)
+        self.vel = pygame.Vector2(velocity)
 
-running = True
-clock = pygame.time.Clock()
+    def update(self):
+        self.pos += self.vel
+        self.vel *= 0.99  # 간단한 감속
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, BLUE, self.pos, PROJECTILE_RADIUS)
 
 while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    keys = pygame.key.get_pressed()
-
-    if keys[pygame.K_w]:
-        player_y -= PLAYER_SPEED
-    if keys[pygame.K_s]:
-        player_y += PLAYER_SPEED
-    if keys[pygame.K_a]:
-        player_x -= PLAYER_SPEED
-    if keys[pygame.K_d]:
-        player_x += PLAYER_SPEED
-
-    player_x = max(0, min(player_x, WIDTH - PLAYER_SIZE))
-    player_y = max(0, min(player_y, HEIGHT - PLAYER_SIZE))
-
-    # 배경
-    screen.fill(WHITE)
-
-    pygame.draw.rect(
-        screen,
-        RED,
-        (player_x, player_y, PLAYER_SIZE, PLAYER_SIZE)
-    )
-
-    # 텍스트 그리기
-    screen.blit(text_surface, text_rect)
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()
-sys.exit()
