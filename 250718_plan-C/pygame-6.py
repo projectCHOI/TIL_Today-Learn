@@ -70,3 +70,18 @@ while running:
 
             drag_vec = pygame.Vector2(release_pos) - pygame.Vector2(press_pos)
             drag_dist = drag_vec.length()
+            # 거리 → 단계
+            level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
+            level = max(0, min(level, MAX_LEVEL))
+
+            if level >= 2:
+                direction = -drag_vec.normalize()
+                speed = POWER_TABLE[level]
+                velocity = direction * speed
+
+                projectiles.append(
+                    Projectile(
+                        (player_x + PLAYER_SIZE // 2, player_y + PLAYER_SIZE // 2),
+                        velocity
+                    )
+                )
