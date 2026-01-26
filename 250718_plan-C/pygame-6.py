@@ -55,3 +55,11 @@ class Projectile:
         pygame.draw.circle(screen, BLUE, self.pos, PROJECTILE_RADIUS)
 
 while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        # 드래그 시작
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            dragging = True
+            press_pos = pygame.mouse.get_pos()
