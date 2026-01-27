@@ -85,3 +85,13 @@ while running:
                         velocity
                     )
                 )
+    # 플레이어 이동
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w]:
+        player_y -= PLAYER_SPEED
+    if keys[pygame.K_s]:
+        player_y += PLAYER_SPEED
+    if keys[pygame.K_a]:
+        player_x -= PLAYER_SPEED
+    if keys[pygame.K_d]:
+        player_x += PLAYER_SPEED
