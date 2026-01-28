@@ -98,3 +98,6 @@ while running:
         
     player_x = max(0, min(player_x, WIDTH - PLAYER_SIZE))
     player_y = max(0, min(player_y, HEIGHT - PLAYER_SIZE))
+    # 투사체 업데이트
+    for p in projectiles:
+        p.update()
