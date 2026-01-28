@@ -101,3 +101,11 @@ while running:
     # 투사체 업데이트
     for p in projectiles:
         p.update()
+    # 화면 그리기
+    screen.fill(WHITE)
+    # 플레이어
+    pygame.draw.rect(
+        screen,
+        RED,
+        (player_x, player_y, PLAYER_SIZE, PLAYER_SIZE)
+    )
