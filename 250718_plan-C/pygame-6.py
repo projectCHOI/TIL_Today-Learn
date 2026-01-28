@@ -109,3 +109,13 @@ while running:
         RED,
         (player_x, player_y, PLAYER_SIZE, PLAYER_SIZE)
     )
+    # 에임 가이드
+    if dragging:
+        current_pos = pygame.mouse.get_pos()
+        pygame.draw.line(
+            screen,
+            BLACK,
+            (player_x + PLAYER_SIZE // 2, player_y + PLAYER_SIZE // 2),
+            current_pos,
+            2
+        )
