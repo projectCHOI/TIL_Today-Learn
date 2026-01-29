@@ -119,3 +119,9 @@ while running:
             current_pos,
             2
         )
+        # 단계 표시
+        drag_dist = pygame.Vector2(current_pos).distance_to(press_pos)
+        level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
+        level = max(0, min(level, MAX_LEVEL))
+        level_text = font.render(f"Power Level: {level}", True, BLACK)
+        screen.blit(level_text, (20, 20))
