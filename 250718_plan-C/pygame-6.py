@@ -125,3 +125,12 @@ while running:
         level = max(0, min(level, MAX_LEVEL))
         level_text = font.render(f"Power Level: {level}", True, BLACK)
         screen.blit(level_text, (20, 20))
+    # 투사체
+    for p in projectiles:
+        p.draw(screen)
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
+sys.exit()
