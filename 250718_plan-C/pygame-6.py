@@ -68,6 +68,9 @@ while running:
             dragging = False
             release_pos = pygame.mouse.get_pos()
 #
+            mouse_pos = pygame.mouse.get_pos()
+            drag_vec = pygame.Vector2(mouse_pos) - pygame.Vector2(press_pos)
+
             drag_vec = pygame.Vector2(release_pos) - pygame.Vector2(press_pos)
 
             if drag_vec.length() > MAX_DRAG:
