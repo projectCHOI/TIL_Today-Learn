@@ -71,12 +71,10 @@ while running:
             mouse_pos = pygame.mouse.get_pos()
             drag_vec = pygame.Vector2(mouse_pos) - pygame.Vector2(press_pos)
 
-            drag_vec = pygame.Vector2(release_pos) - pygame.Vector2(press_pos)
-
             if drag_vec.length() > MAX_DRAG:
                 drag_vec = drag_vec.normalize() * MAX_DRAG
 
-            drag_dist = drag_vec.length()
+            aim_end = pygame.Vector2(press_pos) + drag_vec
 #
             # 거리 → 단계
             level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
