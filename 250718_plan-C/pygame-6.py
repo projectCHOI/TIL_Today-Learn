@@ -60,29 +60,7 @@ while running:
             running = False
 
         # 드래그 시작
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            dragging = True
-            press_pos = pygame.mouse.get_pos()
-        # 드래그 종료 → 발사
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            dragging = False
-            release_pos = pygame.mouse.get_pos()
-#
-            mouse_pos = pygame.mouse.get_pos()
-            drag_vec = pygame.Vector2(mouse_pos) - pygame.Vector2(press_pos)
 
-            if drag_vec.length() > MAX_DRAG:
-                drag_vec = drag_vec.normalize() * MAX_DRAG
-
-            aim_end = pygame.Vector2(press_pos) + drag_vec
-
-            pygame.draw.line(
-                screen,
-                BLACK,
-                (player_x + PLAYER_SIZE // 2, player_y + PLAYER_SIZE // 2),
-                aim_end,
-                2
-            )
 #
             # 거리 → 단계
             level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
