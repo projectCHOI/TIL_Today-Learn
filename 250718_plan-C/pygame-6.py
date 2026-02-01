@@ -60,7 +60,11 @@ while running:
             running = False
 
         # 드래그 시작
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            dragging = False
+            release_pos = pygame.mouse.get_pos()
 
+            drag_vec = pygame.Vector2(release_pos) - pygame.Vector2(press_pos)
 #
             # 거리 → 단계
             level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
