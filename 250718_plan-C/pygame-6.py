@@ -111,6 +111,13 @@ while running:
     )
     # 에임 가이드
     if dragging:
+        mouse_pos = pygame.mouse.get_pos()
+        drag_vec = pygame.Vector2(mouse_pos) - pygame.Vector2(press_pos)
+
+        if drag_vec.length() > MAX_DRAG:
+            drag_vec = drag_vec.normalize() * MAX_DRAG
+
+        aim_end = pygame.Vector2(press_pos) + drag_vec
 
     # 투사체
     for p in projectiles:
