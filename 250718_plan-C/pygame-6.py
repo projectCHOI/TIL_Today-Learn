@@ -79,12 +79,12 @@ while running:
                 speed = POWER_TABLE[level]
                 velocity = direction * speed
 
-                projectiles.append(
-                    Projectile(
-                        (player_x + PLAYER_SIZE // 2, player_y + PLAYER_SIZE // 2),
-                        velocity
-                    )
+            projectiles.append(
+                Projectile(
+                    (player_x + PLAYER_SIZE // 2, player_y + PLAYER_SIZE // 2),
+                    velocity
                 )
+            )
     # 플레이어 이동
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
@@ -111,20 +111,7 @@ while running:
     )
     # 에임 가이드
     if dragging:
-        current_pos = pygame.mouse.get_pos()
-        pygame.draw.line(
-            screen,
-            BLACK,
-            (player_x + PLAYER_SIZE // 2, player_y + PLAYER_SIZE // 2),
-            current_pos,
-            2
-        )
-        # 단계 표시
-        drag_dist = pygame.Vector2(current_pos).distance_to(press_pos)
-        level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
-        level = max(0, min(level, MAX_LEVEL))
-        level_text = font.render(f"Power Level: {level}", True, BLACK)
-        screen.blit(level_text, (20, 20))
+
     # 투사체
     for p in projectiles:
         p.draw(screen)
