@@ -118,7 +118,13 @@ while running:
             drag_vec = drag_vec.normalize() * MAX_DRAG
 
         aim_end = pygame.Vector2(press_pos) + drag_vec
-        pygame.draw.line()
+        pygame.draw.line(
+        screen,
+        BLACK,
+        (player_x + PLAYER_SIZE // 2, player_y + PLAYER_SIZE // 2),
+        aim_end,
+        2            
+        )
     # 투사체
     for p in projectiles:
         p.draw(screen)
