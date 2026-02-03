@@ -125,6 +125,9 @@ while running:
         aim_end,
         2            
         )
+    drag_dist = drag_vec.length()
+    level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
+    level = max(0, min(level, MAX_LEVEL))
     # 투사체
     for p in projectiles:
         p.draw(screen)
