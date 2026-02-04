@@ -64,9 +64,10 @@ while running:
             dragging = True
             press_pos = pygame.mouse.get_pos()
 
-            drag_vec = pygame.Vector2(release_pos) - pygame.Vector2(press_pos)
-        if drag_vec.length() > MAX_DRAG:
-            drag_vec = drag_vec.normalize() * MAX_DRAG
+        # 드래그 종료 → 발사
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            dragging = False
+            release_pos = pygame.mouse.get_pos()
 
         drag_dist = drag_vec.length()
 #
