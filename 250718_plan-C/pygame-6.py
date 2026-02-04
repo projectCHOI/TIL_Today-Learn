@@ -60,9 +60,9 @@ while running:
             running = False
 
         # 드래그 시작
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            dragging = False
-            release_pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            dragging = True
+            press_pos = pygame.mouse.get_pos()
 
             drag_vec = pygame.Vector2(release_pos) - pygame.Vector2(press_pos)
         if drag_vec.length() > MAX_DRAG:
@@ -131,7 +131,7 @@ while running:
 
     level_text = font.render(f"Power Level: {level}", True, BLACK)
     screen.blit(level_text, (20, 20))
-    
+
     # 투사체
     for p in projectiles:
         p.draw(screen)
