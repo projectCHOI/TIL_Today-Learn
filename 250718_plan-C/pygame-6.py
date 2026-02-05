@@ -75,10 +75,10 @@ while running:
             drag_vec = drag_vec.normalize() * MAX_DRAG
 
         drag_dist = drag_vec.length()
-#
-            # 거리 → 단계
-            level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
-            level = max(0, min(level, MAX_LEVEL))
+
+        # 거리 → 단계
+        level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
+        level = max(0, min(level, MAX_LEVEL))
 
             if level >= 2:
                 direction = -drag_vec.normalize()
