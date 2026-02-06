@@ -1,6 +1,5 @@
 import pygame
 import sys
-import math
 
 # 초기화
 pygame.init()
@@ -8,7 +7,7 @@ pygame.init()
 # 화면 설정
 WIDTH, HEIGHT = 900, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pygame-6: Drag & Shoot")
+pygame.display.set_caption("Pygame-6: Penalty System")
 
 # 색상
 WHITE = (255, 255, 255)
@@ -16,13 +15,13 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 BLUE = (0, 100, 255)
 GRAY = (200, 200, 200)
+DARK_RED = (150, 0, 0) # 패널티 상태 표시용
 
 # 폰트 설정
 try:
     FONT_PATH = r"C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\Open Font License\KCC한빛체\KCC한빛체\KCC-Hanbit.ttf"
     font = pygame.font.Font(FONT_PATH, 20)
 except:
-    print("폰트 파일을 찾을 수 없습니다.")
     font = pygame.font.SysFont("arial", 20)
 
 # 플레이어 설정
@@ -40,6 +39,7 @@ POWER_TABLE = [0, 0, 8, 10, 12, 14, 16, 18, 20, 22, 25]
 dragging = False
 press_pos = pygame.Vector2(0, 0)
 projectiles = []
+can_move = True # 이동 가능 여부 플래그
 
 class Projectile:
     def __init__(self, pos, velocity):
@@ -48,7 +48,7 @@ class Projectile:
 
     def update(self):
         self.pos += self.vel
-        self.vel *= 0.99  # 마찰력(감속)
+        self.vel *= 0.99 
 
     def draw(self, screen):
         pygame.draw.circle(screen, BLUE, self.pos, PROJECTILE_RADIUS)
@@ -58,100 +58,95 @@ running = True
 
 while running:
     # --- 1. 이벤트 처리 ---
+    current_level = 0 # 루프마다 레벨 계산 초기화
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-        # 드래그 시작
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             dragging = True
             press_pos = pygame.Vector2(pygame.mouse.get_pos())
 
-        # 드래그 종료 -> 발사
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             dragging = False
             release_pos = pygame.Vector2(pygame.mouse.get_pos())
-            
             drag_vec = release_pos - press_pos
             
             if drag_vec.length() > 0:
-                # 최대 드래그 거리 제한
                 if drag_vec.length() > MAX_DRAG:
                     drag_vec = drag_vec.normalize() * MAX_DRAG
 
-                drag_dist = drag_vec.length()
-                level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
+                level = int(drag_vec.length() / (MAX_DRAG / MAX_LEVEL))
                 level = max(0, min(level, MAX_LEVEL))
 
-                # 레벨 2 이상일 때만 발사 (실수 방지)
                 if level >= 2:
-                    direction = -drag_vec.normalize() # 슬링샷 방식 (반대 방향)
+                    direction = -drag_vec.normalize()
                     speed = POWER_TABLE[level]
                     velocity = direction * speed
-
                     projectiles.append(
-                        Projectile(
-                            player_pos + pygame.Vector2(PLAYER_SIZE // 2, PLAYER_SIZE // 2),
-                            velocity
-                        )
+                        Projectile(player_pos + pygame.Vector2(PLAYER_SIZE // 2, PLAYER_SIZE // 2), velocity)
                     )
 
-    # --- 2. 플레이어 이동 로직 ---
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]: player_pos.y -= PLAYER_SPEED
-    if keys[pygame.K_s]: player_pos.y += PLAYER_SPEED
-    if keys[pygame.K_a]: player_pos.x -= PLAYER_SPEED
-    if keys[pygame.K_d]: player_pos.x += PLAYER_SPEED
+    # --- 2. 실시간 상태 체크 (드래그 중 레벨 계산) ---
+    can_move = True # 기본적으로 이동 가능
+    if dragging:
+        mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
+        drag_vec = mouse_pos - press_pos
+        current_dist = min(drag_vec.length(), MAX_DRAG)
+        current_level = int(current_dist / (MAX_DRAG / MAX_LEVEL))
+        
+        # 패널티 조건: 파워 레벨이 10이면 이동 불가
+        if current_level >= 10:
+            can_move = False
+
+    # --- 3. 플레이어 이동 로직 (패널티 적용) ---
+    if can_move:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]: player_pos.y -= PLAYER_SPEED
+        if keys[pygame.K_s]: player_pos.y += PLAYER_SPEED
+        if keys[pygame.K_a]: player_pos.x -= PLAYER_SPEED
+        if keys[pygame.K_d]: player_pos.x += PLAYER_SPEED
     
-    # 화면 경계 제한
     player_pos.x = max(0, min(player_pos.x, WIDTH - PLAYER_SIZE))
     player_pos.y = max(0, min(player_pos.y, HEIGHT - PLAYER_SIZE))
 
-    # --- 3. 투사체 업데이트 및 화면 밖 제거 ---
+    # --- 4. 업데이트 ---
     for p in projectiles[:]:
         p.update()
-        # 화면 경계를 벗어나면 리스트에서 삭제 (메모리 관리)
         if p.pos.x < 0 or p.pos.x > WIDTH or p.pos.y < 0 or p.pos.y > HEIGHT:
             projectiles.remove(p)
-        # 속도가 거의 멈추면 삭제 (옵션)
-        elif p.vel.length() < 0.2:
-            projectiles.remove(p)
 
-    # --- 4. 화면 그리기 ---
+    # --- 5. 화면 그리기 ---
     screen.fill(WHITE)
 
-    # 플레이어 그리기
-    pygame.draw.rect(screen, RED, (player_pos.x, player_pos.y, PLAYER_SIZE, PLAYER_SIZE))
+    # 플레이어 색상 변경 (이동 불가 시 어두운 빨간색)
+    p_color = RED if can_move else DARK_RED
+    pygame.draw.rect(screen, p_color, (player_pos.x, player_pos.y, PLAYER_SIZE, PLAYER_SIZE))
 
-    # 에임 가이드 및 파워 게이지
+    # 에임 가이드 및 게이지
     if dragging:
-        current_mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
-        drag_vec = current_mouse_pos - press_pos
-        
-        if drag_vec.length() > MAX_DRAG:
-            drag_vec = drag_vec.normalize() * MAX_DRAG
-        
-        # 1) 조준선 표시
         center = player_pos + pygame.Vector2(PLAYER_SIZE // 2, PLAYER_SIZE // 2)
-        aim_end = center - drag_vec # 발사될 방향 표시
-        pygame.draw.line(screen, BLACK, center, aim_end, 2)
+        # 실제 제한된 벡터로 가이드 표시
+        display_vec = (pygame.Vector2(pygame.mouse.get_pos()) - press_pos)
+        if display_vec.length() > MAX_DRAG: display_vec = display_vec.normalize() * MAX_DRAG
         
-        # 2) 파워 게이지 (플레이어 머리 위)
-        drag_dist = drag_vec.length()
-        level = int(drag_dist / (MAX_DRAG / MAX_LEVEL))
-        gauge_width = (drag_dist / MAX_DRAG) * PLAYER_SIZE
+        pygame.draw.line(screen, BLACK, center, center - display_vec, 2)
         
-        pygame.draw.rect(screen, GRAY, (player_pos.x, player_pos.y - 15, PLAYER_SIZE, 8)) # 배경
-        pygame.draw.rect(screen, BLUE, (player_pos.x, player_pos.y - 15, gauge_width, 8)) # 게이지
+        # 파워 게이지
+        gauge_width = (display_vec.length() / MAX_DRAG) * PLAYER_SIZE
+        pygame.draw.rect(screen, GRAY, (player_pos.x, player_pos.y - 15, PLAYER_SIZE, 8))
+        gauge_color = BLUE if can_move else RED # 풀파워 시 게이지도 빨간색으로 변경
+        pygame.draw.rect(screen, gauge_color, (player_pos.x, player_pos.y - 15, gauge_width, 8))
 
-    # 텍스트 정보
-    level_val = 0
-    if dragging:
-        level_val = max(0, min(int(drag_vec.length() / (MAX_DRAG / MAX_LEVEL)), MAX_LEVEL))
-    level_text = font.render(f"Power Level: {level_val}", True, BLACK)
+    # 상태 텍스트
+    status_msg = f"Power Level: {current_level}"
+    if not can_move:
+        status_msg += " (MOVE OVERLOAD!)"
+    
+    level_text = font.render(status_msg, True, BLACK if can_move else RED)
     screen.blit(level_text, (20, 20))
 
-    # 투사체 그리기
     for p in projectiles:
         p.draw(screen)
 
