@@ -47,3 +47,19 @@ dragging = False
 press_pos = pygame.Vector2(0, 0)
 projectiles = []
 can_move = True
+
+class Projectile:
+    def __init__(self, pos, velocity):
+        self.pos = pygame.Vector2(pos)
+        self.vel = pygame.Vector2(velocity)
+
+    def update(self):
+        self.pos += self.vel
+        self.vel *= 0.99 
+
+    def draw(self, screen):
+        # 투사체 색상은 플레이어와 맞춤
+        pygame.draw.circle(screen, BLUE, self.pos, PROJECTILE_RADIUS)
+
+clock = pygame.time.Clock()
+running = True
