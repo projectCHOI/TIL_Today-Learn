@@ -80,3 +80,18 @@ while running:
             dragging = False
             release_pos = pygame.Vector2(pygame.mouse.get_pos())
             drag_vec = release_pos - press_pos
+
+        if drag_vec.length() > 0:
+                        if drag_vec.length() > MAX_DRAG:
+                            drag_vec = drag_vec.normalize() * MAX_DRAG
+
+                        level = int(drag_vec.length() / (MAX_DRAG / MAX_LEVEL))
+                        level = max(0, min(level, MAX_LEVEL))
+
+                        if level >= 2:
+                            direction = -drag_vec.normalize()
+                            speed = POWER_TABLE[level]
+                            velocity = direction * speed
+                            projectiles.append(
+                                Projectile(player_pos + pygame.Vector2(PLAYER_SIZE // 2, PLAYER_SIZE // 2), velocity)
+                            )
