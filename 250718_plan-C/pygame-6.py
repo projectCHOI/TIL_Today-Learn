@@ -63,3 +63,20 @@ class Projectile:
 
 clock = pygame.time.Clock()
 running = True
+
+while running:
+    current_time = pygame.time.get_ticks()
+    current_level = 0
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            dragging = True
+            press_pos = pygame.Vector2(pygame.mouse.get_pos())
+
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            dragging = False
+            release_pos = pygame.Vector2(pygame.mouse.get_pos())
+            drag_vec = release_pos - press_pos
