@@ -114,3 +114,7 @@ while running:
     
     player_pos.x = max(0, min(player_pos.x, WIDTH - PLAYER_SIZE))
     player_pos.y = max(0, min(player_pos.y, HEIGHT - PLAYER_SIZE))
+
+    if current_time - enemy_move_timer > 2000:
+        enemy_is_moving = not enemy_is_moving
+        enemy_move_timer = current_time
