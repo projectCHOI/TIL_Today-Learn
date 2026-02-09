@@ -95,3 +95,12 @@ while running:
                             projectiles.append(
                                 Projectile(player_pos + pygame.Vector2(PLAYER_SIZE // 2, PLAYER_SIZE // 2), velocity)
                             )
+
+    can_move = True
+    if dragging:
+        mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
+        drag_vec = mouse_pos - press_pos
+        current_dist = min(drag_vec.length(), MAX_DRAG)
+        current_level = int(current_dist / (MAX_DRAG / MAX_LEVEL))
+        if current_level >= 10:
+            can_move = False
