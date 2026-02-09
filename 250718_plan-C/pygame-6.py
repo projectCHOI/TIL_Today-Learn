@@ -104,3 +104,13 @@ while running:
         current_level = int(current_dist / (MAX_DRAG / MAX_LEVEL))
         if current_level >= 10:
             can_move = False
+
+    if can_move:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]: player_pos.y -= PLAYER_SPEED
+        if keys[pygame.K_s]: player_pos.y += PLAYER_SPEED
+        if keys[pygame.K_a]: player_pos.x -= PLAYER_SPEED
+        if keys[pygame.K_d]: player_pos.x += PLAYER_SPEED
+    
+    player_pos.x = max(0, min(player_pos.x, WIDTH - PLAYER_SIZE))
+    player_pos.y = max(0, min(player_pos.y, HEIGHT - PLAYER_SIZE))
