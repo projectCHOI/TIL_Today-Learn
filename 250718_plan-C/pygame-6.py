@@ -118,3 +118,11 @@ while running:
     if current_time - enemy_move_timer > 2000:
         enemy_is_moving = not enemy_is_moving
         enemy_move_timer = current_time
+
+    if enemy_is_moving:
+        player_center = player_pos + pygame.Vector2(PLAYER_SIZE/2, PLAYER_SIZE/2)
+        enemy_center = enemy_pos + pygame.Vector2(ENEMY_SIZE/2, ENEMY_SIZE/2)
+        
+        dir_to_player = player_center - enemy_center
+        if dir_to_player.length() > 0:
+            enemy_pos += dir_to_player.normalize() * ENEMY_SPEED
