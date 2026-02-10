@@ -126,3 +126,6 @@ while running:
         dir_to_player = player_center - enemy_center
         if dir_to_player.length() > 0:
             enemy_pos += dir_to_player.normalize() * ENEMY_SPEED
+
+    for p in projectiles[:]:
+        p.update()
