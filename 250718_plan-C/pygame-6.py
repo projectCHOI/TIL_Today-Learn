@@ -137,3 +137,5 @@ while running:
             enemy_pos = pygame.Vector2(random.randint(0, WIDTH-ENEMY_SIZE), random.randint(0, HEIGHT-ENEMY_SIZE))
         elif p.pos.x < 0 or p.pos.x > WIDTH or p.pos.y < 0 or p.pos.y > HEIGHT:
                 projectiles.remove(p)
+
+screen.fill(WHITE)
