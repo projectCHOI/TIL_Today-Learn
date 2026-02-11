@@ -129,3 +129,10 @@ while running:
 
     for p in projectiles[:]:
         p.update()
+
+        enemy_center = enemy_pos + pygame.Vector2(ENEMY_SIZE/2, ENEMY_SIZE/2)
+        if p.pos.distance_to(enemy_center) < (ENEMY_SIZE/2 + PROJECTILE_RADIUS):
+            projectiles.remove(p)
+            import random
+            enemy_pos = pygame.Vector2(random.randint(0, WIDTH-ENEMY_SIZE), random.randint(0, HEIGHT-ENEMY_SIZE))
+            
