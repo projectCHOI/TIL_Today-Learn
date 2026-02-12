@@ -147,3 +147,9 @@ while running:
     pygame.draw.rect(screen, RED, (enemy_pos.x, enemy_pos.y, ENEMY_SIZE, ENEMY_SIZE))
     if not enemy_is_moving:
         pygame.draw.rect(screen, BLACK, (enemy_pos.x, enemy_pos.y, ENEMY_SIZE, ENEMY_SIZE), 3)
+
+    if dragging:
+        center = player_pos + pygame.Vector2(PLAYER_SIZE // 2, PLAYER_SIZE // 2)
+        display_vec = (pygame.Vector2(pygame.mouse.get_pos()) - press_pos)
+        if display_vec.length() > MAX_DRAG: display_vec = display_vec.normalize() * MAX_DRAG
+        pygame.draw.line(screen, BLACK, center, center - display_vec, 2)
