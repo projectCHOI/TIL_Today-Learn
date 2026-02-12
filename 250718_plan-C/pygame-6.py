@@ -138,4 +138,12 @@ while running:
         elif p.pos.x < 0 or p.pos.x > WIDTH or p.pos.y < 0 or p.pos.y > HEIGHT:
                 projectiles.remove(p)
 
-screen.fill(WHITE)
+    screen.fill(WHITE)
+    # 플레이어 (파랑)
+    p_color = BLUE if can_move else DARK_BLUE
+    pygame.draw.rect(screen, p_color, (player_pos.x, player_pos.y, PLAYER_SIZE, PLAYER_SIZE))
+
+    # 적 (빨강)
+    pygame.draw.rect(screen, RED, (enemy_pos.x, enemy_pos.y, ENEMY_SIZE, ENEMY_SIZE))
+    if not enemy_is_moving:
+        pygame.draw.rect(screen, BLACK, (enemy_pos.x, enemy_pos.y, ENEMY_SIZE, ENEMY_SIZE), 3)
