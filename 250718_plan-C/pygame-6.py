@@ -68,6 +68,7 @@ while running:
     current_time = pygame.time.get_ticks()
     current_level = 0
     
+    # --- 1. 이벤트 처리 ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -80,21 +81,21 @@ while running:
             dragging = False
             release_pos = pygame.Vector2(pygame.mouse.get_pos())
             drag_vec = release_pos - press_pos
+            
+            if drag_vec.length() > 0:
+                if drag_vec.length() > MAX_DRAG:
+                    drag_vec = drag_vec.normalize() * MAX_DRAG
 
-        if drag_vec.length() > 0:
-                        if drag_vec.length() > MAX_DRAG:
-                            drag_vec = drag_vec.normalize() * MAX_DRAG
+                level = int(drag_vec.length() / (MAX_DRAG / MAX_LEVEL))
+                level = max(0, min(level, MAX_LEVEL))
 
-                        level = int(drag_vec.length() / (MAX_DRAG / MAX_LEVEL))
-                        level = max(0, min(level, MAX_LEVEL))
-
-                        if level >= 2:
-                            direction = -drag_vec.normalize()
-                            speed = POWER_TABLE[level]
-                            velocity = direction * speed
-                            projectiles.append(
-                                Projectile(player_pos + pygame.Vector2(PLAYER_SIZE // 2, PLAYER_SIZE // 2), velocity)
-                            )
+                if level >= 2:
+                    direction = -drag_vec.normalize()
+                    speed = POWER_TABLE[level]
+                    velocity = direction * speed
+                    projectiles.append(
+                        Projectile(player_pos + pygame.Vector2(PLAYER_SIZE // 2, PLAYER_SIZE // 2), velocity)
+                    )
 
     can_move = True
     if dragging:
@@ -129,14 +130,14 @@ while running:
 
     for p in projectiles[:]:
         p.update()
-
+        
         enemy_center = enemy_pos + pygame.Vector2(ENEMY_SIZE/2, ENEMY_SIZE/2)
         if p.pos.distance_to(enemy_center) < (ENEMY_SIZE/2 + PROJECTILE_RADIUS):
             projectiles.remove(p)
             import random
             enemy_pos = pygame.Vector2(random.randint(0, WIDTH-ENEMY_SIZE), random.randint(0, HEIGHT-ENEMY_SIZE))
         elif p.pos.x < 0 or p.pos.x > WIDTH or p.pos.y < 0 or p.pos.y > HEIGHT:
-                projectiles.remove(p)
+            projectiles.remove(p)
 
     screen.fill(WHITE)
     # 플레이어 (파랑)
@@ -153,3 +154,23 @@ while running:
         display_vec = (pygame.Vector2(pygame.mouse.get_pos()) - press_pos)
         if display_vec.length() > MAX_DRAG: display_vec = display_vec.normalize() * MAX_DRAG
         pygame.draw.line(screen, BLACK, center, center - display_vec, 2)
+        
+        # 게이지
+        gauge_width = (display_vec.length() / MAX_DRAG) * PLAYER_SIZE
+        pygame.draw.rect(screen, GRAY, (player_pos.x, player_pos.y - 15, PLAYER_SIZE, 8))
+        gauge_color = BLUE if can_move else RED
+        pygame.draw.rect(screen, gauge_color, (player_pos.x, player_pos.y - 15, gauge_width, 8))
+
+    # 정보 표시
+    status_msg = f"Power: {current_level} | Enemy: {'MOVING' if enemy_is_moving else 'STOPPED'}"
+    level_text = font.render(status_msg, True, BLACK if can_move else RED)
+    screen.blit(level_text, (20, 20))
+
+    for p in projectiles:
+        p.draw(screen)
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
+sys.exit()
