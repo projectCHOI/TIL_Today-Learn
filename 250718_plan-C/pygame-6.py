@@ -8,16 +8,16 @@ pygame.init()
 # 화면 설정
 WIDTH, HEIGHT = 900, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pygame-6: Ultimate Archery")
+pygame.display.set_caption("Pygame-6: Dynamic Aiming Guide")
 
 # 색상
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BLUE = (0, 100, 255)
 RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 GRAY = (200, 200, 200)
 DARK_BLUE = (0, 50, 150)
-BOW_BROWN = (100, 50, 0)
 
 # 폰트 설정
 try:
@@ -28,7 +28,7 @@ except:
     font = pygame.font.SysFont("arial", 20)
     score_font = pygame.font.SysFont("arial", 35)
 
-# 플레이어 & 적 설정
+# 플레이어 & 적 설정 (기존 로직 유지)
 PLAYER_SIZE = 50
 PLAYER_SPEED = 5
 player_pos = pygame.Vector2(WIDTH // 2, HEIGHT // 2)
@@ -50,7 +50,7 @@ enemy_is_moving = True
 
 # 게임 상태 변수
 score = 0
-MAX_DRAG = 200
+MAX_DRAG = 200 # 강도 10의 기준점
 dragging = False
 press_pos = pygame.Vector2(0, 0)
 projectiles = []
@@ -72,10 +72,8 @@ running = True
 
 while running:
     current_time = pygame.time.get_ticks()
-    current_level = 0
     screen.fill(WHITE)
     
-    # --- 1. 이벤트 처리 ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -99,13 +97,14 @@ while running:
                     velocity = -drag_vec.normalize() * speed
                     projectiles.append(Projectile(player_pos + pygame.Vector2(25, 25), velocity, level))
 
-    # --- 2. 플레이어 상태 및 이동 (패널티 포함) ---
+    # --- 플레이어 상태 및 이동 ---
     can_move = True
+    current_level = 0
     if dragging:
         mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
         drag_vec = mouse_pos - press_pos
-        if drag_vec.length() > MAX_DRAG: drag_vec = drag_vec.normalize() * MAX_DRAG
-        current_level = int(drag_vec.length() / (MAX_DRAG / 10))
+        drag_dist = min(drag_vec.length(), MAX_DRAG)
+        current_level = int(drag_dist / (MAX_DRAG / 10))
         if current_level >= 10:
             can_move = False
 
@@ -119,33 +118,27 @@ while running:
     player_pos.x = max(0, min(player_pos.x, WIDTH - PLAYER_SIZE))
     player_pos.y = max(0, min(player_pos.y, HEIGHT - PLAYER_SIZE))
 
-    # --- 3. 적 AI (외부 진입 및 정지 패턴) ---
+    # --- 적 AI 및 업데이트 ---
     if current_time - enemy_move_timer > 2000:
         enemy_is_moving = not enemy_is_moving
         enemy_move_timer = current_time
-
     if enemy_is_moving:
-        player_center = player_pos + pygame.Vector2(25, 25)
-        enemy_center = enemy_pos + pygame.Vector2(25, 25)
-        dir_to_player = player_center - enemy_center
-        if dir_to_player.length() > 0:
-            enemy_pos += dir_to_player.normalize() * ENEMY_SPEED
+        dir_to_p = (player_pos + pygame.Vector2(25, 25)) - (enemy_pos + pygame.Vector2(25, 25))
+        if dir_to_p.length() > 0:
+            enemy_pos += dir_to_p.normalize() * ENEMY_SPEED
 
-    # --- 4. 업데이트 및 충돌 (점수 시스템) ---
     for p in projectiles[:]:
         p.update()
-        enemy_center = enemy_pos + pygame.Vector2(25, 25)
-        if p.pos.distance_to(enemy_center) < (25 + 6):
+        if p.pos.distance_to(enemy_pos + pygame.Vector2(25, 25)) < 31:
             score += 100 + (p.level * 20)
             projectiles.remove(p)
-            enemy_pos = get_random_outside_pos() # 명중 시 외부 재스폰
-        elif p.pos.x < -100 or p.pos.x > WIDTH + 100 or p.pos.y < -100 or p.pos.y > HEIGHT + 100:
+            enemy_pos = get_random_outside_pos()
+        elif not screen.get_rect().collidepoint(p.pos):
             projectiles.remove(p)
 
-    # --- 5. 화면 그리기 ---
+    # --- 화면 그리기 ---
     # 점수 표시
-    score_surf = score_font.render(f"SCORE: {score}", True, BLACK)
-    screen.blit(score_surf, (WIDTH - 250, 20))
+    screen.blit(score_font.render(f"SCORE: {score}", True, BLACK), (WIDTH - 250, 20))
 
     # 플레이어 & 적
     p_color = BLUE if can_move else DARK_BLUE
@@ -154,43 +147,40 @@ while running:
     if not enemy_is_moving:
         pygame.draw.rect(screen, BLACK, (enemy_pos.x, enemy_pos.y, 50, 50), 3)
 
-    # 조준 시각 효과 (화살촉 + 활시위 + 게이지)
+    # 🏹 [핵심 업데이트] 조준 가이드 시각 효과
     if dragging:
         center = player_pos + pygame.Vector2(25, 25)
-        aim_dir = -drag_vec.normalize() if drag_vec.length() > 0 else pygame.Vector2(0, -1)
-        aim_end = center + aim_dir * drag_vec.length()
-        tension_color = RED if not can_move else BLACK
+        drag_vec = pygame.Vector2(pygame.mouse.get_pos()) - press_pos
+        drag_dist = min(drag_vec.length(), MAX_DRAG)
         
-        # 1) 활시위(String)와 활 몸체(Bow)
-        perp_vec = pygame.Vector2(-aim_dir.y, aim_dir.x) * 35
-        bow_start = center + (aim_dir * 15) + perp_vec
-        bow_end = center + (aim_dir * 15) - perp_vec
-        pygame.draw.line(screen, GRAY, bow_start, pygame.mouse.get_pos(), 1) # 시위 상단
-        pygame.draw.line(screen, GRAY, bow_end, pygame.mouse.get_pos(), 1)   # 시위 하단
-        pygame.draw.line(screen, BOW_BROWN, bow_start, bow_end, 5)           # 활 몸체
+        # 1. 색상 결정 (강도 10이면 빨강, 아니면 초록)
+        guide_color = RED if current_level >= 10 else GREEN
         
-        # 2) 화살 조준선 및 화살촉
-        pygame.draw.line(screen, tension_color, center, aim_end, 2)
-        if drag_vec.length() > 20:
-            wing_l = aim_end + aim_dir.rotate(150) * 15
-            wing_r = aim_end + aim_dir.rotate(-150) * 15
-            pygame.draw.polygon(screen, tension_color, [aim_end, wing_l, wing_r])
+        # 2. 가변 원 그리기 (강도에 따라 커지며, 최대 MAX_DRAG까지)
+        # 반지름 기본값 40 + 드래그 거리 비례 증가
+        guide_radius = 40 + (drag_dist * 0.8) 
+        pygame.draw.circle(screen, guide_color, (int(center.x), int(center.y)), int(guide_radius), 2)
+        
+        # 3. 십자선 (원 내부에 고정)
+        pygame.draw.line(screen, guide_color, (center.x - guide_radius, center.y), (center.x + guide_radius, center.y), 1)
+        pygame.draw.line(screen, guide_color, (center.x, center.y - guide_radius), (center.x, center.y + guide_radius), 1)
 
-        # 3) 기존 파워 게이지 바 (플레이어 머리 위)
-        gauge_width = (drag_vec.length() / MAX_DRAG) * 50
-        pygame.draw.rect(screen, GRAY, (player_pos.x, player_pos.y - 15, 50, 8))
-        pygame.draw.rect(screen, (BLUE if can_move else RED), (player_pos.x, player_pos.y - 15, gauge_width, 8))
+        # 4. 방향 화살표 (원의 경계선 위에 배치)
+        if drag_vec.length() > 0:
+            aim_dir = -drag_vec.normalize()
+            arrow_pos = center + aim_dir * guide_radius
+            
+            # 화살촉 삼각형 그리기
+            wing_l = arrow_pos + aim_dir.rotate(150) * 15
+            wing_r = arrow_pos + aim_dir.rotate(-150) * 15
+            pygame.draw.polygon(screen, guide_color, [arrow_pos, wing_l, wing_r])
 
-    # 하단 정보 텍스트
+    # 정보 텍스트
     status_msg = f"Power: {current_level} | Enemy: {'MOVING' if enemy_is_moving else 'STOPPED'}"
-    level_text = font.render(status_msg, True, BLACK if can_move else RED)
-    screen.blit(level_text, (20, 20))
+    screen.blit(font.render(status_msg, True, BLACK if can_move else RED), (20, 20))
 
-    for p in projectiles:
-        p.draw(screen)
-
+    for p in projectiles: p.draw(screen)
     pygame.display.flip()
     clock.tick(60)
 
 pygame.quit()
-sys.exit()
