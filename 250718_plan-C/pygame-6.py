@@ -8,7 +8,7 @@ pygame.init()
 # 화면 설정
 WIDTH, HEIGHT = 900, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pygame-6: Dynamic Aiming Guide")
+pygame.display.set_caption("Pygame-6: Dashed Guide Line")
 
 # 색상
 WHITE = (255, 255, 255)
@@ -28,7 +28,7 @@ except:
     font = pygame.font.SysFont("arial", 20)
     score_font = pygame.font.SysFont("arial", 35)
 
-# 플레이어 & 적 설정 (기존 로직 유지)
+# 플레이어 & 적 설정
 PLAYER_SIZE = 50
 PLAYER_SPEED = 5
 player_pos = pygame.Vector2(WIDTH // 2, HEIGHT // 2)
@@ -50,7 +50,7 @@ enemy_is_moving = True
 
 # 게임 상태 변수
 score = 0
-MAX_DRAG = 200 # 강도 10의 기준점
+MAX_DRAG = 200
 dragging = False
 press_pos = pygame.Vector2(0, 0)
 projectiles = []
@@ -137,40 +137,52 @@ while running:
             projectiles.remove(p)
 
     # --- 화면 그리기 ---
-    # 점수 표시
     screen.blit(score_font.render(f"SCORE: {score}", True, BLACK), (WIDTH - 250, 20))
 
-    # 플레이어 & 적
     p_color = BLUE if can_move else DARK_BLUE
     pygame.draw.rect(screen, p_color, (player_pos.x, player_pos.y, 50, 50))
     pygame.draw.rect(screen, RED, (enemy_pos.x, enemy_pos.y, 50, 50))
     if not enemy_is_moving:
         pygame.draw.rect(screen, BLACK, (enemy_pos.x, enemy_pos.y, 50, 50), 3)
 
-    # 🏹 [핵심 업데이트] 조준 가이드 시각 효과
+    # 조준 가이드 및 점선 가이드
     if dragging:
         center = player_pos + pygame.Vector2(25, 25)
         drag_vec = pygame.Vector2(pygame.mouse.get_pos()) - press_pos
         drag_dist = min(drag_vec.length(), MAX_DRAG)
-        
-        # 1. 색상 결정 (강도 10이면 빨강, 아니면 초록)
         guide_color = RED if current_level >= 10 else GREEN
-        
-        # 2. 가변 원 그리기 (강도에 따라 커지며, 최대 MAX_DRAG까지)
-        # 반지름 기본값 40 + 드래그 거리 비례 증가
         guide_radius = 40 + (drag_dist * 0.8) 
-        pygame.draw.circle(screen, guide_color, (int(center.x), int(center.y)), int(guide_radius), 2)
         
-        # 3. 십자선 (원 내부에 고정)
+        # 1. 조준 원 및 십자선
+        pygame.draw.circle(screen, guide_color, (int(center.x), int(center.y)), int(guide_radius), 2)
         pygame.draw.line(screen, guide_color, (center.x - guide_radius, center.y), (center.x + guide_radius, center.y), 1)
         pygame.draw.line(screen, guide_color, (center.x, center.y - guide_radius), (center.x, center.y + guide_radius), 1)
 
-        # 4. 방향 화살표 (원의 경계선 위에 배치)
         if drag_vec.length() > 0:
             aim_dir = -drag_vec.normalize()
             arrow_pos = center + aim_dir * guide_radius
             
-            # 화살촉 삼각형 그리기
+            # 2. [핵심 추가] 점선 가이드 라인
+            # 화살표 끝부터 화면 끝쪽까지 점선 표시
+            dash_length = 10  # 점 하나의 길이
+            dash_gap = 10     # 점 사이의 간격
+            # 가이드라인의 총 길이는 드래그 거리에 비례하도록 설정 (멀리 쏠수록 멀리 보임)
+            line_range = 15 + (current_level * 30) 
+            
+            for i in range(line_range):
+                start_dist = guide_radius + (i * (dash_length + dash_gap))
+                end_dist = start_dist + dash_length
+                
+                # 가이드 점선 그리기
+                d_start = center + aim_dir * start_dist
+                d_end = center + aim_dir * end_dist
+                
+                # 화면 밖으로 나가면 그리지 않음
+                if not screen.get_rect().collidepoint(d_start):
+                    break
+                pygame.draw.line(screen, guide_color, d_start, d_end, 2)
+
+            # 3. 방향 화살표
             wing_l = arrow_pos + aim_dir.rotate(150) * 15
             wing_r = arrow_pos + aim_dir.rotate(-150) * 15
             pygame.draw.polygon(screen, guide_color, [arrow_pos, wing_l, wing_r])
