@@ -8,7 +8,7 @@ pygame.init()
 # 화면 설정
 WIDTH, HEIGHT = 900, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pygame-6: Dashed Guide Line")
+pygame.display.set_caption("Pygame-6: Internal Aiming Guide")
 
 # 색상
 WHITE = (255, 255, 255)
@@ -32,7 +32,6 @@ except:
 PLAYER_SIZE = 50
 PLAYER_SPEED = 5
 player_pos = pygame.Vector2(WIDTH // 2, HEIGHT // 2)
-
 ENEMY_SIZE = 50
 ENEMY_SPEED = 3
 
@@ -75,38 +74,29 @@ while running:
     screen.fill(WHITE)
     
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        
+        if event.type == pygame.QUIT: running = False
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             dragging = True
             press_pos = pygame.Vector2(pygame.mouse.get_pos())
-            
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             dragging = False
             release_pos = pygame.Vector2(pygame.mouse.get_pos())
             drag_vec = release_pos - press_pos
-            
             if drag_vec.length() > 20:
                 if drag_vec.length() > MAX_DRAG: drag_vec = drag_vec.normalize() * MAX_DRAG
                 level = max(0, min(int(drag_vec.length() / (MAX_DRAG/10)), 10))
-                
                 if level >= 2:
-                    speed_table = [0, 0, 8, 10, 12, 14, 16, 18, 20, 22, 25]
-                    speed = speed_table[level]
-                    velocity = -drag_vec.normalize() * speed
-                    projectiles.append(Projectile(player_pos + pygame.Vector2(25, 25), velocity, level))
+                    speed = [0, 0, 8, 10, 12, 14, 16, 18, 20, 22, 25][level]
+                    projectiles.append(Projectile(player_pos + pygame.Vector2(25, 25), -drag_vec.normalize() * speed, level))
 
-    # --- 플레이어 상태 및 이동 ---
-    can_move = True
-    current_level = 0
+    # 플레이어 상태 및 이동
+    can_move, current_level = True, 0
     if dragging:
         mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
         drag_vec = mouse_pos - press_pos
         drag_dist = min(drag_vec.length(), MAX_DRAG)
         current_level = int(drag_dist / (MAX_DRAG / 10))
-        if current_level >= 10:
-            can_move = False
+        if current_level >= 10: can_move = False
 
     if can_move:
         keys = pygame.key.get_pressed()
@@ -115,17 +105,16 @@ while running:
         if keys[pygame.K_a]: player_pos.x -= PLAYER_SPEED
         if keys[pygame.K_d]: player_pos.x += PLAYER_SPEED
     
-    player_pos.x = max(0, min(player_pos.x, WIDTH - PLAYER_SIZE))
-    player_pos.y = max(0, min(player_pos.y, HEIGHT - PLAYER_SIZE))
+    player_pos.x = max(0, min(player_pos.x, WIDTH - 50))
+    player_pos.y = max(0, min(player_pos.y, HEIGHT - 50))
 
-    # --- 적 AI 및 업데이트 ---
+    # 적 업데이트
     if current_time - enemy_move_timer > 2000:
         enemy_is_moving = not enemy_is_moving
         enemy_move_timer = current_time
     if enemy_is_moving:
-        dir_to_p = (player_pos + pygame.Vector2(25, 25)) - (enemy_pos + pygame.Vector2(25, 25))
-        if dir_to_p.length() > 0:
-            enemy_pos += dir_to_p.normalize() * ENEMY_SPEED
+        dir_p = (player_pos + pygame.Vector2(25, 25)) - (enemy_pos + pygame.Vector2(25, 25))
+        if dir_p.length() > 0: enemy_pos += dir_p.normalize() * ENEMY_SPEED
 
     for p in projectiles[:]:
         p.update()
@@ -133,64 +122,54 @@ while running:
             score += 100 + (p.level * 20)
             projectiles.remove(p)
             enemy_pos = get_random_outside_pos()
-        elif not screen.get_rect().collidepoint(p.pos):
-            projectiles.remove(p)
+        elif not screen.get_rect().collidepoint(p.pos): projectiles.remove(p)
 
     # --- 화면 그리기 ---
     screen.blit(score_font.render(f"SCORE: {score}", True, BLACK), (WIDTH - 250, 20))
-
-    p_color = BLUE if can_move else DARK_BLUE
-    pygame.draw.rect(screen, p_color, (player_pos.x, player_pos.y, 50, 50))
+    pygame.draw.rect(screen, BLUE if can_move else DARK_BLUE, (player_pos.x, player_pos.y, 50, 50))
     pygame.draw.rect(screen, RED, (enemy_pos.x, enemy_pos.y, 50, 50))
-    if not enemy_is_moving:
-        pygame.draw.rect(screen, BLACK, (enemy_pos.x, enemy_pos.y, 50, 50), 3)
+    if not enemy_is_moving: pygame.draw.rect(screen, BLACK, (enemy_pos.x, enemy_pos.y, 50, 50), 3)
 
-    # 조준 가이드 및 점선 가이드
+    # 🏹 [수정됨] 내부형 조준 가이드 및 점선 가이드
     if dragging:
         center = player_pos + pygame.Vector2(25, 25)
-        drag_vec = pygame.Vector2(pygame.mouse.get_pos()) - press_pos
-        drag_dist = min(drag_vec.length(), MAX_DRAG)
         guide_color = RED if current_level >= 10 else GREEN
+        # 원의 크기는 강도에 따라 커짐 (최대 반지름 200 근처)
         guide_radius = 40 + (drag_dist * 0.8) 
         
-        # 1. 조준 원 및 십자선
+        # 1. 조준 원 및 십자선 (원 내부에만 존재)
         pygame.draw.circle(screen, guide_color, (int(center.x), int(center.y)), int(guide_radius), 2)
         pygame.draw.line(screen, guide_color, (center.x - guide_radius, center.y), (center.x + guide_radius, center.y), 1)
         pygame.draw.line(screen, guide_color, (center.x, center.y - guide_radius), (center.x, center.y + guide_radius), 1)
 
         if drag_vec.length() > 0:
             aim_dir = -drag_vec.normalize()
-            arrow_pos = center + aim_dir * guide_radius
             
-            # 2. [핵심 추가] 점선 가이드 라인
-            # 화살표 끝부터 화면 끝쪽까지 점선 표시
-            dash_length = 10  # 점 하나의 길이
-            dash_gap = 10     # 점 사이의 간격
-            # 가이드라인의 총 길이는 드래그 거리에 비례하도록 설정 (멀리 쏠수록 멀리 보임)
-            line_range = 15 + (current_level * 30) 
+            # 2. [수정] 점선 가이드: 플레이어부터 '원 안쪽'까지만 그림
+            dash_len, dash_gap = 6, 6
+            # 현재 원의 반지름(guide_radius)을 넘지 않도록 반복 횟수 조절
+            num_dashes = int(guide_radius / (dash_len + dash_gap))
             
-            for i in range(line_range):
-                start_dist = guide_radius + (i * (dash_length + dash_gap))
-                end_dist = start_dist + dash_length
+            for i in range(num_dashes):
+                d_start_dist = i * (dash_len + dash_gap)
+                d_end_dist = d_start_dist + dash_len
                 
-                # 가이드 점선 그리기
-                d_start = center + aim_dir * start_dist
-                d_end = center + aim_dir * end_dist
+                # 원의 경계를 넘지 않게 끝점 제한
+                if d_end_dist > guide_radius: d_end_dist = guide_radius
                 
-                # 화면 밖으로 나가면 그리지 않음
-                if not screen.get_rect().collidepoint(d_start):
-                    break
-                pygame.draw.line(screen, guide_color, d_start, d_end, 2)
+                pygame.draw.line(screen, guide_color, 
+                                 center + aim_dir * d_start_dist, 
+                                 center + aim_dir * d_end_dist, 2)
 
-            # 3. 방향 화살표
+            # 3. 방향 화살표 (원의 경계선 위에 배치)
+            arrow_pos = center + aim_dir * guide_radius
             wing_l = arrow_pos + aim_dir.rotate(150) * 15
             wing_r = arrow_pos + aim_dir.rotate(-150) * 15
             pygame.draw.polygon(screen, guide_color, [arrow_pos, wing_l, wing_r])
 
-    # 정보 텍스트
+    # 하단 텍스트 및 투사체
     status_msg = f"Power: {current_level} | Enemy: {'MOVING' if enemy_is_moving else 'STOPPED'}"
     screen.blit(font.render(status_msg, True, BLACK if can_move else RED), (20, 20))
-
     for p in projectiles: p.draw(screen)
     pygame.display.flip()
     clock.tick(60)
