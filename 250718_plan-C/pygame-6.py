@@ -8,7 +8,7 @@ pygame.init()
 # 화면 설정
 WIDTH, HEIGHT = 900, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pygame-6: Compact Aiming Guide")
+pygame.display.set_caption("Pygame-6: Multiple Enemies System")
 
 # 색상
 WHITE = (255, 255, 255)
@@ -28,14 +28,18 @@ except:
     font = pygame.font.SysFont("arial", 20)
     score_font = pygame.font.SysFont("arial", 35)
 
-# 플레이어 & 적 설정
+# 플레이어 설정
 PLAYER_SIZE = 50
 PLAYER_SPEED = 5
 player_pos = pygame.Vector2(WIDTH // 2, HEIGHT // 2)
+
+# 적(Enemy) 설정
 ENEMY_SIZE = 50
-ENEMY_SPEED = 3
+ENEMY_SPEED = 2.5
+NUM_ENEMIES = 5  # 동시에 존재할 적의 수
 
 def get_random_outside_pos():
+    """8방향 무작위 외부 스폰 로직 유지"""
     OFFSET = 60 
     side = random.randint(0, 3)
     if side == 0: return pygame.Vector2(random.randint(-OFFSET, WIDTH+OFFSET), -OFFSET)
@@ -43,7 +47,11 @@ def get_random_outside_pos():
     elif side == 2: return pygame.Vector2(-OFFSET, random.randint(-OFFSET, HEIGHT+OFFSET))
     else: return pygame.Vector2(WIDTH+OFFSET, random.randint(-OFFSET, HEIGHT+OFFSET))
 
-enemy_pos = get_random_outside_pos()
+# [수정] 적들을 리스트로 관리
+enemies = []
+for _ in range(NUM_ENEMIES):
+    enemies.append(get_random_outside_pos())
+
 enemy_move_timer = pygame.time.get_ticks()
 enemy_is_moving = True
 
@@ -89,7 +97,7 @@ while running:
                     speed = [0, 0, 8, 10, 12, 14, 16, 18, 20, 22, 25][level]
                     projectiles.append(Projectile(player_pos + pygame.Vector2(25, 25), -drag_vec.normalize() * speed, level))
 
-    # 플레이어 상태 및 이동
+    # 플레이어 상태 및 이동 (기존 기능 유지)
     can_move, current_level = True, 0
     if dragging:
         mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
@@ -108,43 +116,59 @@ while running:
     player_pos.x = max(0, min(player_pos.x, WIDTH - 50))
     player_pos.y = max(0, min(player_pos.y, HEIGHT - 50))
 
-    # 적 업데이트
+    # --- [수정] 적 AI 및 업데이트 (다중 적 대응) ---
     if current_time - enemy_move_timer > 2000:
         enemy_is_moving = not enemy_is_moving
         enemy_move_timer = current_time
-    if enemy_is_moving:
-        dir_p = (player_pos + pygame.Vector2(25, 25)) - (enemy_pos + pygame.Vector2(25, 25))
-        if dir_p.length() > 0: enemy_pos += dir_p.normalize() * ENEMY_SPEED
 
+    player_center = player_pos + pygame.Vector2(25, 25)
+    for i in range(len(enemies)):
+        if enemy_is_moving:
+            enemy_center = enemies[i] + pygame.Vector2(25, 25)
+            dir_p = player_center - enemy_center
+            if dir_p.length() > 0:
+                enemies[i] += dir_p.normalize() * ENEMY_SPEED
+
+    # --- [수정] 충돌 체크 (다중 적 대응) ---
     for p in projectiles[:]:
         p.update()
-        if p.pos.distance_to(enemy_pos + pygame.Vector2(25, 25)) < 31:
-            score += 100 + (p.level * 20)
+        hit_enemy = False
+        for i in range(len(enemies)):
+            enemy_center = enemies[i] + pygame.Vector2(25, 25)
+            if p.pos.distance_to(enemy_center) < 31:
+                score += 100 + (p.level * 20)
+                enemies[i] = get_random_outside_pos() # 맞은 적만 새로 생성
+                hit_enemy = True
+                break
+        if hit_enemy:
             projectiles.remove(p)
-            enemy_pos = get_random_outside_pos()
-        elif not screen.get_rect().collidepoint(p.pos): projectiles.remove(p)
+        elif not screen.get_rect().collidepoint(p.pos):
+            projectiles.remove(p)
 
     # --- 화면 그리기 ---
     screen.blit(score_font.render(f"SCORE: {score}", True, BLACK), (WIDTH - 250, 20))
+    
+    # 플레이어 그리기
     pygame.draw.rect(screen, BLUE if can_move else DARK_BLUE, (player_pos.x, player_pos.y, 50, 50))
-    pygame.draw.rect(screen, RED, (enemy_pos.x, enemy_pos.y, 50, 50))
-    if not enemy_is_moving: pygame.draw.rect(screen, BLACK, (enemy_pos.x, enemy_pos.y, 50, 50), 3)
+    
+    # [수정] 모든 적 그리기
+    for e_pos in enemies:
+        pygame.draw.rect(screen, RED, (e_pos.x, e_pos.y, 50, 50))
+        if not enemy_is_moving:
+            pygame.draw.rect(screen, BLACK, (e_pos.x, e_pos.y, 50, 50), 3)
 
-    # 조준 가이드
+    # 🏹 조준 가이드 (기존 60% 축소 버전 유지)
     if dragging:
         center = player_pos + pygame.Vector2(25, 25)
         guide_color = RED if current_level >= 10 else GREEN
         guide_radius = 30 + (drag_dist * 0.3) 
         
-        # 1. 조준 원 및 십자선
         pygame.draw.circle(screen, guide_color, (int(center.x), int(center.y)), int(guide_radius), 2)
         pygame.draw.line(screen, guide_color, (center.x - guide_radius, center.y), (center.x + guide_radius, center.y), 1)
         pygame.draw.line(screen, guide_color, (center.x, center.y - guide_radius), (center.x, center.y + guide_radius), 1)
 
         if drag_vec.length() > 0:
             aim_dir = -drag_vec.normalize()
-            
-            # 2. 내부 점선 가이드
             dash_len, dash_gap = 4, 4
             num_dashes = int(guide_radius / (dash_len + dash_gap))
             for i in range(num_dashes):
@@ -153,16 +177,16 @@ while running:
                 if d_end_dist > guide_radius: d_end_dist = guide_radius
                 pygame.draw.line(screen, guide_color, center + aim_dir * d_start_dist, center + aim_dir * d_end_dist, 2)
 
-            # 3. 방향 화살표
             arrow_pos = center + aim_dir * guide_radius
             wing_l = arrow_pos + aim_dir.rotate(150) * 10
             wing_r = arrow_pos + aim_dir.rotate(-150) * 10
             pygame.draw.polygon(screen, guide_color, [arrow_pos, wing_l, wing_r])
 
-    # 정보 표시 및 투사체
-    status_msg = f"Power: {current_level} | Enemy: {'MOVING' if enemy_is_moving else 'STOPPED'}"
+    # 정보 표시
+    status_msg = f"Power: {current_level} | Enemies: {NUM_ENEMIES}"
     screen.blit(font.render(status_msg, True, BLACK if can_move else RED), (20, 20))
     for p in projectiles: p.draw(screen)
+    
     pygame.display.flip()
     clock.tick(60)
 
