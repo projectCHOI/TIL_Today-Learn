@@ -8,7 +8,7 @@ pygame.init()
 # 화면 설정
 WIDTH, HEIGHT = 900, 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pygame-6: Internal Aiming Guide")
+pygame.display.set_caption("Pygame-6: Compact Aiming Guide")
 
 # 색상
 WHITE = (255, 255, 255)
@@ -130,14 +130,13 @@ while running:
     pygame.draw.rect(screen, RED, (enemy_pos.x, enemy_pos.y, 50, 50))
     if not enemy_is_moving: pygame.draw.rect(screen, BLACK, (enemy_pos.x, enemy_pos.y, 50, 50), 3)
 
-    # 🏹 [수정됨] 내부형 조준 가이드 및 점선 가이드
+    # 조준 가이드
     if dragging:
         center = player_pos + pygame.Vector2(25, 25)
         guide_color = RED if current_level >= 10 else GREEN
-        # 원의 크기는 강도에 따라 커짐 (최대 반지름 200 근처)
-        guide_radius = 40 + (drag_dist * 0.8) 
+        guide_radius = 30 + (drag_dist * 0.3) 
         
-        # 1. 조준 원 및 십자선 (원 내부에만 존재)
+        # 1. 조준 원 및 십자선
         pygame.draw.circle(screen, guide_color, (int(center.x), int(center.y)), int(guide_radius), 2)
         pygame.draw.line(screen, guide_color, (center.x - guide_radius, center.y), (center.x + guide_radius, center.y), 1)
         pygame.draw.line(screen, guide_color, (center.x, center.y - guide_radius), (center.x, center.y + guide_radius), 1)
@@ -145,29 +144,22 @@ while running:
         if drag_vec.length() > 0:
             aim_dir = -drag_vec.normalize()
             
-            # 2. [수정] 점선 가이드: 플레이어부터 '원 안쪽'까지만 그림
-            dash_len, dash_gap = 6, 6
-            # 현재 원의 반지름(guide_radius)을 넘지 않도록 반복 횟수 조절
+            # 2. 내부 점선 가이드
+            dash_len, dash_gap = 4, 4
             num_dashes = int(guide_radius / (dash_len + dash_gap))
-            
             for i in range(num_dashes):
                 d_start_dist = i * (dash_len + dash_gap)
                 d_end_dist = d_start_dist + dash_len
-                
-                # 원의 경계를 넘지 않게 끝점 제한
                 if d_end_dist > guide_radius: d_end_dist = guide_radius
-                
-                pygame.draw.line(screen, guide_color, 
-                                 center + aim_dir * d_start_dist, 
-                                 center + aim_dir * d_end_dist, 2)
+                pygame.draw.line(screen, guide_color, center + aim_dir * d_start_dist, center + aim_dir * d_end_dist, 2)
 
-            # 3. 방향 화살표 (원의 경계선 위에 배치)
+            # 3. 방향 화살표
             arrow_pos = center + aim_dir * guide_radius
-            wing_l = arrow_pos + aim_dir.rotate(150) * 15
-            wing_r = arrow_pos + aim_dir.rotate(-150) * 15
+            wing_l = arrow_pos + aim_dir.rotate(150) * 10
+            wing_r = arrow_pos + aim_dir.rotate(-150) * 10
             pygame.draw.polygon(screen, guide_color, [arrow_pos, wing_l, wing_r])
 
-    # 하단 텍스트 및 투사체
+    # 정보 표시 및 투사체
     status_msg = f"Power: {current_level} | Enemy: {'MOVING' if enemy_is_moving else 'STOPPED'}"
     screen.blit(font.render(status_msg, True, BLACK if can_move else RED), (20, 20))
     for p in projectiles: p.draw(screen)
