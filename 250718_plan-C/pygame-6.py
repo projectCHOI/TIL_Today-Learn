@@ -63,3 +63,20 @@ dragging = False
 press_pos = pygame.Vector2(0, 0)
 projectiles = []
 can_move = True
+
+class Projectile:
+    def __init__(self, pos, velocity, level):
+        self.pos = pygame.Vector2(pos)
+        self.vel = pygame.Vector2(velocity)
+        self.level = level
+    def update(self):
+        self.pos += self.vel
+        self.vel *= 0.99 
+    def draw(self, screen):
+        pygame.draw.circle(screen, BLUE, (int(self.pos.x), int(self.pos.y)), 6)
+
+clock = pygame.time.Clock()
+running = True
+
+while running:
+    current_time = pygame.time.get_ticks()
