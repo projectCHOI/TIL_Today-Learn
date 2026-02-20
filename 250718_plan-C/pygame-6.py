@@ -103,3 +103,29 @@ while running:
                 if level >= 2:
                     speed = [0, 0, 8, 10, 12, 14, 16, 18, 20, 22, 25][level]
                     projectiles.append(Projectile(player_pos + pygame.Vector2(25, 25), -drag_vec.normalize() * speed, level))
+
+# 플레이어 이동 및 패널티
+    can_move, current_level = True, 0
+    if dragging:
+        mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
+        drag_vec = mouse_pos - press_pos
+        drag_dist = min(drag_vec.length(), MAX_DRAG)
+        current_level = int(drag_dist / (MAX_DRAG / 10))
+        if current_level >= 10: can_move = False
+
+    if can_move:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]: player_pos.y -= PLAYER_SPEED
+        if keys[pygame.K_s]: player_pos.y += PLAYER_SPEED
+        if keys[pygame.K_a]: player_pos.x -= PLAYER_SPEED
+        if keys[pygame.K_d]: player_pos.x += PLAYER_SPEED
+    
+    player_pos.x = max(0, min(player_pos.x, WIDTH - 50))
+    player_pos.y = max(0, min(player_pos.y, HEIGHT - 50))
+
+    # --- 적 AI 및 플레이어 충돌 체크 ---
+    if current_time - enemy_move_timer > 2000:
+        enemy_is_moving = not enemy_is_moving
+        enemy_move_timer = current_time
+
+    player_rect = pygame.Rect(player_pos.x, player_pos.y, PLAYER_SIZE, PLAYER_SIZE)
