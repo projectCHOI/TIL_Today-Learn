@@ -80,3 +80,26 @@ running = True
 
 while running:
     current_time = pygame.time.get_ticks()
+
+    offset = pygame.Vector2(0, 0)
+    if current_time < screen_shake_timer:
+        offset = pygame.Vector2(random.randint(-5, 5), random.randint(-5, 5))
+    
+    screen.fill(WHITE)
+    
+    # 이벤트 처리
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT: running = False
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            dragging = True
+            press_pos = pygame.Vector2(pygame.mouse.get_pos())
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            dragging = False
+            release_pos = pygame.Vector2(pygame.mouse.get_pos())
+            drag_vec = release_pos - press_pos
+            if drag_vec.length() > 20:
+                if drag_vec.length() > MAX_DRAG: drag_vec = drag_vec.normalize() * MAX_DRAG
+                level = max(0, min(int(drag_vec.length() / (MAX_DRAG/10)), 10))
+                if level >= 2:
+                    speed = [0, 0, 8, 10, 12, 14, 16, 18, 20, 22, 25][level]
+                    projectiles.append(Projectile(player_pos + pygame.Vector2(25, 25), -drag_vec.normalize() * speed, level))
