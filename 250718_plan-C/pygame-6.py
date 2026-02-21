@@ -144,3 +144,15 @@ while running:
                 if hp <= 0:
                     print("Game Over!")
                     running = False
+
+    for p in projectiles[:]:
+        p.update()
+        hit_enemy = False
+        for i in range(len(enemies)):
+            if p.pos.distance_to(enemies[i] + pygame.Vector2(25, 25)) < 31:
+                score += 100 + (p.level * 20)
+                enemies[i] = get_random_outside_pos()
+                hit_enemy = True
+                break
+        if hit_enemy: projectiles.remove(p)
+        elif not screen.get_rect().collidepoint(p.pos): projectiles.remove(p)
