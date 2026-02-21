@@ -129,3 +129,18 @@ while running:
         enemy_move_timer = current_time
 
     player_rect = pygame.Rect(player_pos.x, player_pos.y, PLAYER_SIZE, PLAYER_SIZE)
+
+    for i in range(len(enemies)):
+            if enemy_is_moving:
+                dir_p = (player_pos + pygame.Vector2(25, 25)) - (enemies[i] + pygame.Vector2(25, 25))
+                if dir_p.length() > 0: enemies[i] += dir_p.normalize() * ENEMY_SPEED
+            
+            # 플레이어와 적 충돌 (무적 상태 아닐 때만)
+            enemy_rect = pygame.Rect(enemies[i].x, enemies[i].y, ENEMY_SIZE, ENEMY_SIZE)
+            if player_rect.colliderect(enemy_rect) and current_time > invincible_timer:
+                hp -= 1
+                invincible_timer = current_time + 2000 # 2초 무적
+                screen_shake_timer = current_time + 300 # 0.3초 흔들림
+                if hp <= 0:
+                    print("Game Over!")
+                    running = False
