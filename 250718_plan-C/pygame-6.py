@@ -163,3 +163,19 @@ while running:
         pygame.draw.rect(screen, RED, (e_pos.x + offset.x, e_pos.y + offset.y, 50, 50))
         if not enemy_is_moving:
             pygame.draw.rect(screen, BLACK, (e_pos.x + offset.x, e_pos.y + offset.y, 50, 50), 3)
+
+    if dragging:
+        center = player_pos + pygame.Vector2(25, 25)
+        guide_color = RED if current_level >= 10 else GREEN
+        guide_radius = 30 + (drag_dist * 0.3) 
+        pygame.draw.circle(screen, guide_color, (int(center.x + offset.x), int(center.y + offset.y)), int(guide_radius), 2)
+        aim_dir = -drag_vec.normalize() if drag_vec.length() > 0 else pygame.Vector2(0, -1)
+        dash_len, dash_gap = 4, 4
+        for i in range(int(guide_radius / (dash_len + dash_gap))):
+            d_start = center + aim_dir * (i * (dash_len + dash_gap))
+            d_end = d_start + aim_dir * dash_len
+            pygame.draw.line(screen, guide_color, d_start + offset, d_end + offset, 2)
+        arrow_pos = center + aim_dir * guide_radius
+        wing_l = arrow_pos + aim_dir.rotate(150) * 10
+        wing_r = arrow_pos + aim_dir.rotate(-150) * 10
+        pygame.draw.polygon(screen, guide_color, [arrow_pos + offset, wing_l + offset, wing_r + offset])
