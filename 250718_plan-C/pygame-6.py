@@ -104,7 +104,6 @@ while running:
                     speed = [0, 0, 8, 10, 12, 14, 16, 18, 20, 22, 25][level]
                     projectiles.append(Projectile(player_pos + pygame.Vector2(25, 25), -drag_vec.normalize() * speed, level))
 
-# 플레이어 이동 및 패널티
     can_move, current_level = True, 0
     if dragging:
         mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
@@ -123,7 +122,6 @@ while running:
     player_pos.x = max(0, min(player_pos.x, WIDTH - 50))
     player_pos.y = max(0, min(player_pos.y, HEIGHT - 50))
 
-    # --- 적 AI 및 플레이어 충돌 체크 ---
     if current_time - enemy_move_timer > 2000:
         enemy_is_moving = not enemy_is_moving
         enemy_move_timer = current_time
@@ -156,3 +154,12 @@ while running:
                 break
         if hit_enemy: projectiles.remove(p)
         elif not screen.get_rect().collidepoint(p.pos): projectiles.remove(p)
+
+    if current_time > invincible_timer or (current_time // 100) % 2 == 0:
+        p_color = BLUE if can_move else DARK_BLUE
+        pygame.draw.rect(screen, p_color, (player_pos.x + offset.x, player_pos.y + offset.y, 50, 50))
+
+    for e_pos in enemies:
+        pygame.draw.rect(screen, RED, (e_pos.x + offset.x, e_pos.y + offset.y, 50, 50))
+        if not enemy_is_moving:
+            pygame.draw.rect(screen, BLACK, (e_pos.x + offset.x, e_pos.y + offset.y, 50, 50), 3)
