@@ -179,3 +179,16 @@ while running:
         wing_l = arrow_pos + aim_dir.rotate(150) * 10
         wing_r = arrow_pos + aim_dir.rotate(-150) * 10
         pygame.draw.polygon(screen, guide_color, [arrow_pos + offset, wing_l + offset, wing_r + offset])
+
+    for i in range(5):
+        hp_color = RED if i < hp else GRAY
+        pygame.draw.circle(screen, hp_color, (40 + i * 35, HEIGHT - 40), 12)
+        pygame.draw.circle(screen, BLACK, (40 + i * 35, HEIGHT - 40), 12, 2) # 테두리
+
+    screen.blit(score_font.render(f"SCORE: {score}", True, BLACK), (WIDTH - 250, 20))
+    for p in projectiles: p.draw(screen)
+    
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
