@@ -60,3 +60,18 @@ def start_screen():
                     return game_loop()
                 if event.key == pygame.K_ESCAPE:
                     return False
+
+        win.fill(BLACK)
+        # 배경 및 제목
+        draw_center_text(win, "ARROW PROMPT", font_big, GREEN, HEIGHT//2 - 100)
+        
+        # 게임 방법 안내
+        draw_center_text(win, "[ 게임 방법 ]", font_mid, WHITE, HEIGHT//2 - 10)
+        draw_center_text(win, "화면에 나오는 화살표 방향키를 누르세요!", font_small, GRAY, HEIGHT//2 + 30)
+        draw_center_text(win, "시간이 다 되거나 틀리면 생명이 깎입니다.", font_small, GRAY, HEIGHT//2 + 55)
+        
+        # 시작 안내 (깜빡이는 효과를 주면 더 좋습니다)
+        draw_center_text(win, "Press ENTER to Start", font_mid, YELLOW, HEIGHT//2 + 130)
+        draw_center_text(win, "Press ESC to Quit", font_small, GRAY, HEIGHT//2 + 170)
+        
+        pygame.display.flip()
