@@ -10,7 +10,7 @@ pygame.display.set_caption("Arrow Prompt Game")
 BLACK = (0,0,0); WHITE=(255,255,255); GREEN=(0,255,0); RED=(255,60,60); GRAY=(120,120,120); YELLOW=(255,255,0)
 
 # 폰트
-font_big  = pygame.font.SysFont(None, 80) # 크기 조정
+font_big  = pygame.font.SysFont(None, 80)
 font_mid  = pygame.font.SysFont(None, 36)
 font_small= pygame.font.SysFont(None, 24)
 
@@ -47,3 +47,16 @@ def draw_center_text(surface, text, font, color, y):
     img = font.render(text, True, color)
     rect = img.get_rect(center=(WIDTH//2, y))
     surface.blit(img, rect)
+
+# --- 신규 추가: 시작 화면 ---
+def start_screen():
+    while True:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN: # 엔터키 입력 시 게임 시작
+                    return game_loop()
+                if event.key == pygame.K_ESCAPE:
+                    return False
