@@ -48,7 +48,6 @@ def draw_center_text(surface, text, font, color, y):
     rect = img.get_rect(center=(WIDTH//2, y))
     surface.blit(img, rect)
 
-# --- 신규 추가: 시작 화면 ---
 def start_screen():
     while True:
         clock.tick(FPS)
@@ -75,3 +74,14 @@ def start_screen():
         draw_center_text(win, "Press ESC to Quit", font_small, GRAY, HEIGHT//2 + 170)
         
         pygame.display.flip()
+
+def game_loop():
+    score = 0
+    lives = 3
+    prompt_ms = 1500        # 시작 제한시간(ms)
+    min_prompt_ms = 650     # 최소 제한시간
+    decay = 40              # 정답시 제한시간 감소량
+    current, deadline = spawn_prompt(prompt_ms)
+
+    running = True
+
