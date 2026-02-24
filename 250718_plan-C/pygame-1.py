@@ -107,3 +107,45 @@ def game_loop():
                             return game_over_screen(score)
                         current, deadline = spawn_prompt(prompt_ms)
 
+        if now > deadline:
+            lives -= 1
+            if lives <= 0:
+                return game_over_screen(score)
+            current, deadline = spawn_prompt(prompt_ms)
+
+        win.fill(BLACK)
+        draw_arrow(win, current["name"], (WIDTH//2, HEIGHT//2), size=160, color=WHITE)
+        hud = f"Score: {score}   Lives: {lives}   Time: {prompt_ms}ms"
+        draw_center_text(win, hud, font_small, GRAY, 24)
+
+        remain = max(0, deadline - now)
+        ratio = remain / prompt_ms
+        bar_w = int((WIDTH - 80) * ratio)
+        pygame.draw.rect(win, GRAY, (40, HEIGHT - 60, WIDTH - 80, 18), border_radius=6)
+        pygame.draw.rect(win, GREEN if ratio > 0.35 else RED, (40, HEIGHT - 60, bar_w, 18), border_radius=6)
+
+        pygame.display.flip()
+
+def game_over_screen(score):
+    while True:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    return game_loop()
+                if event.key == pygame.K_m: # M을 누르면 메인 메뉴로
+                    return start_screen()
+                if event.key == pygame.K_ESCAPE:
+                    return False
+                
+        win.fill(BLACK)
+        draw_center_text(win, "GAME OVER", font_mid, RED, HEIGHT//2 - 30)
+        draw_center_text(win, f"Final Score: {score}", font_mid, WHITE, HEIGHT//2 + 10)
+        draw_center_text(win, "R: Restart  M: Main Menu  ESC: Quit", font_small, GRAY, HEIGHT//2 + 60)
+        pygame.display.flip()
+
+if __name__ == "__main__":
+    start_screen()
+    pygame.quit()
