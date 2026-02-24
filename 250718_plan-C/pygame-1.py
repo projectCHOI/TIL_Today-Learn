@@ -85,3 +85,25 @@ def game_loop():
 
     running = True
 
+    while running:
+        dt = clock.tick(FPS)
+        now = pygame.time.get_ticks()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return start_screen() # 게임 중 ESC 누르면 시작화면으로
+                
+                if event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT):
+                    if event.key == current["key"]:
+                        score += 1
+                        prompt_ms = max(min_prompt_ms, prompt_ms - decay)
+                        current, deadline = spawn_prompt(prompt_ms)
+                    else:
+                        lives -= 1
+                        if lives <= 0:
+                            return game_over_screen(score)
+                        current, deadline = spawn_prompt(prompt_ms)
+
