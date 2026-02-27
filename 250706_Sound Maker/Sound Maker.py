@@ -101,7 +101,7 @@ class MusicMaker:
         if "-" in note: return freq * 0.5
         return freq
 
-    def adsr_envelope(self, n):
+    #def adsr_envelope(self, n):
         sr = self.SAMPLE_RATE
         a, d, r = int(0.005*sr), int(0.03*sr), int(0.02*sr)
         s = max(n - (a + d + r), 0)
@@ -138,8 +138,7 @@ class MusicMaker:
             
             self.canvas.create_text(x, y_base + 90, text=note, font=("맑은 고딕", 8), tag="note")
 
-    def _get_y_offset(self, note):
-        # 기존 NOTE_Y_OFFSET 로직을 간소화하거나 그대로 활용
+    #def _get_y_offset(self, note):
         mapping = {
             "도": 24, "레": 16, "미": 8, "파": 0, "솔": -8, "라": -16, "시": -24
         }
@@ -199,7 +198,7 @@ class MusicMaker:
                 self.selected_notes = data.get("notes", [])
                 self.update_staff()
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
     root = tk.Tk()
     app = MusicMaker(root)
     root.mainloop()
