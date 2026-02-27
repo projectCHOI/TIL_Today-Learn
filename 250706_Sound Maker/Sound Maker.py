@@ -101,14 +101,20 @@ class MusicMaker:
         if "-" in note: return freq * 0.5
         return freq
 
-    #def adsr_envelope(self, n):
+    def adsr_envelope(self, n):
         sr = self.SAMPLE_RATE
-        a, d, r = int(0.005*sr), int(0.03*sr), int(0.02*sr)
-        s = max(n - (a + d + r), 0)
-        return np.concatenate([
-            np.linspace(0, 1, a), np.linspace(1, 0.8, d),
-            np.full(s, 0.8), np.linspace(0.8, 0, r)
-        ])[:n]
+        a = min(int(0.01 * sr), int(n * 0.1))
+        d = min(int(0.05 * sr), int(n * 0.2))
+        r = min(int(0.05 * sr), int(n * 0.2))
+        s_len = max(n - (a + d + r), 0)
+        
+        envelope = np.concatenate([
+            np.linspace(0, 1, a),        # Attack
+            np.linspace(1, 0.8, d),      # Decay
+            np.full(s_len, 0.8),         # Sustain
+            np.linspace(0.8, 0, r)       # Release
+        ])
+        return envelope[:n]
 
     def create_wave(self, freq, duration):
         n = int(self.SAMPLE_RATE * duration)
