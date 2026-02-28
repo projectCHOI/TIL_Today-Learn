@@ -7,7 +7,6 @@ import pygame
 import json
 
 class MusicMaker:
-    # --- 설정 상수 ---
     SAMPLE_RATE = 44100
     OUTPUT_DIR = r"C:/Users/boss3/OneDrive/바탕 화면/GitHub/TIL_Today-Learn/250706_Sound Maker/Download"
     
@@ -17,27 +16,21 @@ class MusicMaker:
     }
     
     Y_OFFSETS = {
-        "-": 80, "": 24, "+": -32 # 옥타브별 기본 오프셋
+        "-": 80, "": 24, "+": -32
     }
 
     def __init__(self, root):
         self.root = root
         self.root.title("Python 8-Bit Music Maker")
         self.root.geometry("720x900")
-        
-        # 데이터 초기화
         self.selected_notes = []
         self.bpm = 120
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
-        
-        # Pygame 초기화
         pygame.mixer.init()
 
         self._setup_ui()
 
     def _setup_ui(self):
-        """GUI 구성요소 배치"""
-        # 음표 버튼 프레임 (낮은음, 일반음, 높은음)
         for label, suffix in [("낮은 음", "-"), ("일반 음", ""), ("높은 음", "+")]:
             frame = tk.LabelFrame(self.root, text=label)
             frame.pack(fill="x", padx=10, pady=3)
@@ -49,15 +42,12 @@ class MusicMaker:
 
         tk.Button(self.root, text="쉼표", width=6, command=lambda: self.add_note("쉼표")).pack(pady=5)
 
-        # 오선지 캔버스
         self.canvas = tk.Canvas(self.root, width=690, height=440, bg="white")
         self.canvas.pack(padx=10, pady=5)
         self._draw_staff_lines()
 
-        # 설정 프레임 (반복, 파일명)
         self._setup_settings_ui()
 
-        # 컨트롤 버튼
         ctrl_frame = tk.Frame(self.root)
         ctrl_frame.pack(pady=15)
         buttons = [
@@ -85,7 +75,6 @@ class MusicMaker:
         tk.OptionMenu(frame, self.note_len_var, "2분", "4분", "8분").pack(side="left")
 
     def _draw_staff_lines(self):
-        """오선지 기본선 그리기"""
         for row in range(5):
             y_base = row * 100 + 30
             for i in range(5):
@@ -131,12 +120,9 @@ class MusicMaker:
             x = 30 + col * 30
             y_base = 30 + row * 100
             
-            # 음표 그리기
             if note != "쉼표":
-                # 상세 위치 계산 로직 개선
                 suffix = note[-1] if note[-1] in ["+", "-"] else ""
                 base_note = note[0]
-                # 기존 딕셔너리 기반 y값 계산
                 y_val = y_base + 70 + self._get_y_offset(note)
                 self.canvas.create_oval(x-5, y_val-5, x+5, y_val+5, fill="black", tag="note")
             else:
@@ -177,7 +163,6 @@ class MusicMaker:
         write(filepath, self.SAMPLE_RATE, out_data)
         messagebox.showinfo("완료", f"저장되었습니다: {filepath}")
 
-    # --- 나머지 버튼 기능들 (삭제, 초기화 등) ---
     def delete_last_note(self):
         if self.selected_notes: self.selected_notes.pop(); self.update_staff()
 
@@ -204,7 +189,13 @@ class MusicMaker:
                 self.selected_notes = data.get("notes", [])
                 self.update_staff()
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
     root = tk.Tk()
     app = MusicMaker(root)
+    
+    def on_closing():
+        pygame.mixer.quit()
+        root.destroy()
+        
+    root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()
