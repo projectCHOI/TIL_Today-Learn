@@ -58,7 +58,9 @@ function love.load()
 
     score = 0
     level = 1
-    gameState = "playing"
+
+    -- 처음에는 시작 화면을 표시
+    gameState = "start"
 
     titleFont = love.graphics.newFont(28)
     normalFont = love.graphics.newFont(16)
@@ -68,6 +70,7 @@ function love.load()
 end
 
 function love.update(dt)
+    -- 게임 진행 중이 아니면 이동 계산을 하지 않음
     if gameState ~= "playing" then
         return
     end
@@ -109,16 +112,95 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
-    if key == "r" and gameState == "gameover" then
-        resetGame()
+    -- 시작 화면에서 Enter 또는 Space로 시작
+    if gameState == "start" then
+        if key == "return" or key == "space" then
+            resetGame()
+        end
+
+    -- 게임 진행 중에 P를 누르면 일시정지
+    elseif gameState == "playing" then
+        if key == "p" then
+            gameState = "paused"
+        end
+
+    -- 일시정지 상태에서 P를 누르면 계속 진행
+    elseif gameState == "paused" then
+        if key == "p" then
+            gameState = "playing"
+        end
+
+    -- 게임 종료 상태에서 R을 누르면 다시 시작
+    elseif gameState == "gameover" then
+        if key == "r" then
+            resetGame()
+        end
     end
 
+    -- 모든 상태에서 Esc로 종료
     if key == "escape" then
         love.event.quit()
     end
 end
 
 function love.draw()
+    -- 시작 화면
+    if gameState == "start" then
+        love.graphics.setColor(0.08, 0.08, 0.12)
+        love.graphics.rectangle("fill", 0, 0, 480, 360)
+
+        love.graphics.setFont(titleFont)
+        love.graphics.setColor(0.2, 0.7, 1.0)
+
+        love.graphics.printf(
+            "DODGE GAME",
+            0,
+            85,
+            480,
+            "center"
+        )
+
+        love.graphics.setFont(normalFont)
+        love.graphics.setColor(1.0, 1.0, 1.0)
+
+        love.graphics.printf(
+            "Avoid the falling obstacles!",
+            0,
+            145,
+            480,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Move: Left / Right",
+            0,
+            180,
+            480,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Press Enter or Space to Start",
+            0,
+            225,
+            480,
+            "center"
+        )
+
+        love.graphics.setFont(smallFont)
+        love.graphics.setColor(0.7, 0.7, 0.7)
+
+        love.graphics.printf(
+            "Esc: Quit",
+            0,
+            270,
+            480,
+            "center"
+        )
+
+        return
+    end
+
     -- 플레이어
     love.graphics.setColor(0.2, 0.7, 1.0)
 
@@ -167,15 +249,54 @@ function love.draw()
         "right"
     )
 
-    -- 아래쪽 조작 안내
+    -- 게임 진행 중 안내
     if gameState == "playing" then
         love.graphics.setFont(smallFont)
         love.graphics.setColor(0.75, 0.75, 0.75)
 
         love.graphics.printf(
-            "Move: Left / Right    Esc: Quit",
+            "Move: Left / Right    P: Pause    Esc: Quit",
             0,
             338,
+            480,
+            "center"
+        )
+    end
+
+    -- 일시정지 화면
+    if gameState == "paused" then
+        love.graphics.setColor(0, 0, 0, 0.75)
+        love.graphics.rectangle("fill", 0, 0, 480, 360)
+
+        love.graphics.setFont(titleFont)
+        love.graphics.setColor(1.0, 0.85, 0.2)
+
+        love.graphics.printf(
+            "PAUSED",
+            0,
+            125,
+            480,
+            "center"
+        )
+
+        love.graphics.setFont(normalFont)
+        love.graphics.setColor(1.0, 1.0, 1.0)
+
+        love.graphics.printf(
+            "Press P to Continue",
+            0,
+            180,
+            480,
+            "center"
+        )
+
+        love.graphics.setFont(smallFont)
+        love.graphics.setColor(0.75, 0.75, 0.75)
+
+        love.graphics.printf(
+            "Esc: Quit",
+            0,
+            215,
             480,
             "center"
         )
@@ -192,7 +313,7 @@ function love.draw()
         love.graphics.printf(
             "GAME OVER",
             0,
-            110,
+            105,
             480,
             "center"
         )
@@ -203,7 +324,7 @@ function love.draw()
         love.graphics.printf(
             "Final Score: " .. score,
             0,
-            160,
+            155,
             480,
             "center"
         )
@@ -211,7 +332,7 @@ function love.draw()
         love.graphics.printf(
             "Reached Level: " .. level,
             0,
-            185,
+            180,
             480,
             "center"
         )
@@ -228,9 +349,9 @@ function love.draw()
         love.graphics.setColor(0.75, 0.75, 0.75)
 
         love.graphics.printf(
-            "Press Esc to Quit",
+            "Esc: Quit",
             0,
-            255,
+            260,
             480,
             "center"
         )
