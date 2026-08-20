@@ -1,5 +1,5 @@
 ## 현재 위치
-c
+Get-Location
 
 ## 경로 수정
 Set-Location ".\260817_love2d_projects\dodge_game"
