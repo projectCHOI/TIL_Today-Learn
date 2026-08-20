@@ -1,0 +1,54 @@
+## node --version
+v22.12.0
+## npm --version
+10.9.0
+## npm init -y
+260820_Phaser_projects\dodge_game\package.json:
+
+{
+  "name": "dodge_game",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "description": ""
+}
+
+
+npm notice
+npm notice New major version of npm available! 10.9.0 -> 12.0.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.2
+npm notice
+
+## Test-Path ".\package.json"
+True
+
+## npm install phaser@4.2.1
+added 2 packages, and audited 3 packages in 6s
+found 0 vulnerabilities
+
+## npm install --save-dev vite
+added 15 packages, and audited 18 packages in 5s
+
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+## npm list phaser vite
+dodge_game@1.0.0 C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\260820_Phaser_projects\dodge_game
+├── phaser@4.2.1
+└── vite@8.2.2
+
+## Get-ChildItem
+
+    디렉터리: C:\Users\boss3\OneDrive\바탕 화면\GitHub\TIL_Today-Learn\260820_Pha
+    ser_projects\dodge_game
+
+Mode                 LastWriteTime         Length Name                           
+----                 -------------         ------ ----                           
+d-----      2026-08-20  오후 10:59                node_modules                   
+-a----      2026-08-20  오후 10:59          25649 package-lock.json              
+-a----      2026-08-20  오후 10:59            321 package.json                   

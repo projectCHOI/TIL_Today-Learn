@@ -1,0 +1,16 @@
+# 설치 패키지
+node_modules/
+
+# Vite 배포 결과
+dist/
+
+# Vite 임시 파일
+.vite/
+
+# 실행 기록
+*.log
+
+# 환경 변수
+.env
+.env.*
+!.env.example
