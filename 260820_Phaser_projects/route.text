@@ -5,8 +5,7 @@ Get-Location
 Set-Location ".\260820_Phaser_projects\dodge_game"
 
 ## 설치된 Python으로 실행
-npm run dev
-=> python -m http.server 8000
+python -m http.server 8000
 
 Local: http://localhost:8000/ 으로 접속
 
