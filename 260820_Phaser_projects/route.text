@@ -3,3 +3,11 @@ Get-Location
 
 ## 경로 수정
 Set-Location ".\260820_Phaser_projects\dodge_game"
+
+## 설치된 Python으로 실행
+npm run dev
+=> python -m http.server 8000
+
+Local: http://localhost:8000/ 으로 접속
+
+## 접속 후 확인 그리고 "Ctrl + C"눌러서 종료
