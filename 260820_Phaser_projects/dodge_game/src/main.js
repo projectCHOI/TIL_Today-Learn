@@ -216,3 +216,159 @@ class MainScene extends Phaser.Scene {
             `Speed: ${this.obstacleSpeed}`
         );
     }
+
+    checkCollision() {
+        const playerLeft =
+            this.player.x - this.player.width / 2;
+
+        const playerRight =
+            this.player.x + this.player.width / 2;
+
+        const playerTop =
+            this.player.y - this.player.height / 2;
+
+        const playerBottom =
+            this.player.y + this.player.height / 2;
+
+        const obstacleLeft =
+            this.obstacle.x - this.obstacle.width / 2;
+
+        const obstacleRight =
+            this.obstacle.x + this.obstacle.width / 2;
+
+        const obstacleTop =
+            this.obstacle.y - this.obstacle.height / 2;
+
+        const obstacleBottom =
+            this.obstacle.y + this.obstacle.height / 2;
+
+        return (
+            playerLeft < obstacleRight &&
+            playerRight > obstacleLeft &&
+            playerTop < obstacleBottom &&
+            playerBottom > obstacleTop
+        );
+    }
+
+    showGameOver() {
+        this.gameState = "gameover";
+
+        this.finalScoreText.setText(
+            `Final Score: ${this.score}`
+        );
+
+        this.finalLevelText.setText(
+            `Reached Level: ${this.level}`
+        );
+
+        this.gameOverBackground.setVisible(true);
+        this.gameOverText.setVisible(true);
+        this.finalScoreText.setVisible(true);
+        this.finalLevelText.setVisible(true);
+        this.restartText.setVisible(true);
+    }
+
+    resetGame() {
+        this.gameState = "playing";
+
+        // 플레이어 초기화
+        this.player.x = 240;
+        this.player.y = 322.5;
+
+        // 점수와 난이도 초기화
+        this.score = 0;
+        this.level = 1;
+        this.obstacleSpeed =
+            this.baseObstacleSpeed;
+
+        this.scoreText.setText("Score: 0");
+        this.levelText.setText("Level: 1");
+        this.speedText.setText("Speed: 160");
+
+        // 게임 종료 화면 숨기기
+        this.gameOverBackground.setVisible(false);
+        this.gameOverText.setVisible(false);
+        this.finalScoreText.setVisible(false);
+        this.finalLevelText.setVisible(false);
+        this.restartText.setVisible(false);
+
+        this.resetObstacle();
+    }
+
+    update(time, delta) {
+        // 게임 종료 상태
+        if (this.gameState === "gameover") {
+            if (
+                Phaser.Input.Keyboard.JustDown(
+                    this.restartKey
+                )
+            ) {
+                this.resetGame();
+            }
+
+            return;
+        }
+
+        const dt = delta / 1000;
+
+        // 플레이어 이동
+        if (this.cursors.left.isDown) {
+            this.player.x -=
+                this.playerSpeed * dt;
+        }
+
+        if (this.cursors.right.isDown) {
+            this.player.x +=
+                this.playerSpeed * dt;
+        }
+
+        // 화면 경계 제한
+        const playerHalfWidth =
+            this.player.width / 2;
+
+        this.player.x = Phaser.Math.Clamp(
+            this.player.x,
+            playerHalfWidth,
+            480 - playerHalfWidth
+        );
+
+        // 장애물 이동
+        this.obstacle.y +=
+            this.obstacleSpeed * dt;
+
+        const obstacleTop =
+            this.obstacle.y -
+            this.obstacle.height / 2;
+
+        // 장애물을 피했을 때
+        if (obstacleTop > 360) {
+            this.score += 1;
+
+            this.scoreText.setText(
+                `Score: ${this.score}`
+            );
+
+            this.updateDifficulty();
+            this.resetObstacle();
+        }
+
+        // 충돌 확인
+        if (this.checkCollision()) {
+            this.showGameOver();
+        }
+    }
+}
+
+const config = {
+    type: Phaser.AUTO,
+
+    width: 480,
+    height: 360,
+
+    parent: "game-container",
+    backgroundColor: "#11131a",
+
+    scene: [MainScene]
+};
+
+new Phaser.Game(config);
