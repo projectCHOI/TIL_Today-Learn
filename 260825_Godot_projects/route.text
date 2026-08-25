@@ -1,0 +1,5 @@
+## 현재 위치
+Get-Location
+
+## 경로 수정
+Set-Location ".\260825_Godot_projects\dodge_game"
