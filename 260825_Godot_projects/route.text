@@ -3,3 +3,24 @@ Get-Location
 
 ## 경로 수정
 Set-Location ".\260825_Godot_projects\dodge_game"
+
+## Godot 편집기 여는 방법
+1. 일반판 Godot 실행 파일을 다시 찾기
+'''
+$godotFile = Get-ChildItem "C:\설치_soft\260817_Code" -Recurse -File -Filter "Godot*.exe" |
+    Where-Object {
+        $_.Name -notlike "*mono*" -and
+        $_.Name -notlike "*console*"
+    } |
+    Select-Object -First 1
+'''
+
+2. 찾은 파일을 확인
+'''
+$godotFile.FullName
+'''
+
+3. 현재 폴더의 Godot 프로젝트를 편집기로 열기
+'''
+& $godotFile.FullName --editor --path "."
+'''
