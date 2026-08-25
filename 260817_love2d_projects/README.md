@@ -1,8 +1,8 @@
 # Dodge Game — Lua + LÖVE2D
 
-Windows와 Visual Studio Code 환경에서 Lua와 LÖVE2D를 처음 사용해 만든 2D 장애물 피하기 게임입니다.
+Windows와 Visual Studio Code 환경에서 Lua와 LÖVE2D를 사용해 만든 2D 장애물 피하기 게임입니다.
 
-이 프로젝트의 목표는 개발 환경 설치부터 게임 제작, 실행, `.love` 파일 생성, Windows 배포까지 전체 과정을 직접 경험하는 것입니다. 이후 같은 게임을 다른 언어와 환경에서도 제작해 특징과 장단점을 비교할 예정입니다.
+이 프로젝트의 목표는 개발 환경 설치부터 게임 제작, 실행, `.love` 파일 생성, Windows 배포까지 전체 과정을 직접 경험하는 것입니다. 
 
 ## 개발 환경
 
