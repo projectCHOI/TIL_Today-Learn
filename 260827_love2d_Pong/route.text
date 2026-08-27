@@ -1,0 +1,8 @@
+## 현재 위치
+Get-Location
+
+## 경로 수정
+Set-Location ".\260827_love2d_Pong\pong_game"
+
+## 실행
+& "C:\설치_soft\260817_Code\LOVE\love.exe" .
