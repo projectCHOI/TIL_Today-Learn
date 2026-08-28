@@ -24,7 +24,11 @@ local ball = {
     x = 390,
     y = 290,
     width = 20,
-    height = 20
+    height = 20,
+
+    -- 공의 이동 속도
+    dx = 250,
+    dy = 180
 }
 
 function love.load()
@@ -44,15 +48,18 @@ function love.update(dt)
         player.y = player.y + player.speed * dt
     end
 
-    -- 화면 위쪽을 넘어가지 않도록 제한
+    -- 화면 위쪽 제한
     if player.y < 0 then
         player.y = 0
     end
 
-    -- 화면 아래쪽을 넘어가지 않도록 제한
+    -- 화면 아래쪽 제한
     if player.y + player.height > WINDOW_HEIGHT then
         player.y = WINDOW_HEIGHT - player.height
     end
+
+    ball.x = ball.x + ball.dx * dt
+    ball.y = ball.y + ball.dy * dt
 end
 
 function love.draw()
