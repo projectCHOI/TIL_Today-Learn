@@ -38,6 +38,10 @@ end
 
 function love.update(dt)
 
+    -- =========================
+    -- 플레이어 이동
+    -- =========================
+
     -- W 키: 위로 이동
     if love.keyboard.isDown("w") then
         player.y = player.y - player.speed * dt
@@ -58,8 +62,30 @@ function love.update(dt)
         player.y = WINDOW_HEIGHT - player.height
     end
 
+
+    -- =========================
+    -- 공 이동
+    -- =========================
+
     ball.x = ball.x + ball.dx * dt
     ball.y = ball.y + ball.dy * dt
+
+
+    -- =========================
+    -- 공과 위쪽 / 아래쪽 벽 충돌
+    -- =========================
+
+    -- 위쪽 벽 충돌
+    if ball.y <= 0 then
+        ball.y = 0
+        ball.dy = -ball.dy
+    end
+
+    -- 아래쪽 벽 충돌
+    if ball.y + ball.height >= WINDOW_HEIGHT then
+        ball.y = WINDOW_HEIGHT - ball.height
+        ball.dy = -ball.dy
+    end
 end
 
 function love.draw()
