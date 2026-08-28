@@ -7,7 +7,8 @@ local player = {
     x = 40,
     y = 250,
     width = 15,
-    height = 100
+    height = 100,
+    speed = 300
 }
 
 -- AI 패들
@@ -32,7 +33,26 @@ function love.load()
 end
 
 function love.update(dt)
-    -- 현재 단계에서는 움직임 없음
+
+    -- W 키: 위로 이동
+    if love.keyboard.isDown("w") then
+        player.y = player.y - player.speed * dt
+    end
+
+    -- S 키: 아래로 이동
+    if love.keyboard.isDown("s") then
+        player.y = player.y + player.speed * dt
+    end
+
+    -- 화면 위쪽을 넘어가지 않도록 제한
+    if player.y < 0 then
+        player.y = 0
+    end
+
+    -- 화면 아래쪽을 넘어가지 않도록 제한
+    if player.y + player.height > WINDOW_HEIGHT then
+        player.y = WINDOW_HEIGHT - player.height
+    end
 end
 
 function love.draw()
