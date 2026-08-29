@@ -1,8 +1,6 @@
--- 화면 크기
 local WINDOW_WIDTH = 800
 local WINDOW_HEIGHT = 600
 
--- 플레이어 패들
 local player = {
     x = 40,
     y = 250,
@@ -11,7 +9,6 @@ local player = {
     speed = 300
 }
 
--- AI 패들
 local ai = {
     x = 745,
     y = 250,
@@ -19,69 +16,55 @@ local ai = {
     height = 100
 }
 
--- 공
 local ball = {
     x = 390,
     y = 290,
     width = 20,
     height = 20,
 
-    -- 공의 이동 속도
-    dx = 250,
+    -- 반사 확인을 위해 X 속도를 낮춤
+    dx = 120,
     dy = 180
 }
 
 function love.load()
-    -- 검은 배경
     love.graphics.setBackgroundColor(0, 0, 0)
 end
 
 function love.update(dt)
 
-    -- =========================
     -- 플레이어 이동
-    -- =========================
-
-    -- W 키: 위로 이동
     if love.keyboard.isDown("w") then
         player.y = player.y - player.speed * dt
     end
 
-    -- S 키: 아래로 이동
     if love.keyboard.isDown("s") then
         player.y = player.y + player.speed * dt
     end
 
-    -- 화면 위쪽 제한
+    -- 플레이어 화면 경계
     if player.y < 0 then
         player.y = 0
     end
 
-    -- 화면 아래쪽 제한
     if player.y + player.height > WINDOW_HEIGHT then
         player.y = WINDOW_HEIGHT - player.height
     end
 
 
-    -- =========================
     -- 공 이동
-    -- =========================
-
     ball.x = ball.x + ball.dx * dt
     ball.y = ball.y + ball.dy * dt
 
 
-    -- =========================
-    -- 공과 위쪽 / 아래쪽 벽 충돌
-    -- =========================
-
-    -- 위쪽 벽 충돌
+    -- 위쪽 벽 반사
     if ball.y <= 0 then
         ball.y = 0
         ball.dy = -ball.dy
     end
 
-    -- 아래쪽 벽 충돌
+
+    -- 아래쪽 벽 반사
     if ball.y + ball.height >= WINDOW_HEIGHT then
         ball.y = WINDOW_HEIGHT - ball.height
         ball.dy = -ball.dy
@@ -89,10 +72,10 @@ function love.update(dt)
 end
 
 function love.draw()
-    -- 흰색
+
     love.graphics.setColor(1, 1, 1)
 
-    -- 플레이어 패들
+    -- 플레이어
     love.graphics.rectangle(
         "fill",
         player.x,
@@ -101,7 +84,7 @@ function love.draw()
         player.height
     )
 
-    -- AI 패들
+    -- AI
     love.graphics.rectangle(
         "fill",
         ai.x,
