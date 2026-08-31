@@ -1,14 +1,13 @@
 local WINDOW_WIDTH = 800
 local WINDOW_HEIGHT = 600
 
--- 플레이어 점수
+local gameState = "menu"
+
+local gameMode = nil
+
 local playerScore = 0
+local opponentScore = 0
 
--- AI 점수
-local aiScore = 0
-
-
--- 플레이어 패들
 local player = {
     x = 40,
     y = 250,
@@ -17,18 +16,19 @@ local player = {
     speed = 300
 }
 
-
--- AI 패들
-local ai = {
+local opponent = {
     x = 745,
     y = 250,
     width = 15,
     height = 100,
-    speed = 140
+
+    -- AI 속도
+    aiSpeed = 140,
+
+    -- Player 2 속도
+    playerSpeed = 300
 }
 
-
--- 공
 local ball = {
     x = 390,
     y = 290,
@@ -48,18 +48,15 @@ end
 
 local function resetBall()
 
-    -- 화면 중앙으로 이동
     ball.x = WINDOW_WIDTH / 2 - ball.width / 2
     ball.y = WINDOW_HEIGHT / 2 - ball.height / 2
 
-    -- 좌우 방향을 랜덤하게 결정
     if love.math.random(0, 1) == 0 then
         ball.dx = -120
     else
         ball.dx = 120
     end
 
-    -- 상하 방향도 랜덤하게 결정
     if love.math.random(0, 1) == 0 then
         ball.dy = -180
     else
@@ -67,132 +64,123 @@ local function resetBall()
     end
 end
 
+local function resetGame()
+
+    playerScore = 0
+    opponentScore = 0
+
+    -- Player 1 중앙
+    player.y = WINDOW_HEIGHT / 2 - player.height / 2
+
+    -- 오른쪽 패들 중앙
+    opponent.y = WINDOW_HEIGHT / 2 - opponent.height / 2
+
+    resetBall()
+end
+
+local function startGame(mode)
+
+    gameMode = mode
+    gameState = "playing"
+
+    resetGame()
+end
+
 
 function love.load()
+
     love.graphics.setBackgroundColor(0, 0, 0)
 
-    -- 랜덤 값 초기화
     love.math.setRandomSeed(os.time())
 end
 
 
 function love.update(dt)
-    if love.keyboard.isDown("w") then
-        player.y = player.y - player.speed * dt
+
+    if gameState == "menu" then
+
+        -- 메뉴에서는 게임 로직을 실행하지 않음
+        return
     end
 
-    if love.keyboard.isDown("s") then
-        player.y = player.y + player.speed * dt
-    end
+    if gameState == "playing" then
+
+        if love.keyboard.isDown("w") then
+            player.y = player.y - player.speed * dt
+        end
+
+        if love.keyboard.isDown("s") then
+            player.y = player.y + player.speed * dt
+        end
 
 
-    -- 플레이어 화면 경계
-    if player.y < 0 then
-        player.y = 0
-    end
+        -- Player 1 화면 경계
+        if player.y < 0 then
+            player.y = 0
+        end
 
-    if player.y + player.height > WINDOW_HEIGHT then
-        player.y = WINDOW_HEIGHT - player.height
-    end
+        if player.y + player.height > WINDOW_HEIGHT then
+            player.y = WINDOW_HEIGHT - player.height
+        end
 
-    local ballCenterY = ball.y + ball.height / 2
-    local aiCenterY = ai.y + ai.height / 2
+        if gameMode == "1P" then
 
-    if ballCenterY < aiCenterY then
-        ai.y = ai.y - ai.speed * dt
+            local ballCenterY =
+                ball.y + ball.height / 2
 
-    elseif ballCenterY > aiCenterY then
-        ai.y = ai.y + ai.speed * dt
-    end
+            local opponentCenterY =
+                opponent.y + opponent.height / 2
 
 
-    -- AI 화면 경계
-    if ai.y < 0 then
-        ai.y = 0
-    end
+            if ballCenterY < opponentCenterY then
 
-    if ai.y + ai.height > WINDOW_HEIGHT then
-        ai.y = WINDOW_HEIGHT - ai.height
-    end
+                opponent.y =
+                    opponent.y
+                    - opponent.aiSpeed * dt
 
-    ball.x = ball.x + ball.dx * dt
-    ball.y = ball.y + ball.dy * dt
+            elseif ballCenterY > opponentCenterY then
 
-    if ball.y <= 0 then
-        ball.y = 0
-        ball.dy = -ball.dy
-    end
+                opponent.y =
+                    opponent.y
+                    + opponent.aiSpeed * dt
+            end
+        end
 
-    if ball.y + ball.height >= WINDOW_HEIGHT then
-        ball.y = WINDOW_HEIGHT - ball.height
-        ball.dy = -ball.dy
-    end
+        if gameMode == "2P" then
 
-    if checkCollision(ball, player) and ball.dx < 0 then
-        ball.x = player.x + player.width
-        ball.dx = -ball.dx
-    end
+            -- O 키: 위
+            if love.keyboard.isDown("o") then
+                opponent.y =
+                    opponent.y
+                    - opponent.playerSpeed * dt
+            end
 
-    if checkCollision(ball, ai) and ball.dx > 0 then
-        ball.x = ai.x - ball.width
-        ball.dx = -ball.dx
-    end
+            -- K 키: 아래
+            if love.keyboard.isDown("k") then
+                opponent.y =
+                    opponent.y
+                    + opponent.playerSpeed * dt
+            end
+        end
 
-    -- 공이 오른쪽 화면 밖으로 나감
-    -- 플레이어 득점
-    if ball.x > WINDOW_WIDTH then
-        playerScore = playerScore + 1
-        resetBall()
-    end
+        if opponent.y < 0 then
+            opponent.y = 0
+        end
 
-    -- 공이 왼쪽 화면 밖으로 나감
-    -- AI 득점
-    if ball.x + ball.width < 0 then
-        aiScore = aiScore + 1
-        resetBall()
-    end
-end
+        if opponent.y + opponent.height > WINDOW_HEIGHT then
+            opponent.y =
+                WINDOW_HEIGHT - opponent.height
+        end
 
+        ball.x = ball.x + ball.dx * dt
+        ball.y = ball.y + ball.dy * dt
 
-function love.draw()
-    love.graphics.setColor(1, 1, 1)
+        if ball.y <= 0 then
+            ball.y = 0
+            ball.dy = -ball.dy
+        end
 
-    love.graphics.print(
-        "PLAYER: " .. playerScore,
-        250,
-        30
-    )
-
-    love.graphics.print(
-        "AI: " .. aiScore,
-        500,
-        30
-    )
-
-    -- 플레이어 패들
-    love.graphics.rectangle(
-        "fill",
-        player.x,
-        player.y,
-        player.width,
-        player.height
-    )
-
-    -- AI 패들
-    love.graphics.rectangle(
-        "fill",
-        ai.x,
-        ai.y,
-        ai.width,
-        ai.height
-    )
-
-    -- 공
-    love.graphics.rectangle(
-        "fill",
-        ball.x,
-        ball.y,
-        ball.width,
-        ball.height
-    )
-end
+        if ball.y + ball.height >= WINDOW_HEIGHT then
+            ball.y = WINDOW_HEIGHT - ball.height
+            ball.dy = -ball.dy
+        end
