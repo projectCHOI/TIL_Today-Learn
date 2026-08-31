@@ -2,9 +2,7 @@ local WINDOW_WIDTH = 800
 local WINDOW_HEIGHT = 600
 
 local gameState = "menu"
-
 local gameMode = nil
-
 local playerScore = 0
 local opponentScore = 0
 
@@ -102,7 +100,7 @@ function love.update(dt)
         -- 메뉴에서는 게임 로직을 실행하지 않음
         return
     end
-
+    
     if gameState == "playing" then
 
         if love.keyboard.isDown("w") then
@@ -184,3 +182,177 @@ function love.update(dt)
             ball.y = WINDOW_HEIGHT - ball.height
             ball.dy = -ball.dy
         end
+
+        if checkCollision(ball, player)
+            and ball.dx < 0 then
+
+            ball.x = player.x + player.width
+            ball.dx = -ball.dx
+        end
+
+        if checkCollision(ball, opponent)
+            and ball.dx > 0 then
+
+            ball.x = opponent.x - ball.width
+            ball.dx = -ball.dx
+        end
+
+        if ball.x > WINDOW_WIDTH then
+
+            playerScore = playerScore + 1
+
+            resetBall()
+        end
+
+        if ball.x + ball.width < 0 then
+
+            opponentScore = opponentScore + 1
+
+            resetBall()
+        end
+    end
+end
+
+function love.keypressed(key)
+
+    -- MENU 상태에서만 모드 선택
+    if gameState == "menu" then
+
+        -- 임시 테스트:
+        -- 숫자 1 = Player vs AI
+        if key == "1" then
+            startGame("1P")
+        end
+
+        -- 임시 테스트:
+        -- 숫자 2 = Player vs Player
+        if key == "2" then
+            startGame("2P")
+        end
+    end
+
+
+    -- ESC 키로 메뉴 복귀
+    if key == "escape" then
+
+        gameState = "menu"
+        gameMode = nil
+    end
+end
+
+
+function love.draw()
+
+    love.graphics.setColor(1, 1, 1)
+
+    if gameState == "menu" then
+
+        love.graphics.printf(
+            "PONG",
+            0,
+            150,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "1 : Player 1  (Player vs AI)",
+            0,
+            260,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "2 : Player 2  (Player vs Player)",
+            0,
+            310,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        return
+    end
+    
+    -- Player 1 점수
+    love.graphics.print(
+        "PLAYER 1: " .. playerScore,
+        230,
+        30
+    )
+
+
+    -- 오른쪽 점수 표시
+    if gameMode == "1P" then
+
+        love.graphics.print(
+            "AI: " .. opponentScore,
+            520,
+            30
+        )
+
+    elseif gameMode == "2P" then
+
+        love.graphics.print(
+            "PLAYER 2: " .. opponentScore,
+            500,
+            30
+        )
+    end
+
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "fill",
+        player.x,
+        player.y,
+        player.width,
+        player.height
+    )
+
+    if gameMode == "1P" then
+
+        -- AI = 흰색
+        love.graphics.setColor(1, 1, 1)
+
+    elseif gameMode == "2P" then
+
+        -- Player 2 = #FFD94D
+        love.graphics.setColor(
+            255 / 255,
+            217 / 255,
+            77 / 255
+        )
+    end
+
+
+    love.graphics.rectangle(
+        "fill",
+        opponent.x,
+        opponent.y,
+        opponent.width,
+        opponent.height
+    )
+
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "fill",
+        ball.x,
+        ball.y,
+        ball.width,
+        ball.height
+    )
+
+    love.graphics.print(
+        "MODE: " .. gameMode,
+        20,
+        20
+    )
+
+    love.graphics.print(
+        "ESC : MENU",
+        20,
+        45
+    )
+end
