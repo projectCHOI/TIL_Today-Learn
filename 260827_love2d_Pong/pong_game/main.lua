@@ -1,6 +1,13 @@
 local WINDOW_WIDTH = 800
 local WINDOW_HEIGHT = 600
 
+-- 플레이어 점수
+local playerScore = 0
+
+-- AI 점수
+local aiScore = 0
+
+
 -- 플레이어 패들
 local player = {
     x = 40,
@@ -10,6 +17,7 @@ local player = {
     speed = 300
 }
 
+
 -- AI 패들
 local ai = {
     x = 745,
@@ -18,6 +26,7 @@ local ai = {
     height = 100,
     speed = 140
 }
+
 
 -- 공
 local ball = {
@@ -37,14 +46,37 @@ local function checkCollision(a, b)
        and b.y < a.y + a.height
 end
 
+local function resetBall()
+
+    -- 화면 중앙으로 이동
+    ball.x = WINDOW_WIDTH / 2 - ball.width / 2
+    ball.y = WINDOW_HEIGHT / 2 - ball.height / 2
+
+    -- 좌우 방향을 랜덤하게 결정
+    if love.math.random(0, 1) == 0 then
+        ball.dx = -120
+    else
+        ball.dx = 120
+    end
+
+    -- 상하 방향도 랜덤하게 결정
+    if love.math.random(0, 1) == 0 then
+        ball.dy = -180
+    else
+        ball.dy = 180
+    end
+end
+
 
 function love.load()
     love.graphics.setBackgroundColor(0, 0, 0)
+
+    -- 랜덤 값 초기화
+    love.math.setRandomSeed(os.time())
 end
 
 
 function love.update(dt)
-
     if love.keyboard.isDown("w") then
         player.y = player.y - player.speed * dt
     end
@@ -52,6 +84,7 @@ function love.update(dt)
     if love.keyboard.isDown("s") then
         player.y = player.y + player.speed * dt
     end
+
 
     -- 플레이어 화면 경계
     if player.y < 0 then
@@ -62,27 +95,22 @@ function love.update(dt)
         player.y = WINDOW_HEIGHT - player.height
     end
 
-    -- 공의 중앙 Y 좌표
     local ballCenterY = ball.y + ball.height / 2
-
-    -- AI 패들의 중앙 Y 좌표
     local aiCenterY = ai.y + ai.height / 2
 
-    -- 공이 AI보다 위에 있으면 위로 이동
     if ballCenterY < aiCenterY then
         ai.y = ai.y - ai.speed * dt
 
-    -- 공이 AI보다 아래에 있으면 아래로 이동
     elseif ballCenterY > aiCenterY then
         ai.y = ai.y + ai.speed * dt
     end
 
-    -- AI 화면 위쪽 제한
+
+    -- AI 화면 경계
     if ai.y < 0 then
         ai.y = 0
     end
 
-    -- AI 화면 아래쪽 제한
     if ai.y + ai.height > WINDOW_HEIGHT then
         ai.y = WINDOW_HEIGHT - ai.height
     end
@@ -109,12 +137,37 @@ function love.update(dt)
         ball.x = ai.x - ball.width
         ball.dx = -ball.dx
     end
+
+    -- 공이 오른쪽 화면 밖으로 나감
+    -- 플레이어 득점
+    if ball.x > WINDOW_WIDTH then
+        playerScore = playerScore + 1
+        resetBall()
+    end
+
+    -- 공이 왼쪽 화면 밖으로 나감
+    -- AI 득점
+    if ball.x + ball.width < 0 then
+        aiScore = aiScore + 1
+        resetBall()
+    end
 end
 
 
 function love.draw()
-
     love.graphics.setColor(1, 1, 1)
+
+    love.graphics.print(
+        "PLAYER: " .. playerScore,
+        250,
+        30
+    )
+
+    love.graphics.print(
+        "AI: " .. aiScore,
+        500,
+        30
+    )
 
     -- 플레이어 패들
     love.graphics.rectangle(
