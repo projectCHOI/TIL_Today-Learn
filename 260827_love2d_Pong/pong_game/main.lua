@@ -242,3 +242,198 @@ function love.mousepressed(x, y, button)
         return
     end
 end
+
+local function drawButton(button)
+
+    local mouseX, mouseY = love.mouse.getPosition()
+
+    local isHover =
+        isMouseInsideButton(
+            mouseX,
+            mouseY,
+            button
+        )
+
+    -- 마우스를 올렸을 때 조금 밝게 표시
+    if isHover then
+        love.graphics.setColor(0.35, 0.35, 0.35)
+    else
+        love.graphics.setColor(0.2, 0.2, 0.2)
+    end
+
+
+    love.graphics.rectangle(
+        "fill",
+        button.x,
+        button.y,
+        button.width,
+        button.height
+    )
+
+
+    -- 버튼 테두리
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "line",
+        button.x,
+        button.y,
+        button.width,
+        button.height
+    )
+
+
+    -- 버튼 글자
+    love.graphics.printf(
+        button.text,
+        button.x,
+        button.y + 21,
+        button.width,
+        "center"
+    )
+end
+
+
+function love.draw()
+
+    if gameState == "menu" then
+
+        love.graphics.setColor(1, 1, 1)
+
+        love.graphics.printf(
+            "PONG",
+            0,
+            130,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+
+        love.graphics.printf(
+            "Select Game Mode",
+            0,
+            190,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+
+        drawButton(player1Button)
+        drawButton(player2Button)
+
+
+        love.graphics.setColor(1, 1, 1)
+
+        love.graphics.printf(
+            "Player 1 : Player vs AI",
+            0,
+            440,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Player 2 : Player vs Player",
+            0,
+            470,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        return
+    end
+
+    love.graphics.setColor(1, 1, 1)
+
+
+    -- Player 1 점수
+    love.graphics.print(
+        "PLAYER 1: " .. playerScore,
+        230,
+        30
+    )
+
+
+    -- 오른쪽 점수
+    if gameMode == "1P" then
+
+        love.graphics.print(
+            "AI: " .. opponentScore,
+            520,
+            30
+        )
+
+    elseif gameMode == "2P" then
+
+        love.graphics.print(
+            "PLAYER 2: " .. opponentScore,
+            500,
+            30
+        )
+    end
+
+
+    -- Player 1 패들
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "fill",
+        player.x,
+        player.y,
+        player.width,
+        player.height
+    )
+
+
+    -- 오른쪽 패들 색상
+    if gameMode == "1P" then
+
+        -- AI 흰색
+        love.graphics.setColor(1, 1, 1)
+
+    elseif gameMode == "2P" then
+
+        -- Player 2
+        -- #FFD94D
+        love.graphics.setColor(
+            255 / 255,
+            217 / 255,
+            77 / 255
+        )
+    end
+
+
+    love.graphics.rectangle(
+        "fill",
+        opponent.x,
+        opponent.y,
+        opponent.width,
+        opponent.height
+    )
+
+
+    -- 공
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "fill",
+        ball.x,
+        ball.y,
+        ball.width,
+        ball.height
+    )
+
+
+    -- 현재 모드
+    love.graphics.print(
+        "MODE: " .. gameMode,
+        20,
+        20
+    )
+
+    love.graphics.print(
+        "ESC : MENU",
+        20,
+        45
+    )
+end
