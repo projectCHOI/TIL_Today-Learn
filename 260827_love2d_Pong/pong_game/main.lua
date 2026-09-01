@@ -111,3 +111,134 @@ function love.update(dt)
     if gameState == "menu" then
         return
     end
+
+    if gameState == "playing" then
+
+        if love.keyboard.isDown("w") then
+            player.y = player.y - player.speed * dt
+        end
+
+        if love.keyboard.isDown("s") then
+            player.y = player.y + player.speed * dt
+        end
+
+        if player.y < 0 then
+            player.y = 0
+        end
+
+        if player.y + player.height > WINDOW_HEIGHT then
+            player.y = WINDOW_HEIGHT - player.height
+        end
+
+        if gameMode == "1P" then
+
+            local ballCenterY =
+                ball.y + ball.height / 2
+
+            local opponentCenterY =
+                opponent.y + opponent.height / 2
+
+            if ballCenterY < opponentCenterY then
+                opponent.y =
+                    opponent.y
+                    - opponent.aiSpeed * dt
+
+            elseif ballCenterY > opponentCenterY then
+                opponent.y =
+                    opponent.y
+                    + opponent.aiSpeed * dt
+            end
+        end
+
+        if gameMode == "2P" then
+
+            if love.keyboard.isDown("o") then
+                opponent.y =
+                    opponent.y
+                    - opponent.playerSpeed * dt
+            end
+
+            if love.keyboard.isDown("k") then
+                opponent.y =
+                    opponent.y
+                    + opponent.playerSpeed * dt
+            end
+        end
+
+        if opponent.y < 0 then
+            opponent.y = 0
+        end
+
+        if opponent.y + opponent.height > WINDOW_HEIGHT then
+            opponent.y =
+                WINDOW_HEIGHT - opponent.height
+        end
+
+        ball.x = ball.x + ball.dx * dt
+        ball.y = ball.y + ball.dy * dt
+
+        if ball.y <= 0 then
+            ball.y = 0
+            ball.dy = -ball.dy
+        end
+
+        if ball.y + ball.height >= WINDOW_HEIGHT then
+            ball.y = WINDOW_HEIGHT - ball.height
+            ball.dy = -ball.dy
+        end
+
+        if checkCollision(ball, player)
+            and ball.dx < 0 then
+
+            ball.x = player.x + player.width
+            ball.dx = -ball.dx
+        end
+
+        if checkCollision(ball, opponent)
+            and ball.dx > 0 then
+
+            ball.x = opponent.x - ball.width
+            ball.dx = -ball.dx
+        end
+
+        if ball.x > WINDOW_WIDTH then
+            playerScore = playerScore + 1
+            resetBall()
+        end
+
+        if ball.x + ball.width < 0 then
+            opponentScore = opponentScore + 1
+            resetBall()
+        end
+    end
+end
+
+function love.keypressed(key)
+
+    -- ESC = 메뉴 복귀
+    if key == "escape" then
+        gameState = "menu"
+        gameMode = nil
+    end
+end
+
+function love.mousepressed(x, y, button)
+
+    if gameState ~= "menu" then
+        return
+    end
+
+    if button ~= 1 then
+        return
+    end
+
+    if isMouseInsideButton(x, y, player1Button) then
+        startGame("1P")
+        return
+    end
+
+    if isMouseInsideButton(x, y, player2Button) then
+        startGame("2P")
+        return
+    end
+end
