@@ -30,8 +30,8 @@ local ball = {
     width = 20,
     height = 20,
 
-    dx = 120,
-    dy = 180
+    dx = 0,
+    dy = 0
 }
 
 local player1Button = {
@@ -64,42 +64,68 @@ local function isMouseInsideButton(mouseX, mouseY, button)
        and mouseY <= button.y + button.height
 end
 
-local function resetBall()
+local function placeBallAtCenter()
     ball.x = WINDOW_WIDTH / 2 - ball.width / 2
     ball.y = WINDOW_HEIGHT / 2 - ball.height / 2
 
+    ball.dx = 0
+    ball.dy = 0
+end
+
+local function serveBall()
+
+    -- 좌우 방향 랜덤
     if love.math.random(0, 1) == 0 then
         ball.dx = -120
     else
         ball.dx = 120
     end
 
+    -- 상하 방향 랜덤
     if love.math.random(0, 1) == 0 then
         ball.dy = -180
     else
         ball.dy = 180
     end
+
+    gameState = "playing"
 end
 
 local function resetGame()
+
     playerScore = 0
     opponentScore = 0
 
-    player.y = WINDOW_HEIGHT / 2 - player.height / 2
-    opponent.y = WINDOW_HEIGHT / 2 - opponent.height / 2
+    player.y =
+        WINDOW_HEIGHT / 2
+        - player.height / 2
 
-    resetBall()
+    opponent.y =
+        WINDOW_HEIGHT / 2
+        - opponent.height / 2
+
+    placeBallAtCenter()
+
+    gameState = "ready"
 end
 
 local function startGame(mode)
+
     gameMode = mode
-    gameState = "playing"
 
     resetGame()
 end
 
+local function prepareNextServe()
+
+    placeBallAtCenter()
+
+    gameState = "ready"
+end
+
 
 function love.load()
+
     love.graphics.setBackgroundColor(0, 0, 0)
 
     love.math.setRandomSeed(os.time())
@@ -107,25 +133,42 @@ end
 
 
 function love.update(dt)
+
     if gameState == "menu" then
         return
     end
 
+    if gameState == "ready" then
+        return
+    end
+
+    if gameState == "paused" then
+        return
+    end
+
     if gameState == "playing" then
+
         if love.keyboard.isDown("w") then
-            player.y = player.y - player.speed * dt
+            player.y =
+                player.y
+                - player.speed * dt
         end
 
         if love.keyboard.isDown("s") then
-            player.y = player.y + player.speed * dt
+            player.y =
+                player.y
+                + player.speed * dt
         end
 
+
+        -- Player 1 화면 경계
         if player.y < 0 then
             player.y = 0
         end
 
         if player.y + player.height > WINDOW_HEIGHT then
-            player.y = WINDOW_HEIGHT - player.height
+            player.y =
+                WINDOW_HEIGHT - player.height
         end
 
         if gameMode == "1P" then
@@ -137,11 +180,13 @@ function love.update(dt)
                 opponent.y + opponent.height / 2
 
             if ballCenterY < opponentCenterY then
+
                 opponent.y =
                     opponent.y
                     - opponent.aiSpeed * dt
 
             elseif ballCenterY > opponentCenterY then
+
                 opponent.y =
                     opponent.y
                     + opponent.aiSpeed * dt
@@ -151,12 +196,14 @@ function love.update(dt)
         if gameMode == "2P" then
 
             if love.keyboard.isDown("o") then
+
                 opponent.y =
                     opponent.y
                     - opponent.playerSpeed * dt
             end
 
             if love.keyboard.isDown("k") then
+
                 opponent.y =
                     opponent.y
                     + opponent.playerSpeed * dt
@@ -168,6 +215,11 @@ function love.update(dt)
             opponent.y = 0
         end
 
+        if opponent.y + opponent.height > WINDOW_HEIGHT then
+            opponent.y =
+                WINDOW_HEIGHT - opponent.height
+        end
+
         ball.x = ball.x + ball.dx * dt
         ball.y = ball.y + ball.dy * dt
 
@@ -177,252 +229,371 @@ function love.update(dt)
         end
 
         if ball.y + ball.height >= WINDOW_HEIGHT then
-            ball.y = WINDOW_HEIGHT - ball.height
+            ball.y =
+                WINDOW_HEIGHT - ball.height
+
             ball.dy = -ball.dy
         end
 
         if checkCollision(ball, player)
             and ball.dx < 0 then
 
-            ball.x = player.x + player.width
+            ball.x =
+                player.x + player.width
+
             ball.dx = -ball.dx
         end
 
         if checkCollision(ball, opponent)
             and ball.dx > 0 then
 
-            ball.x = opponent.x - ball.width
+            ball.x =
+                opponent.x - ball.width
+
             ball.dx = -ball.dx
         end
 
         if ball.x > WINDOW_WIDTH then
-            playerScore = playerScore + 1
-            resetBall()
+
+            playerScore =
+                playerScore + 1
+
+            prepareNextServe()
         end
 
         if ball.x + ball.width < 0 then
-            opponentScore = opponentScore + 1
-            resetBall()
+
+            opponentScore =
+                opponentScore + 1
+
+            prepareNextServe()
         end
+    end
+end
+
+function love.keypressed(key)
+
+    -- READY 상태에서 SPACE
+    if gameState == "ready"
+        and key == "space" then
+
+        serveBall()
+
+        return
     end
 
-    
-    function love.keypressed(key)
-    
-        -- ESC = 메뉴 복귀
-        if key == "escape" then
-            gameState = "menu"
-            gameMode = nil
-        end
+    -- PLAYING 상태에서 P
+    if gameState == "playing"
+        and key == "p" then
+
+        gameState = "paused"
+
+        return
     end
-    
-    function love.mousepressed(x, y, button)
-    
-        if gameState ~= "menu" then
-            return
-        end
-    
-        -- 왼쪽 클릭만 사용
-        if button ~= 1 then
-            return
-        end
-    
-    
-        -- Player 1 버튼
-        if isMouseInsideButton(x, y, player1Button) then
-            startGame("1P")
-            return
-        end
-    
-    
-        -- Player 2 버튼
-        if isMouseInsideButton(x, y, player2Button) then
-            startGame("2P")
-            return
-        end
+
+    -- PAUSED 상태에서 P
+    if gameState == "paused"
+        and key == "p" then
+
+        gameState = "playing"
+
+        return
     end
-    
-    
-    local function drawButton(button)
-    
-        local mouseX, mouseY = love.mouse.getPosition()
-    
-        local isHover =
-            isMouseInsideButton(
-                mouseX,
-                mouseY,
-                button
-            )
-    
-        -- 마우스를 올렸을 때 조금 밝게 표시
-        if isHover then
-            love.graphics.setColor(0.35, 0.35, 0.35)
-        else
-            love.graphics.setColor(0.2, 0.2, 0.2)
-        end
-    
-        love.graphics.rectangle(
-            "fill",
-            button.x,
-            button.y,
-            button.width,
-            button.height
+
+    -- ESC = 메뉴 복귀
+    if key == "escape" then
+
+        gameState = "menu"
+        gameMode = nil
+
+        placeBallAtCenter()
+    end
+end
+
+function love.mousepressed(x, y, button)
+
+    if gameState ~= "menu" then
+        return
+    end
+
+    if button ~= 1 then
+        return
+    end
+
+
+    -- Player 1
+    if isMouseInsideButton(
+        x,
+        y,
+        player1Button
+    ) then
+
+        startGame("1P")
+
+        return
+    end
+
+    -- Player 2
+    if isMouseInsideButton(
+        x,
+        y,
+        player2Button
+    ) then
+
+        startGame("2P")
+
+        return
+    end
+end
+
+local function drawButton(button)
+
+    local mouseX, mouseY =
+        love.mouse.getPosition()
+
+    local isHover =
+        isMouseInsideButton(
+            mouseX,
+            mouseY,
+            button
         )
-    
-        -- 버튼 테두리
+
+
+    if isHover then
+        love.graphics.setColor(
+            0.35,
+            0.35,
+            0.35
+        )
+    else
+        love.graphics.setColor(
+            0.2,
+            0.2,
+            0.2
+        )
+    end
+
+    love.graphics.rectangle(
+        "fill",
+        button.x,
+        button.y,
+        button.width,
+        button.height
+    )
+
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "line",
+        button.x,
+        button.y,
+        button.width,
+        button.height
+    )
+
+    love.graphics.printf(
+        button.text,
+        button.x,
+        button.y + 21,
+        button.width,
+        "center"
+    )
+end
+
+
+function love.draw()
+    if gameState == "menu" then
+
         love.graphics.setColor(1, 1, 1)
-    
-        love.graphics.rectangle(
-            "line",
-            button.x,
-            button.y,
-            button.width,
-            button.height
-        )
-    
-        -- 버튼 글자
+
         love.graphics.printf(
-            button.text,
-            button.x,
-            button.y + 21,
-            button.width,
+            "PONG",
+            0,
+            130,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Select Game Mode",
+            0,
+            190,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        drawButton(player1Button)
+        drawButton(player2Button)
+
+
+        love.graphics.setColor(1, 1, 1)
+
+        love.graphics.printf(
+            "Player 1 : Player vs AI",
+            0,
+            440,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Player 2 : Player vs Player",
+            0,
+            470,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        return
+    end
+
+    love.graphics.setColor(1, 1, 1)
+
+    -- Player 1 점수
+    love.graphics.print(
+        "PLAYER 1: " .. playerScore,
+        230,
+        30
+    )
+
+    -- 오른쪽 점수
+    if gameMode == "1P" then
+
+        love.graphics.print(
+            "AI: " .. opponentScore,
+            520,
+            30
+        )
+
+    elseif gameMode == "2P" then
+
+        love.graphics.print(
+            "PLAYER 2: " .. opponentScore,
+            500,
+            30
+        )
+    end
+
+    -- Player 1 패들
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "fill",
+        player.x,
+        player.y,
+        player.width,
+        player.height
+    )
+
+    -- 오른쪽 패들 색상
+    if gameMode == "1P" then
+
+        love.graphics.setColor(1, 1, 1)
+
+    elseif gameMode == "2P" then
+
+        -- #FFD94D
+        love.graphics.setColor(
+            255 / 255,
+            217 / 255,
+            77 / 255
+        )
+    end
+
+    love.graphics.rectangle(
+        "fill",
+        opponent.x,
+        opponent.y,
+        opponent.width,
+        opponent.height
+    )
+
+    -- 공
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "fill",
+        ball.x,
+        ball.y,
+        ball.width,
+        ball.height
+    )
+
+    -- 현재 모드
+    love.graphics.print(
+        "MODE: " .. gameMode,
+        20,
+        20
+    )
+
+    love.graphics.print(
+        "ESC : MENU",
+        20,
+        45
+    )
+
+    if gameState == "ready" then
+
+        love.graphics.printf(
+            "READY",
+            0,
+            220,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Press SPACE to Serve",
+            0,
+            260,
+            WINDOW_WIDTH,
             "center"
         )
     end
-    
-    function love.draw()
-        if gameState == "menu" then
-    
-            love.graphics.setColor(1, 1, 1)
-    
-            love.graphics.printf(
-                "PONG",
-                0,
-                130,
-                WINDOW_WIDTH,
-                "center"
-            )
-    
-            love.graphics.printf(
-                "Select Game Mode",
-                0,
-                190,
-                WINDOW_WIDTH,
-                "center"
-            )
-    
-            drawButton(player1Button)
-            drawButton(player2Button)
-    
-            love.graphics.setColor(1, 1, 1)
-    
-            love.graphics.printf(
-                "Player 1 : Player vs AI",
-                0,
-                440,
-                WINDOW_WIDTH,
-                "center"
-            )
-    
-            love.graphics.printf(
-                "Player 2 : Player vs Player",
-                0,
-                470,
-                WINDOW_WIDTH,
-                "center"
-            )
-    
-            return
-        end
-    
-        love.graphics.setColor(1, 1, 1)
-    
-        -- Player 1 점수
-        love.graphics.print(
-            "PLAYER 1: " .. playerScore,
-            230,
-            30
+
+    if gameState == "paused" then
+
+        -- 반투명 검은 화면
+        love.graphics.setColor(
+            0,
+            0,
+            0,
+            0.65
         )
-    
-        -- 오른쪽 점수
-        if gameMode == "1P" then
-    
-            love.graphics.print(
-                "AI: " .. opponentScore,
-                520,
-                30
-            )
-    
-        elseif gameMode == "2P" then
-    
-            love.graphics.print(
-                "PLAYER 2: " .. opponentScore,
-                500,
-                30
-            )
-        end
-    
-        -- Player 1 패들
-        love.graphics.setColor(1, 1, 1)
-    
+
         love.graphics.rectangle(
             "fill",
-            player.x,
-            player.y,
-            player.width,
-            player.height
+            0,
+            0,
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT
         )
-    
-        -- 오른쪽 패들 색상
-        if gameMode == "1P" then
-    
-            -- AI 흰색
-            love.graphics.setColor(1, 1, 1)
-    
-        elseif gameMode == "2P" then
-    
-            -- Player 2
-            -- #FFD94D
-            love.graphics.setColor(
-                255 / 255,
-                217 / 255,
-                77 / 255
-            )
-        end
-    
-        love.graphics.rectangle(
-            "fill",
-            opponent.x,
-            opponent.y,
-            opponent.width,
-            opponent.height
-        )
-    
-        -- 공
+
+        -- 안내 문구
         love.graphics.setColor(1, 1, 1)
-    
-        love.graphics.rectangle(
-            "fill",
-            ball.x,
-            ball.y,
-            ball.width,
-            ball.height
+
+        love.graphics.printf(
+            "PAUSED",
+            0,
+            220,
+            WINDOW_WIDTH,
+            "center"
         )
-    
-        -- 현재 모드
-        love.graphics.print(
-            "MODE: " .. gameMode,
-            20,
-            20
+
+        love.graphics.printf(
+            "Press P to Resume",
+            0,
+            260,
+            WINDOW_WIDTH,
+            "center"
         )
-    
-        love.graphics.print(
+
+        love.graphics.printf(
             "ESC : MENU",
-            20,
-            45
+            0,
+            300,
+            WINDOW_WIDTH,
+            "center"
         )
     end
-            if opponent.y + opponent.height > WINDOW_HEIGHT then
-                opponent.y =
-                    WINDOW_HEIGHT - opponent.height
-            end
+end
