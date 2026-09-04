@@ -1,8 +1,10 @@
 local WINDOW_WIDTH = 800
 local WINDOW_HEIGHT = 600
 
+local WIN_SCORE = 5
 local gameState = "menu"
 local gameMode = nil
+local winnerText = ""
 local playerScore = 0
 local opponentScore = 0
 
@@ -74,14 +76,12 @@ end
 
 local function serveBall()
 
-    -- 좌우 방향 랜덤
     if love.math.random(0, 1) == 0 then
         ball.dx = -120
     else
         ball.dx = 120
     end
 
-    -- 상하 방향 랜덤
     if love.math.random(0, 1) == 0 then
         ball.dy = -180
     else
@@ -95,6 +95,7 @@ local function resetGame()
 
     playerScore = 0
     opponentScore = 0
+    winnerText = ""
 
     player.y =
         WINDOW_HEIGHT / 2
@@ -116,11 +117,42 @@ local function startGame(mode)
     resetGame()
 end
 
-local function prepareNextServe()
 
+local function prepareNextServe()
     placeBallAtCenter()
 
     gameState = "ready"
+end
+
+local function checkGameOver()
+    if playerScore >= WIN_SCORE then
+
+        winnerText = "PLAYER 1 WINS!"
+
+        placeBallAtCenter()
+
+        gameState = "gameover"
+
+        return true
+    end
+
+    if opponentScore >= WIN_SCORE then
+
+        if gameMode == "1P" then
+            winnerText = "AI WINS!"
+        else
+            winnerText = "PLAYER 2 WINS!"
+        end
+
+        placeBallAtCenter()
+
+        gameState = "gameover"
+
+        return true
+    end
+
+
+    return false
 end
 
 
@@ -133,16 +165,11 @@ end
 
 
 function love.update(dt)
+    if gameState == "menu"
+        or gameState == "ready"
+        or gameState == "paused"
+        or gameState == "gameover" then
 
-    if gameState == "menu" then
-        return
-    end
-
-    if gameState == "ready" then
-        return
-    end
-
-    if gameState == "paused" then
         return
     end
 
@@ -196,14 +223,12 @@ function love.update(dt)
         if gameMode == "2P" then
 
             if love.keyboard.isDown("o") then
-
                 opponent.y =
                     opponent.y
                     - opponent.playerSpeed * dt
             end
 
             if love.keyboard.isDown("k") then
-
                 opponent.y =
                     opponent.y
                     + opponent.playerSpeed * dt
@@ -258,7 +283,11 @@ function love.update(dt)
             playerScore =
                 playerScore + 1
 
-            prepareNextServe()
+            if not checkGameOver() then
+                prepareNextServe()
+            end
+
+            return
         end
 
         if ball.x + ball.width < 0 then
@@ -266,334 +295,11 @@ function love.update(dt)
             opponentScore =
                 opponentScore + 1
 
-            prepareNextServe()
+            if not checkGameOver() then
+                prepareNextServe()
+            end
+
+            return
         end
-    end
-end
-
-function love.keypressed(key)
-
-    -- READY 상태에서 SPACE
-    if gameState == "ready"
-        and key == "space" then
-
-        serveBall()
-
-        return
-    end
-
-    -- PLAYING 상태에서 P
-    if gameState == "playing"
-        and key == "p" then
-
-        gameState = "paused"
-
-        return
-    end
-
-    -- PAUSED 상태에서 P
-    if gameState == "paused"
-        and key == "p" then
-
-        gameState = "playing"
-
-        return
-    end
-
-    -- ESC = 메뉴 복귀
-    if key == "escape" then
-
-        gameState = "menu"
-        gameMode = nil
-
-        placeBallAtCenter()
-    end
-end
-
-function love.mousepressed(x, y, button)
-
-    if gameState ~= "menu" then
-        return
-    end
-
-    if button ~= 1 then
-        return
-    end
-
-
-    -- Player 1
-    if isMouseInsideButton(
-        x,
-        y,
-        player1Button
-    ) then
-
-        startGame("1P")
-
-        return
-    end
-
-    -- Player 2
-    if isMouseInsideButton(
-        x,
-        y,
-        player2Button
-    ) then
-
-        startGame("2P")
-
-        return
-    end
-end
-
-local function drawButton(button)
-
-    local mouseX, mouseY =
-        love.mouse.getPosition()
-
-    local isHover =
-        isMouseInsideButton(
-            mouseX,
-            mouseY,
-            button
-        )
-
-
-    if isHover then
-        love.graphics.setColor(
-            0.35,
-            0.35,
-            0.35
-        )
-    else
-        love.graphics.setColor(
-            0.2,
-            0.2,
-            0.2
-        )
-    end
-
-    love.graphics.rectangle(
-        "fill",
-        button.x,
-        button.y,
-        button.width,
-        button.height
-    )
-
-    love.graphics.setColor(1, 1, 1)
-
-    love.graphics.rectangle(
-        "line",
-        button.x,
-        button.y,
-        button.width,
-        button.height
-    )
-
-    love.graphics.printf(
-        button.text,
-        button.x,
-        button.y + 21,
-        button.width,
-        "center"
-    )
-end
-
-
-function love.draw()
-    if gameState == "menu" then
-
-        love.graphics.setColor(1, 1, 1)
-
-        love.graphics.printf(
-            "PONG",
-            0,
-            130,
-            WINDOW_WIDTH,
-            "center"
-        )
-
-        love.graphics.printf(
-            "Select Game Mode",
-            0,
-            190,
-            WINDOW_WIDTH,
-            "center"
-        )
-
-        drawButton(player1Button)
-        drawButton(player2Button)
-
-
-        love.graphics.setColor(1, 1, 1)
-
-        love.graphics.printf(
-            "Player 1 : Player vs AI",
-            0,
-            440,
-            WINDOW_WIDTH,
-            "center"
-        )
-
-        love.graphics.printf(
-            "Player 2 : Player vs Player",
-            0,
-            470,
-            WINDOW_WIDTH,
-            "center"
-        )
-
-        return
-    end
-
-    love.graphics.setColor(1, 1, 1)
-
-    -- Player 1 점수
-    love.graphics.print(
-        "PLAYER 1: " .. playerScore,
-        230,
-        30
-    )
-
-    -- 오른쪽 점수
-    if gameMode == "1P" then
-
-        love.graphics.print(
-            "AI: " .. opponentScore,
-            520,
-            30
-        )
-
-    elseif gameMode == "2P" then
-
-        love.graphics.print(
-            "PLAYER 2: " .. opponentScore,
-            500,
-            30
-        )
-    end
-
-    -- Player 1 패들
-    love.graphics.setColor(1, 1, 1)
-
-    love.graphics.rectangle(
-        "fill",
-        player.x,
-        player.y,
-        player.width,
-        player.height
-    )
-
-    -- 오른쪽 패들 색상
-    if gameMode == "1P" then
-
-        love.graphics.setColor(1, 1, 1)
-
-    elseif gameMode == "2P" then
-
-        -- #FFD94D
-        love.graphics.setColor(
-            255 / 255,
-            217 / 255,
-            77 / 255
-        )
-    end
-
-    love.graphics.rectangle(
-        "fill",
-        opponent.x,
-        opponent.y,
-        opponent.width,
-        opponent.height
-    )
-
-    -- 공
-    love.graphics.setColor(1, 1, 1)
-
-    love.graphics.rectangle(
-        "fill",
-        ball.x,
-        ball.y,
-        ball.width,
-        ball.height
-    )
-
-    -- 현재 모드
-    love.graphics.print(
-        "MODE: " .. gameMode,
-        20,
-        20
-    )
-
-    love.graphics.print(
-        "ESC : MENU",
-        20,
-        45
-    )
-
-    if gameState == "ready" then
-
-        love.graphics.printf(
-            "READY",
-            0,
-            220,
-            WINDOW_WIDTH,
-            "center"
-        )
-
-        love.graphics.printf(
-            "Press SPACE to Serve",
-            0,
-            260,
-            WINDOW_WIDTH,
-            "center"
-        )
-    end
-
-    if gameState == "paused" then
-
-        -- 반투명 검은 화면
-        love.graphics.setColor(
-            0,
-            0,
-            0,
-            0.65
-        )
-
-        love.graphics.rectangle(
-            "fill",
-            0,
-            0,
-            WINDOW_WIDTH,
-            WINDOW_HEIGHT
-        )
-
-        -- 안내 문구
-        love.graphics.setColor(1, 1, 1)
-
-        love.graphics.printf(
-            "PAUSED",
-            0,
-            220,
-            WINDOW_WIDTH,
-            "center"
-        )
-
-        love.graphics.printf(
-            "Press P to Resume",
-            0,
-            260,
-            WINDOW_WIDTH,
-            "center"
-        )
-
-        love.graphics.printf(
-            "ESC : MENU",
-            0,
-            300,
-            WINDOW_WIDTH,
-            "center"
-        )
     end
 end
