@@ -303,3 +303,400 @@ function love.update(dt)
         end
     end
 end
+
+function love.keypressed(key)
+
+    -- READY → SPACE → PLAYING
+    if gameState == "ready"
+        and key == "space" then
+
+        serveBall()
+
+        return
+    end
+
+    -- PLAYING → P → PAUSED
+    if gameState == "playing"
+        and key == "p" then
+
+        gameState = "paused"
+
+        return
+    end
+
+    -- PAUSED → P → PLAYING
+    if gameState == "paused"
+        and key == "p" then
+
+        gameState = "playing"
+
+        return
+    end
+
+    -- GAMEOVER → R → 같은 모드 재시작
+    if gameState == "gameover"
+        and key == "r" then
+
+        resetGame()
+
+        return
+    end
+
+    -- ESC → 메뉴
+    if key == "escape" then
+
+        gameState = "menu"
+        gameMode = nil
+        winnerText = ""
+
+        placeBallAtCenter()
+
+        return
+    end
+end
+
+function love.mousepressed(x, y, button)
+
+    if gameState ~= "menu" then
+        return
+    end
+
+    if button ~= 1 then
+        return
+    end
+
+    if isMouseInsideButton(
+        x,
+        y,
+        player1Button
+    ) then
+
+        startGame("1P")
+
+        return
+    end
+
+    if isMouseInsideButton(
+        x,
+        y,
+        player2Button
+    ) then
+
+        startGame("2P")
+
+        return
+    end
+end
+
+local function drawButton(button)
+
+    local mouseX, mouseY =
+        love.mouse.getPosition()
+
+    local isHover =
+        isMouseInsideButton(
+            mouseX,
+            mouseY,
+            button
+        )
+
+    if isHover then
+        love.graphics.setColor(
+            0.35,
+            0.35,
+            0.35
+        )
+    else
+        love.graphics.setColor(
+            0.2,
+            0.2,
+            0.2
+        )
+    end
+
+    love.graphics.rectangle(
+        "fill",
+        button.x,
+        button.y,
+        button.width,
+        button.height
+    )
+
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "line",
+        button.x,
+        button.y,
+        button.width,
+        button.height
+    )
+
+    love.graphics.printf(
+        button.text,
+        button.x,
+        button.y + 21,
+        button.width,
+        "center"
+    )
+end
+
+function love.draw()
+    if gameState == "menu" then
+
+        love.graphics.setColor(1, 1, 1)
+
+        love.graphics.printf(
+            "PONG",
+            0,
+            130,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Select Game Mode",
+            0,
+            190,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        drawButton(player1Button)
+        drawButton(player2Button)
+
+        love.graphics.setColor(1, 1, 1)
+
+        love.graphics.printf(
+            "Player 1 : Player vs AI",
+            0,
+            440,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Player 2 : Player vs Player",
+            0,
+            470,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        return
+    end
+
+    love.graphics.setColor(1, 1, 1)
+
+
+    love.graphics.print(
+        "PLAYER 1: " .. playerScore,
+        230,
+        30
+    )
+
+    if gameMode == "1P" then
+
+        love.graphics.print(
+            "AI: " .. opponentScore,
+            520,
+            30
+        )
+
+    elseif gameMode == "2P" then
+
+        love.graphics.print(
+            "PLAYER 2: " .. opponentScore,
+            500,
+            30
+        )
+    end
+
+    -- Player 1 패들
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "fill",
+        player.x,
+        player.y,
+        player.width,
+        player.height
+    )
+
+    -- 오른쪽 패들
+    if gameMode == "1P" then
+
+        love.graphics.setColor(1, 1, 1)
+
+    elseif gameMode == "2P" then
+
+        love.graphics.setColor(
+            255 / 255,
+            217 / 255,
+            77 / 255
+        )
+    end
+
+    love.graphics.rectangle(
+        "fill",
+        opponent.x,
+        opponent.y,
+        opponent.width,
+        opponent.height
+    )
+
+    -- 공
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.rectangle(
+        "fill",
+        ball.x,
+        ball.y,
+        ball.width,
+        ball.height
+    )
+
+    -- 상태 안내
+    love.graphics.print(
+        "MODE: " .. gameMode,
+        20,
+        20
+    )
+
+    love.graphics.print(
+        "ESC : MENU",
+        20,
+        45
+    )
+
+    if gameState == "ready" then
+
+        love.graphics.printf(
+            "READY",
+            0,
+            220,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Press SPACE to Serve",
+            0,
+            260,
+            WINDOW_WIDTH,
+            "center"
+        )
+    end
+
+    if gameState == "paused" then
+
+        love.graphics.setColor(
+            0,
+            0,
+            0,
+            0.65
+        )
+
+        love.graphics.rectangle(
+            "fill",
+            0,
+            0,
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT
+        )
+
+        love.graphics.setColor(1, 1, 1)
+
+        love.graphics.printf(
+            "PAUSED",
+            0,
+            220,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "Press P to Resume",
+            0,
+            260,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "ESC : MENU",
+            0,
+            300,
+            WINDOW_WIDTH,
+            "center"
+        )
+    end
+
+    if gameState == "gameover" then
+
+        love.graphics.setColor(
+            0,
+            0,
+            0,
+            0.75
+        )
+
+        love.graphics.rectangle(
+            "fill",
+            0,
+            0,
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT
+        )
+
+        love.graphics.setColor(1, 1, 1)
+
+        love.graphics.printf(
+            "GAME OVER",
+            0,
+            190,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            winnerText,
+            0,
+            235,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "FINAL SCORE",
+            0,
+            290,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            playerScore .. "  :  " .. opponentScore,
+            0,
+            325,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "R : RESTART",
+            0,
+            390,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            "ESC : MENU",
+            0,
+            425,
+            WINDOW_WIDTH,
+            "center"
+        )
+    end
+end
