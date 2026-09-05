@@ -59,6 +59,38 @@ local function checkCollision(a, b)
        and b.y < a.y + a.height
 end
 
+local function getHitPosition(ball, paddle)
+
+    -- 공의 중심 Y 좌표
+    local ballCenterY =
+        ball.y + ball.height / 2
+
+    -- 패들의 중심 Y 좌표
+    local paddleCenterY =
+        paddle.y + paddle.height / 2
+
+    -- 패들 중심에서 공이 얼마나 떨어져 있는지 계산
+    local distance =
+        ballCenterY - paddleCenterY
+
+    -- 패들 높이의 절반
+    local halfPaddleHeight =
+        paddle.height / 2
+
+    -- 충돌 위치를 -1 ~ 1 범위로 변환
+    local hitPosition =
+        distance / halfPaddleHeight
+
+    -- 혹시 범위를 넘어갈 경우 제한
+    if hitPosition < -1 then
+        hitPosition = -1
+    elseif hitPosition > 1 then
+        hitPosition = 1
+    end
+
+    return hitPosition
+end
+
 local function isMouseInsideButton(mouseX, mouseY, button)
     return mouseX >= button.x
        and mouseX <= button.x + button.width
