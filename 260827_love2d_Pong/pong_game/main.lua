@@ -313,10 +313,20 @@ function love.update(dt)
 
         if checkCollision(ball, opponent)
             and ball.dx > 0 then
-
+        
             ball.x =
                 opponent.x - ball.width
-
+        
+            -- 패들의 어느 위치에 맞았는지 계산
+            local hitPosition =
+                getHitPosition(ball, opponent)
+        
+            -- 테스트용 출력
+            print(
+                "Opponent Hit Position:",
+                hitPosition
+            )
+        
             ball.dx = -ball.dx
         end
 
