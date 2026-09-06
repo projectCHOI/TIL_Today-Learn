@@ -96,6 +96,31 @@ local function getHitPosition(ball, paddle)
     return hitPosition
 end
 
+local function applyMinimumVerticalSpeed()
+
+    -- 이미 충분히 빠르면 그대로 둠
+    if math.abs(ball.dy) >= MIN_BOUNCE_DY then
+        return
+    end
+
+    -- 위쪽 방향
+    if ball.dy < 0 then
+        ball.dy = -MIN_BOUNCE_DY
+
+    -- 아래쪽 방향
+    elseif ball.dy > 0 then
+        ball.dy = MIN_BOUNCE_DY
+
+    -- 정확히 0이면 랜덤 방향
+    else
+        if love.math.random(0, 1) == 0 then
+            ball.dy = -MIN_BOUNCE_DY
+        else
+            ball.dy = MIN_BOUNCE_DY
+        end
+    end
+end
+
 local function isMouseInsideButton(mouseX, mouseY, button)
     return mouseX >= button.x
        and mouseX <= button.x + button.width
