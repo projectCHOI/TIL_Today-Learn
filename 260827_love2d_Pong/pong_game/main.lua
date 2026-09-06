@@ -128,6 +128,24 @@ local function isMouseInsideButton(mouseX, mouseY, button)
        and mouseY <= button.y + button.height
 end
 
+local function increaseBallSpeed()
+
+    local direction = 1
+
+    if ball.dx < 0 then
+        direction = -1
+    end
+
+    local newSpeed =
+        math.abs(ball.dx) + BALL_SPEED_INCREASE
+
+    if newSpeed > MAX_BALL_DX then
+        newSpeed = MAX_BALL_DX
+    end
+
+    ball.dx = newSpeed * direction
+end
+
 local function placeBallAtCenter()
     ball.x = WINDOW_WIDTH / 2 - ball.width / 2
     ball.y = WINDOW_HEIGHT / 2 - ball.height / 2
