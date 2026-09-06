@@ -2,6 +2,11 @@ local WINDOW_WIDTH = 800
 local WINDOW_HEIGHT = 600
 
 local WIN_SCORE = 5
+local MAX_BOUNCE_DY = 220
+local MIN_BOUNCE_DY = 60
+local BASE_BALL_DX = 120
+local BALL_SPEED_INCREASE = 12
+local MAX_BALL_DX = 300
 local gameState = "menu"
 local gameMode = nil
 local winnerText = ""
