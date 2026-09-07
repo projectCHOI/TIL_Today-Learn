@@ -359,21 +359,20 @@ function love.update(dt)
 
         if checkCollision(ball, opponent)
             and ball.dx > 0 then
-        
             ball.x =
                 opponent.x - ball.width
         
-            -- 패들의 어느 위치에 맞았는지 계산
             local hitPosition =
                 getHitPosition(ball, opponent)
-        
-            -- 테스트용 출력
-            print(
-                "Opponent Hit Position:",
-                hitPosition
-            )
-        
+            -- 좌우 방향 반전
             ball.dx = -ball.dx
+            -- 충돌 위치에 따라 세로 속도 결정
+            ball.dy =
+                hitPosition * MAX_BOUNCE_DY
+            -- 너무 수평이면 최소 세로 속도 적용
+            applyMinimumVerticalSpeed()
+            -- 랠리가 이어질수록 속도 증가
+            increaseBallSpeed()
         end
 
         if ball.x > WINDOW_WIDTH then
