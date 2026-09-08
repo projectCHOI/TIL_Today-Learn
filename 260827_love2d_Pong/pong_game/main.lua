@@ -255,20 +255,27 @@ local function checkGameOver()
     end
 
     if opponentScore >= WIN_SCORE then
-
         if gameMode == "1P" then
-            winnerText = "AI WINS!"
-        else
-            winnerText = "PLAYER 2 WINS!"
+        
+            local ballCenterY =
+                ball.y + ball.height / 2
+        
+            local opponentCenterY =
+                opponent.y + opponent.height / 2
+        
+            if ballCenterY < opponentCenterY then
+        
+                opponent.y =
+                    opponent.y
+                    - opponent.currentAiSpeed * dt
+        
+            elseif ballCenterY > opponentCenterY then
+        
+                opponent.y =
+                    opponent.y
+                    + opponent.currentAiSpeed * dt
+            end
         end
-
-        placeBallAtCenter()
-
-        gameState = "gameover"
-
-        return true
-    end
-
 
     return false
 end
