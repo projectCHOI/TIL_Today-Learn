@@ -12,6 +12,7 @@ local gameMode = nil
 local winnerText = ""
 local playerScore = 0
 local opponentScore = 0
+local rallyCount = 0
 
 local player = {
     x = 40,
@@ -27,7 +28,15 @@ local opponent = {
     width = 15,
     height = 100,
 
-    aiSpeed = 140,
+    -- AI 기본 속도
+    baseAiSpeed = 140,
+
+    -- AI 최대 속도
+    maxAiSpeed = 280,
+
+    -- 실제 현재 AI 속도
+    currentAiSpeed = 140,
+
     playerSpeed = 300
 }
 
