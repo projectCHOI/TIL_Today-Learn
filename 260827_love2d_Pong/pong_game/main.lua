@@ -155,6 +155,35 @@ local function increaseBallSpeed()
     ball.dx = newSpeed * direction
 end
 
+local function updateAiDifficulty()
+
+    -- 현재 공의 가로 속도
+    local ballSpeed =
+        math.abs(ball.dx)
+
+    -- 기본 공 속도보다 얼마나 빨라졌는지 계산
+    local speedDifference =
+        ballSpeed - BASE_BALL_DX
+
+    if speedDifference < 0 then
+        speedDifference = 0
+    end
+    -- 공 속도 증가량의 70%만큼
+    -- AI 속도도 증가
+    local newAiSpeed =
+        opponent.baseAiSpeed
+        + speedDifference * 0.7
+
+    -- 최대 AI 속도 제한
+    if newAiSpeed > opponent.maxAiSpeed then
+        newAiSpeed =
+            opponent.maxAiSpeed
+    end
+
+    opponent.currentAiSpeed =
+        newAiSpeed
+end
+
 local function placeBallAtCenter()
     ball.x = WINDOW_WIDTH / 2 - ball.width / 2
     ball.y = WINDOW_HEIGHT / 2 - ball.height / 2
