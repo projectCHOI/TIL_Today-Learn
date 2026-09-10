@@ -194,7 +194,7 @@ end
 
 local function serveBall()
     rallyCount = 0
-    
+
     opponent.currentAiSpeed =
         opponent.baseAiSpeed
 
@@ -217,7 +217,13 @@ local function resetGame()
 
     playerScore = 0
     opponentScore = 0
+
+    rallyCount = 0
+
     winnerText = ""
+
+    opponent.currentAiSpeed =
+        opponent.baseAiSpeed
 
     player.y =
         WINDOW_HEIGHT / 2
