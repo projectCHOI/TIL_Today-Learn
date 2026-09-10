@@ -193,11 +193,15 @@ local function placeBallAtCenter()
 end
 
 local function serveBall()
+    rallyCount = 0
+    
+    opponent.currentAiSpeed =
+        opponent.baseAiSpeed
 
     if love.math.random(0, 1) == 0 then
-        ball.dx = -120
+        ball.dx = -BASE_BALL_DX
     else
-        ball.dx = 120
+        ball.dx = BASE_BALL_DX
     end
 
     if love.math.random(0, 1) == 0 then
