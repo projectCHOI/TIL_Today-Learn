@@ -733,9 +733,9 @@ function love.draw()
     if gameState == "ready" then
 
         love.graphics.printf(
-            "READY",
+            "RALLY: " .. rallyCount,
             0,
-            220,
+            65,
             WINDOW_WIDTH,
             "center"
         )
