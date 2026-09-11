@@ -266,7 +266,14 @@ local function checkGameOver()
 
     if opponentScore >= WIN_SCORE then
         if gameMode == "1P" then
-        
+            -- AI 테스트
+            love.graphics.print(
+                "AI SPEED: "
+                .. math.floor(opponent.currentAiSpeed),
+                650,
+                20
+            )
+        end        
             local ballCenterY =
                 ball.y + ball.height / 2
         
