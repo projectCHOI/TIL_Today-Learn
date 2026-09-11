@@ -264,22 +264,23 @@ local function checkGameOver()
         return true
     end
 
-    if opponentScore >= WIN_SCORE then
-        if gameMode == "1P" then       
+    if opponentScore >= WIN_SCORE then     
+        if gameMode == "1P" then
+
             local ballCenterY =
                 ball.y + ball.height / 2
-        
+
             local opponentCenterY =
                 opponent.y + opponent.height / 2
-        
+
             if ballCenterY < opponentCenterY then
-        
+
                 opponent.y =
                     opponent.y
                     - opponent.currentAiSpeed * dt
-        
+
             elseif ballCenterY > opponentCenterY then
-        
+
                 opponent.y =
                     opponent.y
                     + opponent.currentAiSpeed * dt
