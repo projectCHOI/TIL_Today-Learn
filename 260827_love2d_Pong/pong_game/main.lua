@@ -253,6 +253,7 @@ local function prepareNextServe()
 end
 
 local function checkGameOver()
+    -- Player 1 승리
     if playerScore >= WIN_SCORE then
 
         winnerText = "PLAYER 1 WINS!"
@@ -264,32 +265,27 @@ local function checkGameOver()
         return true
     end
 
-    if opponentScore >= WIN_SCORE then     
+
+    -- 상대 승리
+    if opponentScore >= WIN_SCORE then
+
         if gameMode == "1P" then
+            winnerText = "AI WINS!"
 
-            local ballCenterY =
-                ball.y + ball.height / 2
-
-            local opponentCenterY =
-                opponent.y + opponent.height / 2
-
-            if ballCenterY < opponentCenterY then
-
-                opponent.y =
-                    opponent.y
-                    - opponent.currentAiSpeed * dt
-
-            elseif ballCenterY > opponentCenterY then
-
-                opponent.y =
-                    opponent.y
-                    + opponent.currentAiSpeed * dt
-            end
+        elseif gameMode == "2P" then
+            winnerText = "PLAYER 2 WINS!"
         end
+
+        placeBallAtCenter()
+
+        gameState = "gameover"
+
+        return true
+    end
+
 
     return false
 end
-
 
 function love.load()
 
