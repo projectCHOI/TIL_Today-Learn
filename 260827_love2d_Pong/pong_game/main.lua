@@ -580,13 +580,13 @@ local function drawButton(button)
     )
 
     love.graphics.setColor(1, 1, 1)
-
-    love.graphics.rectangle(
-        "line",
-        button.x,
-        button.y,
-        button.width,
-        button.height
+    
+    love.graphics.printf(
+        "RALLY: " .. rallyCount,
+        0,
+        65,
+        WINDOW_WIDTH,
+        "center"
     )
 
     love.graphics.printf(
@@ -727,15 +727,14 @@ function love.draw()
     )
 
     if gameState == "ready" then
-
         love.graphics.printf(
-            "RALLY: " .. rallyCount,
+            "READY",
             0,
-            65,
+            220,
             WINDOW_WIDTH,
             "center"
         )
-
+    
         love.graphics.printf(
             "Press SPACE to Serve",
             0,
