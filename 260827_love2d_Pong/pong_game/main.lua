@@ -247,6 +247,12 @@ end
 
 
 local function prepareNextServe()
+
+    rallyCount = 0
+
+    opponent.currentAiSpeed =
+        opponent.baseAiSpeed
+
     placeBallAtCenter()
 
     gameState = "ready"
@@ -330,24 +336,24 @@ function love.update(dt)
         end
 
         if gameMode == "1P" then
-
+        
             local ballCenterY =
                 ball.y + ball.height / 2
-
+        
             local opponentCenterY =
                 opponent.y + opponent.height / 2
-
+        
             if ballCenterY < opponentCenterY then
-
+        
                 opponent.y =
                     opponent.y
-                    - opponent.aiSpeed * dt
-
+                    - opponent.currentAiSpeed * dt
+        
             elseif ballCenterY > opponentCenterY then
-
+        
                 opponent.y =
                     opponent.y
-                    + opponent.aiSpeed * dt
+                    + opponent.currentAiSpeed * dt
             end
         end
 
@@ -517,7 +523,23 @@ function love.mousepressed(x, y, button)
     if gameState ~= "menu" then
         return
     end
-
+    
+    love.graphics.setColor(1, 1, 1)
+    
+    love.graphics.printf(
+        "RALLY: " .. rallyCount,
+        0,
+        65,
+        WINDOW_WIDTH,
+        "center"
+    )
+    
+    love.graphics.print(
+        "PLAYER 1: " .. playerScore,
+        230,
+        30
+    )
+    
     if button ~= 1 then
         return
     end
@@ -580,14 +602,6 @@ local function drawButton(button)
     )
 
     love.graphics.setColor(1, 1, 1)
-    
-    love.graphics.printf(
-        "RALLY: " .. rallyCount,
-        0,
-        65,
-        WINDOW_WIDTH,
-        "center"
-    )
 
     love.graphics.printf(
         button.text,
@@ -644,7 +658,6 @@ function love.draw()
     end
 
     love.graphics.setColor(1, 1, 1)
-
 
     love.graphics.print(
         "PLAYER 1: " .. playerScore,
