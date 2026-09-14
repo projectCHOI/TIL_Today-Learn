@@ -271,7 +271,6 @@ local function checkGameOver()
         return true
     end
 
-
     -- 상대 승리
     if opponentScore >= WIN_SCORE then
 
@@ -594,7 +593,7 @@ local function drawButton(button)
         "center"
     )
 end
-
+#
 function love.draw()
 
     if gameState == "menu" then
@@ -648,6 +647,22 @@ function love.draw()
         WINDOW_WIDTH,
         "center"
     )
+    -- 화면 중앙 점선
+    love.graphics.setColor(1, 1, 1)
+
+    local centerX = WINDOW_WIDTH / 2
+    local dashHeight = 20
+    local gap = 15
+
+    for y = 0, WINDOW_HEIGHT, dashHeight + gap do
+        love.graphics.rectangle(
+            "fill",
+            centerX - 2,
+            y,
+            4,
+            dashHeight
+        )
+    end
 
     love.graphics.print(
         "PLAYER 1: " .. playerScore,
