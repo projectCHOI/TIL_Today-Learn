@@ -13,6 +13,7 @@ local winnerText = ""
 local playerScore = 0
 local opponentScore = 0
 local rallyCount = 0
+local gameFont
 
 local player = {
     x = 40,
