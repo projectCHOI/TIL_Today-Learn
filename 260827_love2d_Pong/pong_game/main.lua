@@ -297,9 +297,15 @@ function love.load()
 
     love.graphics.setBackgroundColor(0, 0, 0)
 
+    gameFont = love.graphics.newFont(
+        "assets/fonts/서평원 꺾깎체/TTF/SLEIGothicTTF.ttf",
+        20
+    )
+
+    love.graphics.setFont(gameFont)
+
     love.math.setRandomSeed(os.time())
 end
-
 
 function love.update(dt)
     if gameState == "menu"
