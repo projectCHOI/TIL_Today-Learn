@@ -298,7 +298,7 @@ function love.load()
     love.graphics.setBackgroundColor(0, 0, 0)
 
     gameFont = love.graphics.newFont(
-        "assets/fonts/서평원 꺾깎체/TTF/SLEIGothicTTF.ttf",
+        "assets/fonts/SLEIGothicTTF.ttf",
         20
     )
 
