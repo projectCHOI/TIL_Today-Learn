@@ -596,18 +596,11 @@ local function drawButton(button)
 end
 
 function love.draw()
-        if gameState == "menu" then
-            ...
-            return
-        end
-        
+
+    if gameState == "menu" then
+
         love.graphics.setColor(1, 1, 1)
-        
-        love.graphics.print(
-            "PLAYER 1: " .. playerScore,
-            230,
-            30
-        )
+
         love.graphics.printf(
             "PONG",
             0,
@@ -626,8 +619,6 @@ function love.draw()
 
         drawButton(player1Button)
         drawButton(player2Button)
-
-        love.graphics.setColor(1, 1, 1)
 
         love.graphics.printf(
             "Player 1 : Player vs AI",
@@ -649,6 +640,14 @@ function love.draw()
     end
 
     love.graphics.setColor(1, 1, 1)
+
+    love.graphics.printf(
+        "RALLY: " .. rallyCount,
+        0,
+        65,
+        WINDOW_WIDTH,
+        "center"
+    )
 
     love.graphics.print(
         "PLAYER 1: " .. playerScore,
