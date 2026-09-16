@@ -311,6 +311,25 @@ function love.load()
         "assets/fonts/SLEIGothicTTF.ttf",
         20
     )
+
+    fontScore = love.graphics.newFont(
+        "assets/fonts/SLEIGothicTTF.ttf",
+        24
+    )
+
+    fontTitle = love.graphics.newFont(
+        "assets/fonts/SLEIGothicTTF.ttf",
+        42
+    )
+
+    fontState = love.graphics.newFont(
+        "assets/fonts/SLEIGothicTTF.ttf",
+        32
+    )
+
+    love.graphics.setFont(fontNormal)
+
+    love.math.setRandomSeed(os.time())
 end
 
 function love.update(dt)
