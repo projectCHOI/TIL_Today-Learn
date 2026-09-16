@@ -13,7 +13,12 @@ local winnerText = ""
 local playerScore = 0
 local opponentScore = 0
 local rallyCount = 0
-local gameFont
+-- gameFont
+local fontSmall
+local fontNormal
+local fontScore
+local fontTitle
+local fontState
 
 local player = {
     x = 40,
@@ -297,14 +302,15 @@ function love.load()
 
     love.graphics.setBackgroundColor(0, 0, 0)
 
-    gameFont = love.graphics.newFont(
+    fontSmall = love.graphics.newFont(
+        "assets/fonts/SLEIGothicTTF.ttf",
+        16
+    )
+
+    fontNormal = love.graphics.newFont(
         "assets/fonts/SLEIGothicTTF.ttf",
         20
     )
-
-    love.graphics.setFont(gameFont)
-
-    love.math.setRandomSeed(os.time())
 end
 
 function love.update(dt)
