@@ -643,7 +643,6 @@ function love.draw()
 
         -- 게임모드
         love.graphics.setFont(fontNormal)
-        
         love.graphics.printf(
             "Select Game Mode",
             0,
@@ -654,7 +653,8 @@ function love.draw()
 
         drawButton(player1Button)
         drawButton(player2Button)
-
+        -- Player 1
+        love.graphics.setFont(fontScore)
         love.graphics.printf(
             "Player 1 : Player vs AI",
             0,
@@ -662,7 +662,8 @@ function love.draw()
             WINDOW_WIDTH,
             "center"
         )
-
+        -- Player 2
+        love.graphics.setFont(fontScore)
         love.graphics.printf(
             "Player 2 : Player vs Player",
             0,
