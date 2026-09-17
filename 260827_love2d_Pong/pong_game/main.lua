@@ -631,19 +631,23 @@ function love.draw()
     if gameState == "menu" then
 
         love.graphics.setColor(1, 1, 1)
-
+        -- 제목
+        love.graphics.setFont(fontTitle)
         love.graphics.printf(
             "PONG",
             0,
-            130,
+            110,
             WINDOW_WIDTH,
             "center"
         )
 
+        -- 게임모드
+        love.graphics.setFont(fontNormal)
+        
         love.graphics.printf(
             "Select Game Mode",
             0,
-            190,
+            185,
             WINDOW_WIDTH,
             "center"
         )
