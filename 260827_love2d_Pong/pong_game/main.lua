@@ -676,11 +676,12 @@ function love.draw()
     end
 
     love.graphics.setColor(1, 1, 1)
-
+    -- RALLY
+    love.graphics.setFont(fontSmall)
     love.graphics.printf(
         "RALLY: " .. rallyCount,
         0,
-        65,
+        70,
         WINDOW_WIDTH,
         "center"
     )
@@ -789,11 +790,12 @@ function love.draw()
             WINDOW_WIDTH,
             "center"
         )
-    
+        -- 설명
+        love.graphics.setFont(fontNormal)
         love.graphics.printf(
             "Press SPACE to Serve",
             0,
-            260,
+            255,
             WINDOW_WIDTH,
             "center"
         )
