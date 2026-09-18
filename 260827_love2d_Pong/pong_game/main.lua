@@ -616,6 +616,7 @@ local function drawButton(button)
     )
 
     love.graphics.setColor(1, 1, 1)
+    love.graphics.setFont(fontNormal)
 
     love.graphics.printf(
         button.text,
@@ -625,7 +626,7 @@ local function drawButton(button)
         "center"
     )
 end
-#
+
 function love.draw()
 
     if gameState == "menu" then
@@ -701,7 +702,8 @@ function love.draw()
             dashHeight
         )
     end
-
+    -- 점수
+    love.graphics.setFont(fontScore)
     love.graphics.print(
         "PLAYER 1: " .. playerScore,
         230,
