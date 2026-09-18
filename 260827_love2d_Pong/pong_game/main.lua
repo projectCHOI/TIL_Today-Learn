@@ -702,6 +702,7 @@ function love.draw()
             dashHeight
         )
     end
+    
     -- 점수
     love.graphics.setFont(fontScore)
     love.graphics.print(
