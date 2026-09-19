@@ -786,6 +786,9 @@ function love.draw()
     )
 
     if gameState == "ready" then
+    
+        love.graphics.setFont(fontState)
+    
         love.graphics.printf(
             "READY",
             0,
@@ -793,8 +796,9 @@ function love.draw()
             WINDOW_WIDTH,
             "center"
         )
-        -- 설명
+    
         love.graphics.setFont(fontNormal)
+    
         love.graphics.printf(
             "Press SPACE to Serve",
             0,
