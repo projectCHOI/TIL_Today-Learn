@@ -773,12 +773,13 @@ function love.draw()
     )
 
     -- 상태 안내
+    love.graphics.setFont(fontSmall)
     love.graphics.print(
         "MODE: " .. gameMode,
         20,
         20
     )
-
+    
     love.graphics.print(
         "ESC : MENU",
         20,
