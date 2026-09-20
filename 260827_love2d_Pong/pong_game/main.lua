@@ -864,6 +864,7 @@ function love.draw()
 
     if gameState == "gameover" then
 
+        -- 어두운 배경
         love.graphics.setColor(
             0,
             0,
@@ -881,50 +882,68 @@ function love.draw()
 
         love.graphics.setColor(1, 1, 1)
 
+        -- GAME OVER 제목
+        love.graphics.setFont(fontTitle)
+
         love.graphics.printf(
             "GAME OVER",
             0,
-            190,
+            145,
             WINDOW_WIDTH,
             "center"
         )
+
+        -- 승자 표시
+        love.graphics.setFont(fontState)
 
         love.graphics.printf(
             winnerText,
             0,
-            235,
+            215,
             WINDOW_WIDTH,
             "center"
         )
+
+        -- FINAL SCORE
+        love.graphics.setFont(fontSmall)
 
         love.graphics.printf(
             "FINAL SCORE",
             0,
-            290,
+            280,
             WINDOW_WIDTH,
             "center"
         )
+
+        -- 최종 점수
+        love.graphics.setFont(fontState)
 
         love.graphics.printf(
             playerScore .. "  :  " .. opponentScore,
             0,
-            325,
+            310,
             WINDOW_WIDTH,
             "center"
         )
+
+        -- 재시작
+        love.graphics.setFont(fontNormal)
 
         love.graphics.printf(
             "R : RESTART",
             0,
-            390,
+            380,
             WINDOW_WIDTH,
             "center"
         )
 
+        -- 메뉴
+        love.graphics.setFont(fontSmall)
+
         love.graphics.printf(
             "ESC : MENU",
             0,
-            425,
+            420,
             WINDOW_WIDTH,
             "center"
         )
