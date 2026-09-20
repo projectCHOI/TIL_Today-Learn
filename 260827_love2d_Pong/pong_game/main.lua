@@ -810,6 +810,7 @@ function love.draw()
 
     if gameState == "paused" then
 
+        -- 어두운 배경
         love.graphics.setColor(
             0,
             0,
@@ -827,26 +828,35 @@ function love.draw()
 
         love.graphics.setColor(1, 1, 1)
 
+        -- PAUSED 제목
+        love.graphics.setFont(fontState)
+
         love.graphics.printf(
             "PAUSED",
             0,
-            220,
+            210,
             WINDOW_WIDTH,
             "center"
         )
+
+        -- 재개 안내
+        love.graphics.setFont(fontNormal)
 
         love.graphics.printf(
             "Press P to Resume",
             0,
-            260,
+            265,
             WINDOW_WIDTH,
             "center"
         )
 
+        -- 메뉴 안내
+        love.graphics.setFont(fontSmall)
+
         love.graphics.printf(
             "ESC : MENU",
             0,
-            300,
+            310,
             WINDOW_WIDTH,
             "center"
         )
