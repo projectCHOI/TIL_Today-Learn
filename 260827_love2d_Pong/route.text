@@ -6,3 +6,6 @@ Set-Location ".\260827_love2d_Pong\pong_game"
 
 ## 실행
 & "C:\설치_soft\260817_Code\LOVE\love.exe" .
+
+## 실행 PowerShell
+& "C:\설치_soft\260817_Code\LOVE\love.exe" ".\pong_game.love"
