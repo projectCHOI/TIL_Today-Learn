@@ -21,7 +21,7 @@ Pong의 핵심 구조인
 
 ## 플레이 영상
 <div align="center">
-<img src="" />
+<img src="assets/images/GIF/love2d_Pong-T1.gif" width="300" />
 <img src="" />
 <img src="" />
 
