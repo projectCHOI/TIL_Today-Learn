@@ -19,6 +19,14 @@ Pong의 핵심 구조인
 
 를 구현하고, 이후 게임 상태 관리와 AI, 난이도 변화 등의 기능을 단계적으로 추가했다.
 
+## 플레이 영상
+<div align="center">
+<img src="" />
+<img src="" />
+<img src="" />
+
+</div>
+
 ### 개발 환경
 
 * Language : Lua
