@@ -72,3 +72,96 @@ function Weapon:findNearestEnemy(player, enemies)
 
     local playerCenterY =
         player.y + player.height / 2
+    -- 모든 적 검사
+    for _, enemy in ipairs(enemies) do
+
+        if not enemy.dead then
+            -- 적 중심 좌표
+            local enemyCenterX =
+                enemy.x + enemy.width / 2
+
+            local enemyCenterY =
+                enemy.y + enemy.height / 2
+
+            -- 플레이어 → 적 거리
+            local dx =
+                enemyCenterX - playerCenterX
+
+            local dy =
+                enemyCenterY - playerCenterY
+
+            local distanceSquared =
+                dx * dx + dy * dy
+
+            -- 지금까지 발견한 적보다 가까운 경우
+            if distanceSquared < nearestDistanceSquared then
+                nearestDistanceSquared = distanceSquared
+                nearestEnemy = enemy
+            end
+        end
+    end
+
+    return nearestEnemy
+end
+
+
+function Weapon:shoot(player, target)
+    -- 플레이어 중심
+    local playerCenterX =
+        player.x + player.width / 2
+
+    local playerCenterY =
+        player.y + player.height / 2
+
+    -- 적 중심
+    local targetCenterX =
+        target.x + target.width / 2
+
+    local targetCenterY =
+        target.y + target.height / 2
+
+    -- 플레이어 → 적 방향
+    local directionX =
+        targetCenterX - playerCenterX
+
+    local directionY =
+        targetCenterY - playerCenterY
+
+    -- 방향 벡터 길이
+    local length = math.sqrt(
+        directionX * directionX +
+        directionY * directionY
+    )
+
+    if length == 0 then
+        return
+    end
+
+    -- 방향 정규화
+    directionX = directionX / length
+    directionY = directionY / length
+
+    -- 새로운 발사체 생성
+    local projectile = Projectile:new(
+        playerCenterX,
+        playerCenterY,
+        directionX,
+        directionY
+    )
+
+    table.insert(
+        self.projectiles,
+        projectile
+    )
+end
+
+
+function Weapon:draw()
+    -- 모든 발사체 그리기
+    for _, projectile in ipairs(self.projectiles) do
+        projectile:draw()
+    end
+end
+
+
+return Weapon
