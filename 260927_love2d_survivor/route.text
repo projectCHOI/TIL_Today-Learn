@@ -5,4 +5,4 @@ Get-Location
 Set-Location ".\260927_love2d_survivor\survivor_game"
 
 ## 실행
-Get-ChildItem ".\Pong_Windows"
+& "C:\설치_soft\260817_Code\LOVE\love.exe" .
