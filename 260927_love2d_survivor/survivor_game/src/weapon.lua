@@ -2,6 +2,37 @@ local Projectile = require("src.projectile")
 
 local Weapon = {}
 
+local function circleRectangleCollision(
+    circleX,
+    circleY,
+    radius,
+    rectX,
+    rectY,
+    rectWidth,
+    rectHeight
+)
+    -- 원의 중심에서 가장 가까운 사각형 내부 좌표
+    local closestX = math.max(
+        rectX,
+        math.min(circleX, rectX + rectWidth)
+    )
+
+    local closestY = math.max(
+        rectY,
+        math.min(circleY, rectY + rectHeight)
+    )
+
+    -- 원 중심과 가장 가까운 점 사이 거리
+    local dx = circleX - closestX
+    local dy = circleY - closestY
+
+    local distanceSquared =
+        dx * dx +
+        dy * dy
+
+    return distanceSquared <= radius * radius
+end
+
 function Weapon:new()
     local weapon = {
         -- 현재 존재하는 발사체
@@ -47,7 +78,44 @@ function Weapon:update(dt, player, enemies)
 
     -- 모든 발사체 업데이트
     for _, projectile in ipairs(self.projectiles) do
+    
         projectile:update(dt)
+    
+        -- 살아 있는 발사체만 충돌 검사
+        if not projectile.dead then
+    
+            for _, enemy in ipairs(enemies) do
+    
+                -- 살아 있는 적만 검사
+                if not enemy.dead then
+    
+                    local hit = circleRectangleCollision(
+                        projectile.x,
+                        projectile.y,
+                        projectile.radius,
+    
+                        enemy.x,
+                        enemy.y,
+                        enemy.width,
+                        enemy.height
+                    )
+    
+                    if hit then
+                        -- 적에게 피해 적용
+                        enemy:takeDamage(
+                            projectile.damage
+                        )
+    
+                        -- 발사체 제거 대상으로 변경
+                        projectile.dead = true
+    
+                        -- 하나의 적에게 명중했으므로
+                        -- 다른 적은 더 이상 검사하지 않음
+                        break
+                    end
+                end
+            end
+        end
     end
 
     -- dead 상태의 발사체 제거
