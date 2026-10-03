@@ -11,7 +11,14 @@ function Enemy:new(x, y)
         height = 32,
 
         -- 이동 속도
-        speed = 100
+        speed = 100,
+
+        -- 체력
+        maxHp = 3,
+        hp = 3,
+
+        -- 사망 여부
+        dead = false
     }
 
     setmetatable(enemy, self)
@@ -22,6 +29,11 @@ end
 
 
 function Enemy:update(dt, player)
+    -- 죽은 적은 더 이상 움직이지 않음
+    if self.dead then
+        return
+    end
+
     -- 적 중심 좌표
     local enemyCenterX = self.x + self.width / 2
     local enemyCenterY = self.y + self.height / 2
@@ -52,8 +64,30 @@ function Enemy:update(dt, player)
 end
 
 
+function Enemy:takeDamage(damage)
+    -- 이미 죽은 적은 피해를 받지 않음
+    if self.dead then
+        return
+    end
+
+    -- 체력 감소
+    self.hp = self.hp - damage
+
+    -- 체력이 0 이하라면 사망
+    if self.hp <= 0 then
+        self.hp = 0
+        self.dead = true
+    end
+end
+
+
 function Enemy:draw()
-    -- 적 색상: 빨간색
+    -- 죽은 적은 그리지 않음
+    if self.dead then
+        return
+    end
+
+    -- 적 색상
     love.graphics.setColor(0.9, 0.2, 0.2)
 
     love.graphics.rectangle(
