@@ -29,12 +29,23 @@ function EnemyManager:update(dt, player)
     if self.spawnTimer >= self.spawnInterval then
         self:spawnEnemy()
 
-        self.spawnTimer = self.spawnTimer - self.spawnInterval
+        self.spawnTimer =
+            self.spawnTimer - self.spawnInterval
     end
 
     -- 모든 적 업데이트
     for _, enemy in ipairs(self.enemies) do
         enemy:update(dt, player)
+    end
+
+    -- 죽은 적 제거
+    for i = #self.enemies, 1, -1 do
+        if self.enemies[i].dead then
+            table.remove(
+                self.enemies,
+                i
+            )
+        end
     end
 end
 
@@ -53,28 +64,52 @@ function EnemyManager:spawnEnemy()
 
     if side == 1 then
         -- 위쪽
-        x = love.math.random(0, screenWidth - enemySize)
+        x = love.math.random(
+            0,
+            screenWidth - enemySize
+        )
+
         y = -enemySize
 
     elseif side == 2 then
         -- 오른쪽
         x = screenWidth
-        y = love.math.random(0, screenHeight - enemySize)
+
+        y = love.math.random(
+            0,
+            screenHeight - enemySize
+        )
 
     elseif side == 3 then
         -- 아래쪽
-        x = love.math.random(0, screenWidth - enemySize)
+        x = love.math.random(
+            0,
+            screenWidth - enemySize
+        )
+
         y = screenHeight
 
     else
         -- 왼쪽
         x = -enemySize
-        y = love.math.random(0, screenHeight - enemySize)
+
+        y = love.math.random(
+            0,
+            screenHeight - enemySize
+        )
     end
 
-    local enemy = Enemy:new(x, y)
+    -- 새로운 적 생성
+    local enemy = Enemy:new(
+        x,
+        y
+    )
 
-    table.insert(self.enemies, enemy)
+    -- 적 목록에 추가
+    table.insert(
+        self.enemies,
+        enemy
+    )
 end
 
 
