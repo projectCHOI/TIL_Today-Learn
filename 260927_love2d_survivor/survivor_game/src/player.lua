@@ -77,3 +77,84 @@ function Player:update(dt)
             moveX * moveX +
             moveY * moveY
         )
+
+        moveX = moveX / length
+        moveY = moveY / length
+    end
+
+    -- 실제 이동
+    self.x =
+        self.x + moveX * self.speed * dt
+
+    self.y =
+        self.y + moveY * self.speed * dt
+
+    -- 화면 경계 제한
+    self.x = math.max(
+        0,
+        math.min(
+            self.x,
+            love.graphics.getWidth() - self.width
+        )
+    )
+
+    self.y = math.max(
+        0,
+        math.min(
+            self.y,
+            love.graphics.getHeight() - self.height
+        )
+    )
+end
+
+
+function Player:takeDamage(damage)
+    -- 죽었거나 무적 상태라면 피해 없음
+    if self.dead or self.invincible then
+        return
+    end
+
+    -- 체력 감소
+    self.hp = self.hp - damage
+
+    -- 사망 판정
+    if self.hp <= 0 then
+        self.hp = 0
+        self.dead = true
+        return
+    end
+
+    -- 피격 후 잠시 무적
+    self.invincible = true
+    self.invincibleTimer =
+        self.invincibleDuration
+end
+
+
+function Player:draw()
+    -- 피격 무적 상태에서는 색상을 변경
+    if self.invincible then
+        love.graphics.setColor(
+            0.5,
+            0.7,
+            1
+        )
+    else
+        love.graphics.setColor(
+            1,
+            1,
+            1
+        )
+    end
+
+    love.graphics.rectangle(
+        "fill",
+        self.x,
+        self.y,
+        self.width,
+        self.height
+    )
+end
+
+
+return Player
