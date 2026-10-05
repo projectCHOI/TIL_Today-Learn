@@ -16,9 +16,13 @@ function Enemy:new(x, y)
         -- 체력
         maxHp = 3,
         hp = 3,
-
+        
+        -- 공격력
+        damage = 10,
+        
         -- 사망 여부
         dead = false
+
     }
 
     setmetatable(enemy, self)
