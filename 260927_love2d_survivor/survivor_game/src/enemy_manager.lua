@@ -2,6 +2,14 @@ local Enemy = require("src.enemy")
 
 local EnemyManager = {}
 
+local function checkAABBCollision(a, b)
+    return
+        a.x < b.x + b.width and
+        a.x + a.width > b.x and
+        a.y < b.y + b.height and
+        a.y + a.height > b.y
+end
+
 function EnemyManager:new()
     local manager = {
         -- 현재 존재하는 모든 적
@@ -36,6 +44,13 @@ function EnemyManager:update(dt, player)
     -- 모든 적 업데이트
     for _, enemy in ipairs(self.enemies) do
         enemy:update(dt, player)
+    
+        -- 살아 있는 적만 플레이어와 충돌 검사
+        if not enemy.dead and not player.dead then
+            if checkAABBCollision(enemy, player) then
+                player:takeDamage(enemy.damage)
+            end
+        end
     end
 
     -- 죽은 적 제거
