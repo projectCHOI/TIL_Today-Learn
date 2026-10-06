@@ -64,3 +64,83 @@ end
 function ExperienceManager:hasLevelUp()
     return self.levelUpPending
 end
+
+
+function ExperienceManager:consumeLevelUp()
+    self.levelUpPending = false
+end
+
+function ExperienceManager:draw()
+    local screenWidth =
+        love.graphics.getWidth()
+
+    -- 레벨 표시
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
+
+    love.graphics.print(
+        "LEVEL: " .. self.level,
+        20,
+        70
+    )
+
+    -- 경험치 바 설정
+    local barX = 20
+    local barY = 100
+    local barWidth = 250
+    local barHeight = 16
+
+    -- 경험치 비율
+    local expRatio =
+        self.exp / self.expToNextLevel
+
+    -- 경험치 바 배경
+    love.graphics.setColor(
+        0.2,
+        0.2,
+        0.2
+    )
+
+    love.graphics.rectangle(
+        "fill",
+        barX,
+        barY,
+        barWidth,
+        barHeight
+    )
+
+    -- 현재 경험치
+    love.graphics.setColor(
+        0.3,
+        0.7,
+        1
+    )
+
+    love.graphics.rectangle(
+        "fill",
+        barX,
+        barY,
+        barWidth * expRatio,
+        barHeight
+    )
+
+    -- 경험치 숫자
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
+
+    love.graphics.print(
+        self.exp
+            .. " / "
+            .. self.expToNextLevel,
+        barX + barWidth + 10,
+        barY - 2
+    )
+end
+
+return ExperienceManager
