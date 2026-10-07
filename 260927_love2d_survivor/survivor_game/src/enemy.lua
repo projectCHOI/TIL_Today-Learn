@@ -20,6 +20,9 @@ function Enemy:new(x, y)
         -- 공격력
         damage = 10,
         
+        -- 처치 시 획득 경험치
+        expValue = 1,      
+        
         -- 사망 여부
         dead = false
 
