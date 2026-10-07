@@ -29,7 +29,7 @@ function EnemyManager:new()
 end
 
 
-function EnemyManager:update(dt, player)
+function EnemyManager:update(dt, player, experienceManager)
     -- 생성 타이머 증가
     self.spawnTimer = self.spawnTimer + dt
 
@@ -53,16 +53,21 @@ function EnemyManager:update(dt, player)
         end
     end
 
-    -- 죽은 적 제거
+    -- 죽은 적의 경험치를 획득한 뒤 제거
     for i = #self.enemies, 1, -1 do
-        if self.enemies[i].dead then
+        local enemy = self.enemies[i]
+    
+        if enemy.dead then
+            experienceManager:addExp(
+                enemy.expValue
+            )
+    
             table.remove(
                 self.enemies,
                 i
             )
         end
     end
-end
 
 
 function EnemyManager:spawnEnemy()
