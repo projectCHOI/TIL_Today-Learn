@@ -94,3 +94,85 @@ function UpgradeManager:select(
     self.active = false
     self.choices = {}
 end
+
+
+function UpgradeManager:draw()
+    if not self.active then
+        return
+    end
+
+    local screenWidth =
+        love.graphics.getWidth()
+
+    local screenHeight =
+        love.graphics.getHeight()
+
+
+    -- 반투명 배경
+    love.graphics.setColor(
+        0,
+        0,
+        0,
+        0.75
+    )
+
+    love.graphics.rectangle(
+        "fill",
+        0,
+        0,
+        screenWidth,
+        screenHeight
+    )
+
+
+    -- 제목
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
+
+    love.graphics.printf(
+        "LEVEL UP!",
+        0,
+        150,
+        screenWidth,
+        "center"
+    )
+
+
+    -- 강화 선택지
+    for i, choice in ipairs(self.choices) do
+        local y =
+            230 + (i - 1) * 100
+
+        love.graphics.printf(
+            i .. ". " .. choice.name,
+            0,
+            y,
+            screenWidth,
+            "center"
+        )
+
+        love.graphics.printf(
+            choice.description,
+            0,
+            y + 25,
+            screenWidth,
+            "center"
+        )
+    end
+
+
+    -- 조작 안내
+    love.graphics.printf(
+        "Press 1, 2, or 3",
+        0,
+        550,
+        screenWidth,
+        "center"
+    )
+end
+
+
+return UpgradeManager
