@@ -74,4 +74,142 @@ function Weapon:update(dt, player, enemies)
         end
     end
 
-    
+    -- Projectile 이동 및 충돌 판정
+    for _, projectile in ipairs(self.projectiles) do
+        projectile:update(dt)
+
+        if not projectile.dead then
+            for _, enemy in ipairs(enemies) do
+                if not enemy.dead then
+                    local hit = circleRectangleCollision(
+                        projectile.x,
+                        projectile.y,
+                        projectile.radius,
+                        enemy.x,
+                        enemy.y,
+                        enemy.width,
+                        enemy.height
+                    )
+
+                    if hit then
+                        enemy:takeDamage(
+                            projectile.damage
+                        )
+
+                        projectile.dead = true
+                        break
+                    end
+                end
+            end
+        end
+    end
+
+    -- 사용이 끝난 Projectile 제거
+    for i = #self.projectiles, 1, -1 do
+        if self.projectiles[i].dead then
+            table.remove(
+                self.projectiles,
+                i
+            )
+        end
+    end
+end
+
+
+-- 가장 가까운 살아 있는 Enemy 탐색
+function Weapon:findNearestEnemy(player, enemies)
+    local nearestEnemy = nil
+    local nearestDistanceSquared = math.huge
+
+    local playerCenterX =
+        player.x + player.width / 2
+
+    local playerCenterY =
+        player.y + player.height / 2
+
+    for _, enemy in ipairs(enemies) do
+        if not enemy.dead then
+            local enemyCenterX =
+                enemy.x + enemy.width / 2
+
+            local enemyCenterY =
+                enemy.y + enemy.height / 2
+
+            local dx =
+                enemyCenterX - playerCenterX
+
+            local dy =
+                enemyCenterY - playerCenterY
+
+            local distanceSquared =
+                dx * dx + dy * dy
+
+            if distanceSquared < nearestDistanceSquared then
+                nearestDistanceSquared = distanceSquared
+                nearestEnemy = enemy
+            end
+        end
+    end
+
+    return nearestEnemy
+end
+
+
+-- Projectile 발사
+function Weapon:shoot(player, target)
+    local playerCenterX =
+        player.x + player.width / 2
+
+    local playerCenterY =
+        player.y + player.height / 2
+
+    local targetCenterX =
+        target.x + target.width / 2
+
+    local targetCenterY =
+        target.y + target.height / 2
+
+    local directionX =
+        targetCenterX - playerCenterX
+
+    local directionY =
+        targetCenterY - playerCenterY
+
+    local length = math.sqrt(
+        directionX * directionX +
+        directionY * directionY
+    )
+
+    if length == 0 then
+        return
+    end
+
+    directionX = directionX / length
+    directionY = directionY / length
+
+    -- Projectile 생성
+    local projectile = Projectile:new(
+        playerCenterX,
+        playerCenterY,
+        directionX,
+        directionY
+    )
+
+    -- 현재 무기 공격력을 Projectile에 전달
+    projectile.damage = self.damage
+
+    table.insert(
+        self.projectiles,
+        projectile
+    )
+end
+
+
+function Weapon:draw()
+    for _, projectile in ipairs(self.projectiles) do
+        projectile:draw()
+    end
+end
+
+
+return Weapon
