@@ -58,3 +58,25 @@ function ExperienceManager:checkLevelUp()
         )
     end
 end
+
+-- 선택하지 않은 강화가 있는지 확인
+function ExperienceManager:hasLevelUp()
+    return self.pendingLevelUps > 0
+end
+
+-- 남아 있는 강화 선택 횟수 확인
+function ExperienceManager:getPendingLevelUps()
+    return self.pendingLevelUps
+end
+
+-- 강화 선택 완료 시 한 번 차감
+function ExperienceManager:consumeLevelUp()
+    if self.pendingLevelUps > 0 then
+        self.pendingLevelUps =
+            self.pendingLevelUps - 1
+
+        return true
+    end
+
+    return false
+end
