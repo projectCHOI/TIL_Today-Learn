@@ -80,3 +80,56 @@ function ExperienceManager:consumeLevelUp()
 
     return false
 end
+
+-- 경험치 UI
+function ExperienceManager:draw()
+    local barX = 20
+    local barY = 100
+    local barWidth = 250
+    local barHeight = 16
+
+    local expRatio =
+        self.exp / self.expToNextLevel
+
+    -- 레벨 표시
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.print(
+        "LEVEL: " .. self.level,
+        20,
+        70
+    )
+
+    -- 경험치 바 배경
+    love.graphics.setColor(0.2, 0.2, 0.2)
+
+    love.graphics.rectangle(
+        "fill",
+        barX,
+        barY,
+        barWidth,
+        barHeight
+    )
+
+    -- 현재 경험치 바
+    love.graphics.setColor(0.3, 0.7, 1)
+
+    love.graphics.rectangle(
+        "fill",
+        barX,
+        barY,
+        barWidth * expRatio,
+        barHeight
+    )
+
+    -- 경험치 수치
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.print(
+        self.exp .. " / " .. self.expToNextLevel,
+        barX + barWidth + 10,
+        barY - 2
+    )
+end
+
+return ExperienceManager
