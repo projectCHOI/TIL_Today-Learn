@@ -63,3 +63,28 @@ function UpgradeManager:select(
     if not self.active then
         return false
     end
+    -- 선택 번호가 정수가 아니면 실패
+    if type(choiceIndex) ~= "number"
+        or choiceIndex % 1 ~= 0 then
+        return false
+    end
+
+    local choice = self.choices[choiceIndex]
+
+    -- 존재하지 않는 선택지
+    if not choice then
+        return false
+    end
+
+    -- 강화 대상 확인
+    if not player or not weapon then
+        return false
+    end
+
+    -- 공격력 강화
+    if choice.type == "damage" then
+        if type(weapon.damage) ~= "number" then
+            return false
+        end
+
+        weapon.damage = weapon.damage + 1
