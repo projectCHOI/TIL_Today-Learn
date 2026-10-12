@@ -3,9 +3,10 @@ local GameManager = {}
 function GameManager:new()
     local manager = {
         -- 게임 상태
+        -- playing / levelup / gameover
         state = "playing",
 
-        -- 생존 시간
+        -- 현재 생존 시간
         survivalTime = 0,
 
         -- 최종 생존 시간
@@ -18,102 +19,67 @@ function GameManager:new()
     return manager
 end
 
+-- 게임 상태 업데이트
+function GameManager:update(
+    dt,
+    player,
+    experienceManager,
+    upgradeManager
+)
+    -- 게임 종료 상태에서는 업데이트하지 않음
+    if self.state == "gameover" then
+        return
+    end
 
-function GameManager:update(dt, player)
-    -- PLAYING 상태
+    -- 레벨업 선택 상태에서는 시간 정지
+    if self.state == "levelup" then
+        return
+    end
+
+    -- PLAYING 상태에서만 진행
     if self.state == "playing" then
 
-        -- 생존 시간 증가
-        self.survivalTime =
-            self.survivalTime + dt
-
-        -- 플레이어 사망 확인
+        -- 플레이어 사망을 먼저 확인
         if player.dead then
             self.state = "gameover"
 
             self.finalSurvivalTime =
                 self.survivalTime
+
+            return
         end
+
+        -- 레벨업 발생 확인
+        if experienceManager:hasLevelUp() then
+
+            -- 강화 선택 화면 열기
+            local opened =
+                upgradeManager:open()
+
+            if opened then
+                self.state = "levelup"
+            end
+
+            return
+        end
+
+        -- 생존 시간 증가
+        self.survivalTime =
+            self.survivalTime + dt
     end
 end
 
-
+-- 게임 진행 상태 확인
 function GameManager:isPlaying()
     return self.state == "playing"
 end
 
+-- 레벨업 상태 확인
+function GameManager:isLevelUp()
+    return self.state == "levelup"
+end
 
+-- 게임 종료 상태 확인
 function GameManager:isGameOver()
     return self.state == "gameover"
 end
-
-
-function GameManager:drawHUD(player)
-    -- 기본 색상
-    love.graphics.setColor(
-        1,
-        1,
-        1
-    )
-
-    -- 플레이어 HP
-    love.graphics.print(
-        "HP: "
-            .. player.hp
-            .. " / "
-            .. player.maxHp,
-        20,
-        20
-    )
-
-    -- 생존 시간
-    love.graphics.print(
-        string.format(
-            "TIME: %.1f",
-            self.survivalTime
-        ),
-        20,
-        45
-    )
-end
-
-
-function GameManager:drawGameOver()
-    if self.state ~= "gameover" then
-        return
-    end
-
-    local screenWidth =
-        love.graphics.getWidth()
-
-    local screenHeight =
-        love.graphics.getHeight()
-
-    love.graphics.setColor(
-        1,
-        1,
-        1
-    )
-
-    love.graphics.printf(
-        "GAME OVER",
-        0,
-        screenHeight / 2 - 40,
-        screenWidth,
-        "center"
-    )
-
-    love.graphics.printf(
-        string.format(
-            "SURVIVAL TIME: %.1f",
-            self.finalSurvivalTime
-        ),
-        0,
-        screenHeight / 2,
-        screenWidth,
-        "center"
-    )
-end
-
-
-return GameManager
