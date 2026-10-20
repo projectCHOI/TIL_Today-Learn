@@ -2,10 +2,10 @@ local UpgradeManager = {}
 
 function UpgradeManager:new()
     local manager = {
-        -- 현재 레벨업 선택 화면이 활성화되어 있는지
+        -- 강화 선택 화면 활성화 여부
         active = false,
 
-        -- 현재 표시할 강화 선택지
+        -- 현재 강화 선택지
         choices = {}
     }
 
@@ -15,11 +15,16 @@ function UpgradeManager:new()
     return manager
 end
 
-
+-- 강화 선택 화면 열기
 function UpgradeManager:open()
+    -- 이미 열려 있다면 중복 실행 방지
+    if self.active then
+        return false
+    end
+
     self.active = true
 
-    -- 현재 단계에서는 항상 3종류의 강화를 표시
+    -- 현재는 고정된 3가지 강화
     self.choices = {
         {
             name = "POWER UP",
@@ -39,63 +44,83 @@ function UpgradeManager:open()
             type = "moveSpeed"
         }
     }
+
+    return true
 end
 
-
+-- 강화 선택 화면 활성화 확인
 function UpgradeManager:isActive()
     return self.active
 end
 
-
+-- 강화 선택 및 적용
 function UpgradeManager:select(
     choiceIndex,
     player,
     weapon
 )
+    -- 선택 화면이 열려 있지 않으면 실패
     if not self.active then
-        return
+        return false
     end
 
-    local choice =
-        self.choices[choiceIndex]
+    -- 선택 번호가 정수가 아니면 실패
+    if type(choiceIndex) ~= "number"
+        or choiceIndex % 1 ~= 0 then
+        return false
+    end
 
+    local choice = self.choices[choiceIndex]
+
+    -- 존재하지 않는 선택지
     if not choice then
-        return
+        return false
     end
 
+    -- 강화 대상 확인
+    if not player or not weapon then
+        return false
+    end
 
     -- 공격력 강화
     if choice.type == "damage" then
-        weapon.damage =
-            weapon.damage + 1
+        if type(weapon.damage) ~= "number" then
+            return false
+        end
 
+        weapon.damage = weapon.damage + 1
 
     -- 공격 속도 강화
     elseif choice.type == "attackSpeed" then
-        weapon.attackInterval =
+        if type(weapon.attackInterval) ~= "number" then
+            return false
+        end
+
+        weapon.attackInterval = math.max(
+            0.15,
             weapon.attackInterval * 0.9
-
-        -- 지나치게 빨라지는 것을 방지
-        weapon.attackInterval =
-            math.max(
-                0.15,
-                weapon.attackInterval
-            )
-
+        )
 
     -- 이동 속도 강화
     elseif choice.type == "moveSpeed" then
-        player.speed =
-            player.speed + 20
+        if type(player.speed) ~= "number" then
+            return false
+        end
+
+        player.speed = player.speed + 20
+
+    else
+        return false
     end
 
-
-    -- 선택 완료
+    -- 강화 적용 완료
     self.active = false
     self.choices = {}
+
+    return true
 end
 
-
+-- 강화 선택 화면 출력
 function UpgradeManager:draw()
     if not self.active then
         return
@@ -106,7 +131,6 @@ function UpgradeManager:draw()
 
     local screenHeight =
         love.graphics.getHeight()
-
 
     -- 반투명 배경
     love.graphics.setColor(
@@ -123,14 +147,8 @@ function UpgradeManager:draw()
         screenWidth,
         screenHeight
     )
-
-
     -- 제목
-    love.graphics.setColor(
-        1,
-        1,
-        1
-    )
+    love.graphics.setColor(1, 1, 1)
 
     love.graphics.printf(
         "LEVEL UP!",
@@ -139,12 +157,9 @@ function UpgradeManager:draw()
         screenWidth,
         "center"
     )
-
-
     -- 강화 선택지
     for i, choice in ipairs(self.choices) do
-        local y =
-            230 + (i - 1) * 100
+        local y = 230 + (i - 1) * 100
 
         love.graphics.printf(
             i .. ". " .. choice.name,
@@ -162,8 +177,6 @@ function UpgradeManager:draw()
             "center"
         )
     end
-
-
     -- 조작 안내
     love.graphics.printf(
         "Press 1, 2, or 3",
@@ -173,6 +186,5 @@ function UpgradeManager:draw()
         "center"
     )
 end
-
 
 return UpgradeManager
