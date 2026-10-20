@@ -62,3 +62,24 @@ function love.update(dt)
         upgradeManager
     )
 end
+
+function love.draw()
+    -- 1. 플레이어
+    player:draw()
+    -- 2. 적
+    enemyManager:draw()
+    -- 3. 발사체
+    weapon:draw()
+    -- 4. 체력 및 생존 시간
+    gameManager:drawHUD(player)
+    -- 5. 레벨 및 경험치
+    experienceManager:draw()
+    -- 6. 레벨업 선택 화면
+    if gameManager:isLevelUp() then
+        upgradeManager:draw()
+    end
+    -- 7. 게임 종료 화면
+    if gameManager:isGameOver() then
+        gameManager:drawGameOver()
+    end
+end
