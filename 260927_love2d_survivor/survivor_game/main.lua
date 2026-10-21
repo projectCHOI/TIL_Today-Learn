@@ -83,3 +83,15 @@ function love.draw()
         gameManager:drawGameOver()
     end
 end
+
+function love.keypressed(key)
+    -- ESC: 게임 종료
+    if key == "escape" then
+        love.event.quit()
+        return
+    end
+
+
+        return
+    end
+end
