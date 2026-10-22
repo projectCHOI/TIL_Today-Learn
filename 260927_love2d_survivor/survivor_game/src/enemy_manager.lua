@@ -68,7 +68,7 @@ function EnemyManager:update(dt, player, experienceManager)
             )
         end
     end
-
+end
 
 function EnemyManager:spawnEnemy()
     local screenWidth = love.graphics.getWidth()
