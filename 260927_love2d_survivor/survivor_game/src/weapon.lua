@@ -59,19 +59,15 @@ function Weapon:update(dt, player, enemies)
     -- 공격 타이머 증가
     self.attackTimer = self.attackTimer + dt
 
-    -- 자동 공격
+    -- 공격 대상이 없어도 타이머가 무한 누적되지 않도록 처리
     if self.attackTimer >= self.attackInterval then
-        local target = self:findNearestEnemy(
-            player,
-            enemies
-        )
+        local target = self:findNearestEnemy(player, enemies)
 
         if target then
             self:shoot(player, target)
-
-            self.attackTimer =
-                self.attackTimer - self.attackInterval
         end
+
+        self.attackTimer = 0
     end
 
     -- Projectile 이동 및 충돌 판정
