@@ -3,7 +3,8 @@ local W=require('src.world')
 local C=require('src.camera')
 local map,shapes,buttons,selected,hover
 local allied,enemy=25,25
-local status='Click a tile, object, wall or door to inspect.'
+local status='타일이나 지형지물을 클릭해 정보를 확인하세요.'
+local objectNames={tree='나무',rock='바위',grass='풀'}
 local function rebuild() map=W.new(allied,enemy);selected=nil;hover=nil end
 local function inside(x,y,p)
  local hit=false;local j=#p-1
@@ -79,11 +80,11 @@ local function buildUI()
  b(170,90,35,'+',function() allied=math.min(50,allied+1);rebuild() end)
  b(235,90,35,'-',function() enemy=math.max(10,enemy-1);rebuild() end)
  b(380,90,35,'+',function() enemy=math.min(50,enemy+1);rebuild() end)
- b(445,90,85,'MIN 20',function() allied,enemy=10,10;rebuild() end)
- b(540,90,90,'MAX 100',function() allied,enemy=50,50;rebuild() end)
- b(640,90,80,'RESET',rebuild)
- b(735,90,90,'OPEN [E]',function() if selected and selected.kind then W.toggle(selected) end end)
- b(840,90,130,'DAMAGE [X]',function() if selected and selected.kind then W.damage(selected,25) end end)
+ b(445,90,85,'최소 20',function() allied,enemy=10,10;rebuild() end)
+ b(540,90,90,'최대 100',function() allied,enemy=50,50;rebuild() end)
+ b(640,90,80,'초기화',rebuild)
+ b(735,90,90,'개폐 [E]',function() if selected and selected.kind then W.toggle(selected) end end)
+ b(840,90,130,'피해 [X]',function() if selected and selected.kind then W.damage(selected,25) end end)
  local w,h=love.graphics.getDimensions()
  b(20,h/2,70,'< -45',function() C.turn(-1) end)
  b(w-90,h/2,70,'+45 >',function() C.turn(1) end)
@@ -95,8 +96,9 @@ local function pick(x,y)
  for i=#shapes,1,-1 do if inside(x,y,shapes[i].points) then return shapes[i].owner end end
 end
 function love.load()
- love.graphics.setBackgroundColor(.055,.065,.09)
- love.graphics.setFont(love.graphics.newFont(15));rebuild();refresh()
+ love.graphics.setBackgroundColor(1,1,1)
+ love.graphics.setFont(love.graphics.newFont('assets/fonts/SLEIGothicOTF.otf',15))
+ rebuild();refresh()
 end
 function love.resize() refresh() end
 function love.update() local x,y=love.mouse.getPosition();hover=pick(x,y) end
@@ -124,20 +126,24 @@ function love.draw()
   g.setLineWidth(1);g.setColor(.06,.09,.12,.65);g.polygon('line',s.points)
   if s.owner==selected then g.setColor(1,.83,.3);g.setLineWidth(2);g.polygon('line',s.points) end
  end
- g.setColor(.94,.96,1);g.print('impossibility Guild / TERRAIN & STRUCTURES',25,20)
- g.setColor(.63,.7,.8);g.print('Camera: '..C.index*45 ..' degrees | Q / D or side arrows | 0 = front | No turn cost',25,48)
- g.setColor(.6,.84,1);g.print('Allied '..allied,70,98)
- g.setColor(1,.68,.62);g.print('Enemy '..enemy,280,98)
+ g.setColor(0,0,0);g.print('Impossibility-Guild / 지형·지물 확인',25,20)
+ g.setColor(0,0,0);g.print('시점: '..C.index*45 ..'도 | Q / D 또는 좌우 버튼 | 0: 정면 | 턴 소모 없음',25,48)
+ g.setColor(0,0,0);g.print('아군 '..allied,70,98)
+ g.setColor(0,0,0);g.print('적군 '..enemy,280,98)
  for _,b in ipairs(buttons) do
-  g.setColor(b.y>150 and {.55,.12,.15} or {.16,.2,.28});g.rectangle('fill',b.x,b.y,b.w,b.h,5,5)
-  g.setColor(.95,.96,1);g.printf(b.text,b.x,b.y+7,b.w,'center')
+  g.setColor(b.y>150 and {1,.65,.65} or {.9,.9,.9});g.rectangle('fill',b.x,b.y,b.w,b.h,5,5)
+  g.setColor(0,0,0);g.printf(b.text,b.x,b.y+7,b.w,'center')
  end
- local info='Total '..#map.tiles..' | Blue: allied / Red: enemy / Olive: high / Dark: low / Beige: interior'
- g.setColor(.76,.81,.89);g.print(info,25,139)
+ local info='전체 '..#map.tiles..'칸 | 파랑: 아군 / 빨강: 적군 / 연두: 위 지역 / 짙은색: 아래 지역 / 베이지: 실내'
+ g.setColor(0,0,0);g.print(info,25,139)
  if selected then
-  if selected.kind then status=selected.kind:upper()..' | HP '..selected.hp..'/'..selected.maxhp..' | '..(selected.hp==0 and 'DESTROYED / passage clear' or selected.open and 'OPEN' or 'CLOSED / blocks passage')
-  else status='Tile '..selected.q..','..selected.r..' | Height '..selected.height..' | '..(selected.building and 'Building interior' or selected.object or 'Ground') end
- else status='Click a tile or a wall/door. E: open/close selected door. X: test damage (-25 HP).' end
- g.setColor(.9,.91,.95);g.print(status,25,g.getHeight()-62)
- g.setColor(.57,.65,.75);g.print('Map-only prototype | No units, combat, AI, damage modifiers or roof | R: rebuild',25,g.getHeight()-34)
+  if selected.kind then
+   status=(selected.kind=='door' and '문' or '벽')..' | 내구도 '..selected.hp..'/'..selected.maxhp..' | '..(selected.hp==0 and '파괴됨 / 통과 가능' or selected.open and '열림' or '닫힘 / 통과 불가')
+  else
+   local heightName=selected.height>0 and '위 지역' or selected.height<0 and '아래 지역' or '평지'
+   status='타일 '..selected.q..','..selected.r..' | '..heightName..' ('..selected.height..') | '..(selected.building and '건물 내부' or objectNames[selected.object] or '지면')
+  end
+ else status='타일·벽·문을 클릭하세요. E: 선택한 문 개폐 | X: 벽·문에 시험 피해 (내구도 -25)' end
+ g.setColor(0,0,0);g.print(status,25,g.getHeight()-62)
+ g.setColor(0,0,0);g.print('맵·지형지물 확인 단계 | R: 초기화 | Esc: 선택 해제',25,g.getHeight()-34)
 end

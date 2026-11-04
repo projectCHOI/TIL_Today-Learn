@@ -1,8 +1,9 @@
 ## 현재 위치
 Get-Location
 
-## 경로 수정
-Set-Location ".\261011_love2d_StrategyGame
+## 경로 수정(둘 같은 명령)
+Set-Location "261011_love2d_StrategyGame"
+cd ".\261011_love2d_StrategyGame"
 
 ## 실행
 & "C:\설치_soft\260817_Code\LOVE\love.exe" .
