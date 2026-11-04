@@ -9,7 +9,7 @@ end
 function C.fit(map,w,h)
  local points={}
  for _,t in ipairs(map.tiles) do
-  local H=require('hexmap'); local v=H.vertices(t,1)
+  local H=require('src.hexmap'); local v=H.vertices(t,1)
   for i=1,12,2 do points[#points+1]={v[i],v[i+1],t.height}; points[#points+1]={v[i],v[i+1],t.height+2.6} end
  end
  C.scale=1;C.ox=0;C.oy=0

@@ -1,4 +1,4 @@
-local Hex=require('hexmap')
+local Hex=require('src.hexmap')
 local W={}
 local dirs={{1,0},{0,1},{-1,1},{-1,0},{0,-1},{1,-1}}
 function W.new(a,e)

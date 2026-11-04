@@ -1,0 +1,11 @@
+# OS / editor temporary files
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+*.log
+
+# Generated packages
+/dist/
+/build/
+*.love
