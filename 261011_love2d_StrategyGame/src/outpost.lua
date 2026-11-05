@@ -1,0 +1,7 @@
+-- Offset column and row, starting at zero.
+return {
+ heights={{5,2,2},{6,2,2},{6,1,1},{4,3,1},{3,4,-1},{4,4,-1},{5,4,-1},{6,4,-1}},
+ objects={{3,1,'tree'},{3,3,'rock'},{5,4,'tree'},{7,3,'rock'},{2,2,'grass'}},
+ pulley={{4,2},{5,2}},
+ start={4,2}
+}
