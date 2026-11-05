@@ -1,11 +1,36 @@
 local H=require('src.hexmap')
 local W=require('src.world')
 local C=require('src.camera')
+local Movement=require('src.movement')
+local preset=true
+local unit,occupied,remaining,message
+local moveLimit=4
 local map,shapes,buttons,selected,hover
 local allied,enemy=25,25
 local status='타일이나 지형지물을 클릭해 정보를 확인하세요.'
 local objectNames={tree='나무',rock='바위',grass='풀'}
-local function rebuild() map=W.new(allied,enemy);selected=nil;hover=nil end
+local function rebuild()
+ map=W.new(allied,enemy,preset)
+ unit=map.start or map.tiles[1]
+ occupied={}
+ remaining=moveLimit
+ selected=nil
+ hover=nil
+ message=nil
+end
+local function resizeMap(a,e)
+ allied,enemy,preset=a,e,false
+ rebuild()
+end
+local function move(to,usePulley)
+ local cost,reason=Movement.step(map,unit,to,occupied,usePulley)
+ if not cost then message=reason; return end
+ if remaining<cost then message='이동력이 부족합니다. 스페이스로 보충하세요.'; return end
+ unit=to
+ remaining=remaining-cost
+ selected=to
+ message=usePulley and '도르래를 이용했습니다.' or '한 칸 이동했습니다.'
+end
 local function inside(x,y,p)
  local hit=false;local j=#p-1
  for i=1,#p,2 do
@@ -40,6 +65,17 @@ local function scene()
   if t.building then color={0.50,0.46,0.37} end
   poly(top,color,t,1)
   local x,y=H.center(t,1)
+  local function marker(radius,z,color)
+   local points={}
+   for i=0,5 do
+    local angle=math.rad(i*60)
+    points[#points+1]={x+radius*math.cos(angle),y+radius*math.sin(angle),t.height+z}
+   end
+   poly(points,color,t,3)
+  end
+  if map.pulleys[t] then marker(.47,.07,{.9,.66,.12}) end
+  if t==unit then marker(.31,.21,{.1,.65,1}) end
+  if occupied[t] then marker(.31,.21,{.95,.28,.25}) end
   if t.object=='tree' then
    poly({{x-.10,y,t.height},{x+.10,y,t.height},{x+.10,y,t.height+1.7},{x-.10,y,t.height+1.7}},{0.37,0.23,0.12},t,2)
    -- Camera-facing silhouette keeps the natural object readable in all three views.
@@ -76,12 +112,12 @@ end
 local function buildUI()
  buttons={}
  local function b(x,y,w,text,action) buttons[#buttons+1]={x=x,y=y,w=w,h=32,text=text,action=action} end
- b(25,90,35,'-',function() allied=math.max(10,allied-1);rebuild() end)
- b(170,90,35,'+',function() allied=math.min(50,allied+1);rebuild() end)
- b(235,90,35,'-',function() enemy=math.max(10,enemy-1);rebuild() end)
- b(380,90,35,'+',function() enemy=math.min(50,enemy+1);rebuild() end)
- b(445,90,85,'최소 20',function() allied,enemy=10,10;rebuild() end)
- b(540,90,90,'최대 100',function() allied,enemy=50,50;rebuild() end)
+ b(25,90,35,'-',function() resizeMap(math.max(10,allied-1),enemy) end)
+ b(170,90,35,'+',function() resizeMap(math.min(50,allied+1),enemy) end)
+ b(235,90,35,'-',function() resizeMap(allied,math.max(10,enemy-1)) end)
+ b(380,90,35,'+',function() resizeMap(allied,math.min(50,enemy+1)) end)
+ b(445,90,85,'최소 20',function() resizeMap(10,10) end)
+ b(540,90,90,'최대 100',function() resizeMap(50,50) end)
  b(640,90,80,'초기화',rebuild)
  b(735,90,90,'개폐 [E]',function() if selected and selected.kind then W.toggle(selected) end end)
  b(840,90,130,'피해 [X]',function() if selected and selected.kind then W.damage(selected,25) end end)
@@ -103,7 +139,15 @@ end
 function love.resize() refresh() end
 function love.update() local x,y=love.mouse.getPosition();hover=pick(x,y) end
 function love.mousepressed(x,y,button)
+ if button==2 then
+  local target=pick(x,y)
+  if target and target.kind then target=nil end
+  move(target,false)
+  refresh()
+  return
+ end
  if button~=1 then return end
+ message=nil
  for _,b in ipairs(buttons) do
   if x>=b.x and x<=b.x+b.w and y>=b.y and y<=b.y+b.h then b.action();refresh();return end
  end
@@ -114,6 +158,18 @@ function love.keypressed(k)
  elseif k=='d' or k=='right' then C.turn(1)
  elseif k=='0' then C.index=0
  elseif k=='r' then rebuild()
+ elseif k=='f' then allied,enemy,preset=25,25,true;rebuild()
+ elseif k=='space' then remaining=moveLimit;message='이동력을 보충했습니다.'
+ elseif k=='p' then
+  local destination=map.pulleys[unit]
+  if destination then move(destination,true)
+  else message='도르래가 있는 칸에서 이용할 수 있습니다.' end
+ elseif k=='b' then
+  local target=selected and not selected.kind and selected~=unit and selected or map.pulleys[unit]
+  if target and target~=unit then
+   occupied[target]=not occupied[target]
+   message=occupied[target] and '시험 점유를 설정했습니다.' or '시험 점유를 해제했습니다.'
+  end
  elseif k=='e' and selected and selected.kind then W.toggle(selected)
  elseif k=='x' and selected and selected.kind then W.damage(selected,25)
  elseif k=='escape' then selected=nil end
@@ -126,15 +182,15 @@ function love.draw()
   g.setLineWidth(1);g.setColor(.06,.09,.12,.65);g.polygon('line',s.points)
   if s.owner==selected then g.setColor(1,.83,.3);g.setLineWidth(2);g.polygon('line',s.points) end
  end
- g.setColor(0,0,0);g.print('Impossibility-Guild / 지형·지물 확인',25,20)
- g.setColor(0,0,0);g.print('시점: '..C.index*45 ..'도 | Q / D 또는 좌우 버튼 | 0: 정면 | 턴 소모 없음',25,48)
+ g.setColor(0,0,0);g.print(preset and '불가능 길드 / 폐허 초소' or '불가능 길드 / 가변 맵',25,20)
+ g.setColor(0,0,0);g.print('시점: '..C.index*45 ..'도 | Q / D: 시점 변경 | 0: 정면 | 이동력 '..remaining..'/'..moveLimit,25,48)
  g.setColor(0,0,0);g.print('아군 '..allied,70,98)
  g.setColor(0,0,0);g.print('적군 '..enemy,280,98)
  for _,b in ipairs(buttons) do
   g.setColor(b.y>150 and {1,.65,.65} or {.9,.9,.9});g.rectangle('fill',b.x,b.y,b.w,b.h,5,5)
   g.setColor(0,0,0);g.printf(b.text,b.x,b.y+7,b.w,'center')
  end
- local info='전체 '..#map.tiles..'칸 | 파랑: 아군 / 빨강: 적군 / 연두: 위 지역 / 짙은색: 아래 지역 / 베이지: 실내'
+ local info='전체 '..#map.tiles..'칸 | 파란 표식: 시험 유닛 / 빨간 표식: 점유 / 금색 표식: 도르래'
  g.setColor(0,0,0);g.print(info,25,139)
  if selected then
   if selected.kind then
@@ -144,6 +200,6 @@ function love.draw()
    status='타일 '..selected.q..','..selected.r..' | '..heightName..' ('..selected.height..') | '..(selected.building and '건물 내부' or objectNames[selected.object] or '지면')
   end
  else status='타일·벽·문을 클릭하세요. E: 선택한 문 개폐 | X: 벽·문에 시험 피해 (내구도 -25)' end
- g.setColor(0,0,0);g.print(status,25,g.getHeight()-62)
- g.setColor(0,0,0);g.print('맵·지형지물 확인 단계 | R: 초기화 | Esc: 선택 해제',25,g.getHeight()-34)
+ g.setColor(0,0,0);g.print(message or status,25,g.getHeight()-62)
+ g.setColor(0,0,0);g.print('우클릭: 걷기 | P: 도르래 | B: 시험 점유 | 스페이스: 이동력 보충 | F: 폐허 초소 | R: 초기화',25,g.getHeight()-34)
 end
