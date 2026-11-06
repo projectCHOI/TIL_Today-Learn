@@ -1,4 +1,4 @@
-local H=require('src.hexmap')
+local H=require('src.grid')
 local W=require('src.world')
 local C=require('src.camera')
 local Movement=require('src.movement')
@@ -50,13 +50,13 @@ local function scene()
  end
  for _,t in ipairs(map.tiles) do
   local v=H.vertices(t,1);local top={}
-  for i=1,12,2 do top[#top+1]={v[i],v[i+1],t.height} end
+  for i=1,8,2 do top[#top+1]={v[i],v[i+1],t.height} end
   -- Draw only exposed vertical terrain sides, including the depressed ground.
-  local dirs={{1,0},{0,1},{-1,1},{-1,0},{0,-1},{1,-1}}
+  local dirs={{1,0},{0,1},{-1,0},{0,-1}}
   for i,d in ipairs(dirs) do
    local n=H.get(map,t.q+d[1],t.r+d[2]);local bottom=n and n.height or -0.65
-   if t.height>bottom then
-    local j=i==6 and 1 or i*2+1
+   if not C.top and t.height>bottom then
+    local j=i==4 and 1 or i*2+1
     poly({{v[i*2-1],v[i*2],bottom},{v[j],v[j+1],bottom},{v[j],v[j+1],t.height},{v[i*2-1],v[i*2],t.height}}, {0.23,0.25,0.27},t)
    end
   end
@@ -65,18 +65,22 @@ local function scene()
   if t.building then color={0.50,0.46,0.37} end
   poly(top,color,t,1)
   local x,y=H.center(t,1)
-  local function marker(radius,z,color)
+  local function marker(radius,z,color,layer)
    local points={}
    for i=0,5 do
     local angle=math.rad(i*60)
     points[#points+1]={x+radius*math.cos(angle),y+radius*math.sin(angle),t.height+z}
    end
-   poly(points,color,t,3)
+   poly(points,color,t,layer or 3)
   end
-  if map.pulleys[t] then marker(.47,.07,{.9,.66,.12}) end
+  if map.pulleys[t] then marker(.47,.07,{.9,.66,.12},2) end
   if t==unit then marker(.31,.21,{.1,.65,1}) end
   if occupied[t] then marker(.31,.21,{.95,.28,.25}) end
-  if t.object=='tree' then
+  if C.top then
+   if t.object=='tree' then marker(.26,0,{.12,.4,.24})
+   elseif t.object=='rock' then marker(.26,0,{.52,.56,.60})
+   elseif t.object=='grass' then marker(.19,0,{.37,.65,.32}) end
+  elseif t.object=='tree' then
    poly({{x-.10,y,t.height},{x+.10,y,t.height},{x+.10,y,t.height+1.7},{x-.10,y,t.height+1.7}},{0.37,0.23,0.12},t,2)
    -- Camera-facing silhouette keeps the natural object readable in all three views.
    local a=math.rad(-90+C.index*45);local dx,dy=math.cos(a)*.68,-math.sin(a)*.68
@@ -90,7 +94,15 @@ local function scene()
   end
  end
  for _,e in ipairs(map.edges) do
-  if e.hp>0 then
+  if C.top then
+   local ax,ay,bx,by=e.ax,e.ay,e.bx,e.by
+   if e.open then
+    local dx,dy=bx-ax,by-ay;bx,by=ax-dy,ay+dx
+   end
+   local nx,ny=(by-ay)*.045,(ax-bx)*.045
+   local color=e.hp==0 and {.44,.36,.30} or e.kind=='door' and {.57,.34,.16} or {.67,.69,.72}
+   poly({{ax+nx,ay+ny,0},{bx+nx,by+ny,0},{bx-nx,by-ny,0},{ax-nx,ay-ny,0}},color,e,4)
+  elseif e.hp>0 then
    local ax,ay,bx,by=e.ax,e.ay,e.bx,e.by
    if e.open then
     local dx,dy=bx-ax,by-ay;bx,by=ax-dy,ay+dx
@@ -103,6 +115,7 @@ local function scene()
   end
  end
  table.sort(shapes,function(a,b)
+  if C.top and a.layer~=b.layer then return a.layer<b.layer end
   -- Terrain first; upright props use their ground depth to cover tiles behind them.
   if (a.layer<=1)~=(b.layer<=1) then return a.layer<=1 end
   if math.abs(a.depth-b.depth)>.00001 then return a.depth<b.depth end
@@ -122,14 +135,14 @@ local function buildUI()
  b(735,90,90,'개폐 [E]',function() if selected and selected.kind then W.toggle(selected) end end)
  b(840,90,130,'피해 [X]',function() if selected and selected.kind then W.damage(selected,25) end end)
  local w,h=love.graphics.getDimensions()
- b(20,h/2,70,'< -45',function() C.turn(-1) end)
- b(w-90,h/2,70,'+45 >',function() C.turn(1) end)
+ b(20,h/2,70,'< -45',function() C.top=false;C.turn(-1) end)
+ b(w-90,h/2,70,'+45 >',function() C.top=false;C.turn(1) end)
 end
 local function refresh()
  C.fit(map,love.graphics.getDimensions());scene();buildUI()
 end
-local function pick(x,y)
- for i=#shapes,1,-1 do if inside(x,y,shapes[i].points) then return shapes[i].owner end end
+local function pick(x,y,tilesOnly)
+ for i=#shapes,1,-1 do if (not tilesOnly or shapes[i].layer==1) and inside(x,y,shapes[i].points) then return shapes[i].owner end end
 end
 function love.load()
  love.graphics.setBackgroundColor(1,1,1)
@@ -137,10 +150,10 @@ function love.load()
  rebuild();refresh()
 end
 function love.resize() refresh() end
-function love.update() local x,y=love.mouse.getPosition();hover=pick(x,y) end
+function love.update() local x,y=love.mouse.getPosition();hover=pick(x,y,C.top) end
 function love.mousepressed(x,y,button)
  if button==2 then
-  local target=pick(x,y)
+  local target=pick(x,y,C.top)
   if target and target.kind then target=nil end
   move(target,false)
   refresh()
@@ -154,9 +167,10 @@ function love.mousepressed(x,y,button)
  selected=pick(x,y)
 end
 function love.keypressed(k)
- if k=='q' or k=='left' then C.turn(-1)
- elseif k=='d' or k=='right' then C.turn(1)
- elseif k=='0' then C.index=0
+ if k=='t' then C.top=not C.top
+ elseif k=='q' or k=='left' then C.top=false;C.turn(-1)
+ elseif k=='d' or k=='right' then C.top=false;C.turn(1)
+ elseif k=='0' then C.top=false;C.index=0
  elseif k=='r' then rebuild()
  elseif k=='f' then allied,enemy,preset=25,25,true;rebuild()
  elseif k=='space' then remaining=moveLimit;message='이동력을 보충했습니다.'
@@ -183,7 +197,11 @@ function love.draw()
   if s.owner==selected then g.setColor(1,.83,.3);g.setLineWidth(2);g.polygon('line',s.points) end
  end
  g.setColor(0,0,0);g.print(preset and '불가능 길드 / 폐허 초소' or '불가능 길드 / 가변 맵',25,20)
- g.setColor(0,0,0);g.print('시점: '..C.index*45 ..'도 | Q / D: 시점 변경 | 0: 정면 | 이동력 '..remaining..'/'..moveLimit,25,48)
+ local view=C.top and '탑다운' or ('경사 '..C.index*45 ..'도')
+ g.setColor(0,0,0);g.print(view..' | T: 시점 전환 | Q / D: 경사 회전 | 이동력 '..remaining..'/'..moveLimit,25,48)
+ if hover and not hover.kind then
+  g.print('가리킨 칸까지 거리: '..H.distance(unit,hover)..'칸',550,48)
+ end
  g.setColor(0,0,0);g.print('아군 '..allied,70,98)
  g.setColor(0,0,0);g.print('적군 '..enemy,280,98)
  for _,b in ipairs(buttons) do
