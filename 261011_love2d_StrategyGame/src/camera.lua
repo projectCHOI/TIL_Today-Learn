@@ -1,6 +1,7 @@
-local C={index=0,scale=35,ox=600,oy=450}
+local C={index=0,top=true,scale=35,ox=600,oy=450}
 function C.turn(delta) C.index=math.max(-1,math.min(1,C.index+delta)) end
 function C.project(x,y,z)
+ if C.top then return C.ox+y*C.scale,C.oy-x*C.scale,-x end
  local a=math.rad(-90+C.index*45)
  local xx=x*math.cos(a)-y*math.sin(a)
  local depth=x*math.sin(a)+y*math.cos(a)
@@ -9,8 +10,8 @@ end
 function C.fit(map,w,h)
  local points={}
  for _,t in ipairs(map.tiles) do
-  local H=require('src.hexmap'); local v=H.vertices(t,1)
-  for i=1,12,2 do points[#points+1]={v[i],v[i+1],t.height}; points[#points+1]={v[i],v[i+1],t.height+2.6} end
+  local H=require('src.grid'); local v=H.vertices(t,1)
+  for i=1,8,2 do points[#points+1]={v[i],v[i+1],t.height}; points[#points+1]={v[i],v[i+1],t.height+2.6} end
  end
  C.scale=1;C.ox=0;C.oy=0
  local minx,maxx,miny,maxy=math.huge,-math.huge,math.huge,-math.huge
