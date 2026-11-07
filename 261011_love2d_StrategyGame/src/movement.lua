@@ -1,4 +1,4 @@
-local Hex=require('src.hexmap')
+local Hex=require('src.grid')
 local World=require('src.world')
 local M={}
 
