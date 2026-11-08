@@ -19,6 +19,17 @@ function M.new(allied, enemy)
     end
     return map
 end
+function M.rectangle(width,height)
+    local map={tiles={},lookup={}}
+    for q=0,width-1 do
+        for r=0,height-1 do
+            local tile={q=q,r=r,side=q<width/2 and 1 or 2}
+            table.insert(map.tiles,tile)
+            map.lookup[key(q,r)]=tile
+        end
+    end
+    return map
+end
 function M.get(map,q,r) return map.lookup[key(q,r)] end
 function M.neighbors(map,tile)
     local out={}
