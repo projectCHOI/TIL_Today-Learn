@@ -1,6 +1,6 @@
 function love.conf(t)
     t.identity='hex_tactics_map'
-    t.window.title='Hex Tactics - Terrain Prototype'
+    t.window.title='불가능 길드 - 폐허 초소'
     t.window.width=1200
     t.window.height=850
     t.window.resizable=true
@@ -8,3 +8,4 @@ function love.conf(t)
     t.window.minheight=650
     t.version='11.5'
 end
+
