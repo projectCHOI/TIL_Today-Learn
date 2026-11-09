@@ -1,33 +1,37 @@
-local Hex=require('src.hexmap')
+local Hex=require('src.grid')
 local W={}
 local outpost=require('src.outpost')
-local dirs={{1,0},{0,1},{-1,1},{-1,0},{0,-1},{1,-1}}
+local dirs={{1,0},{0,1},{-1,0},{0,-1}}
 function W.new(a,e,preset)
- local map=Hex.new(a,e)
+ local map=preset and Hex.rectangle(outpost.width,outpost.height) or Hex.new(a,e)
  map.edges={}; map.buildings={}; map.pulleys={}
  for i,t in ipairs(map.tiles) do
   t.id=i; t.height=0
-  local col=t.q+math.floor(t.r/2)
-  if col<=2 and t.r>=1 then t.height=1 end
-  if col>=7 and t.r>=2 then t.height=-1 end
-  if i%9==0 then t.object='tree' elseif i%11==0 then t.object='rock' elseif i%4==0 then t.object='grass' end
- end
- -- Two neighboring enemy tiles form a compact building at every supported map size.
- if preset then
-  local function at(position)
-   local col,row=position[1],position[2]
-   return Hex.get(map,col-math.floor(row/2),row)
+  if not preset then
+   if t.q<=2 and t.r>=1 then t.height=1 end
+   if t.q>=7 and t.r>=2 then t.height=-1 end
+   if i%9==0 then t.object='tree' elseif i%11==0 then t.object='rock' elseif i%4==0 then t.object='grass' end
   end
-  for _,tile in ipairs(map.tiles) do tile.height=0;tile.object=nil end
-  for _,position in ipairs(outpost.heights) do at(position).height=position[3] end
+ end
+ local function at(position)
+  return assert(Hex.get(map,position[1],position[2]),'Invalid outpost coordinate')
+ end
+ local inside={}
+ local doorTargets={}
+ if preset then
+  for _,position in ipairs(outpost.high) do at(position).height=2 end
+  for _,position in ipairs(outpost.steps) do at(position).height=1 end
+  for _,position in ipairs(outpost.low) do at(position).height=-1 end
   for _,position in ipairs(outpost.objects) do at(position).object=position[3] end
+  for _,position in ipairs(outpost.building) do inside[#inside+1]=at(position) end
+  for _,door in ipairs(outpost.doors) do doorTargets[at(door[1])]=at(door[2]) end
   local lower,upper=at(outpost.pulley[1]),at(outpost.pulley[2])
   map.pulleys[lower]=upper
   map.pulleys[upper]=lower
-  map.start=at(outpost.start)
+  for side,position in ipairs(outpost.flags) do at(position).flag=side end
+ else
+  inside={map.tiles[a+1],map.tiles[a+2]}
  end
- local start=a+1
- local inside={map.tiles[start],map.tiles[start+1]}
  for _,t in ipairs(inside) do t.building=1; t.object=nil; t.height=0 end
  map.buildings[1]={id=1,tiles=inside,indestructible=true}
  local door=false
@@ -37,8 +41,8 @@ function W.new(a,e,preset)
    local n=Hex.get(map,t.q+d[1],t.r+d[2])
    if not n or n.building~=1 then
     local kind='wall'
-    if not door and n and not n.building and (not preset or n.side==1) then kind='door'; door=true end
-    local j=i==6 and 1 or i*2+1
+    if n and (doorTargets[t]==n or (not preset and not door)) then kind='door'; door=true end
+    local j=i==4 and 1 or i*2+1
     map.edges[#map.edges+1]={tile=t,neighbor=n,kind=kind,hp=kind=='door' and 60 or 100,maxhp=kind=='door' and 60 or 100,open=false,
       ax=vertices[i*2-1],ay=vertices[i*2],bx=vertices[j],by=vertices[j+1],height=1.45}
    end
