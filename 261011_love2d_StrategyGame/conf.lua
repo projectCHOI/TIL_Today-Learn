@@ -8,4 +8,3 @@ function love.conf(t)
     t.window.minheight=650
     t.version='11.5'
 end
-
