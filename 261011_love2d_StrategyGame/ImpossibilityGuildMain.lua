@@ -3,6 +3,7 @@ local W=require('src.world')
 local C=require('src.camera')
 local PixelView=require('src.pixel_view')
 local map,shapes,buttons,selected,hover
+local helpOpen=false
 local objectNames={tree='나무',rock='바위',grass='풀'}
 local function rebuild()
  map=W.new(nil,nil,true)
@@ -104,16 +105,27 @@ local function scene()
   return a.layer<b.layer
  end)
 end
+local function setView(index)
+ C.top=index==nil
+ if index~=nil then C.index=index end
+end
+
 local function buildUI()
  buttons={}
- local function b(x,y,w,text,action) buttons[#buttons+1]={x=x,y=y,w=w,h=32,text=text,action=action} end
- b(25,90,100,'시점 [T]',function() C.top=not C.top end)
- b(135,90,100,'초기화 [R]',rebuild)
- b(245,90,100,'개폐 [E]',function() if selected and selected.kind then W.toggle(selected) end end)
- b(355,90,100,'피해 [X]',function() if selected and selected.kind then W.damage(selected,25) end end)
- local w,h=love.graphics.getDimensions()
- b(20,h/2,70,'< -45',function() C.top=false;C.turn(-1) end)
- b(w-90,h/2,70,'+45 >',function() C.top=false;C.turn(1) end)
+ local function add(x,width,text,action,active)
+  buttons[#buttons+1]={x=x,y=65,w=width,h=34,text=text,action=action,active=active}
+ end
+ add(25,115,'위에서 보기',function() setView(nil) end,C.top)
+ add(148,92,'왼쪽 45°',function() setView(-1) end,not C.top and C.index==-1)
+ add(248,78,'정면',function() setView(0) end,not C.top and C.index==0)
+ add(334,102,'오른쪽 45°',function() setView(1) end,not C.top and C.index==1)
+ add(444,106,'조작 안내',function() helpOpen=not helpOpen end,helpOpen)
+ if selected and selected.kind and selected.hp>0 then
+  if selected.kind=='door' then
+   add(575,104,selected.open and '문 닫기' or '문 열기',function() W.toggle(selected) end)
+  end
+  add(687,108,'시험 타격',function() W.damage(selected,25) end)
+ end
 end
 local function refresh()
  local w,h=love.graphics.getDimensions()
@@ -129,25 +141,64 @@ function love.load()
  rebuild();refresh()
 end
 function love.resize() refresh() end
-function love.update() local x,y=love.mouse.getPosition();hover=pick(x,y,C.top) end
+local function inMapArea(y)
+ return y>=125 and y<love.graphics.getHeight()-70
+end
+
+function love.update()
+ local x,y=love.mouse.getPosition()
+ hover=not helpOpen and inMapArea(y) and pick(x,y) or nil
+end
 function love.mousepressed(x,y,button)
+ if button==2 then
+  if helpOpen then helpOpen=false else selected=nil end
+  buildUI()
+  return
+ end
  if button~=1 then return end
  for _,b in ipairs(buttons) do
-  if x>=b.x and x<=b.x+b.w and y>=b.y and y<=b.y+b.h then b.action();refresh();return end
+  if x>=b.x and x<b.x+b.w and y>=b.y and y<b.y+b.h then
+   b.action()
+   refresh()
+   return
+  end
  end
- selected=pick(x,y)
+ if helpOpen or not inMapArea(y) then return end
+ selected=pick(x,y,love.keyboard.isDown('lshift','rshift'))
+ buildUI()
 end
 function love.keypressed(k)
- if k=='t' then C.top=not C.top
+ if k=='f1' then
+  helpOpen=not helpOpen
+ elseif k=='escape' then
+  if helpOpen then helpOpen=false else selected=nil end
+ elseif k=='t' then C.top=not C.top
+ elseif k=='1' then setView(nil)
  elseif k=='q' or k=='left' then C.top=false;C.turn(-1)
  elseif k=='d' or k=='right' then C.top=false;C.turn(1)
- elseif k=='0' then C.top=false;C.index=0
+ elseif k=='0' then setView(0)
  elseif k=='r' then rebuild()
- elseif k=='e' and selected and selected.kind then W.toggle(selected)
- elseif k=='x' and selected and selected.kind then W.damage(selected,25)
- elseif k=='escape' then selected=nil end
+ elseif k=='e' and selected and selected.kind=='door' and selected.hp>0 then W.toggle(selected)
+ elseif k=='x' and selected and selected.kind and selected.hp>0 then W.damage(selected,25)
+ else return
+ end
  refresh()
 end
+
+local function describe(target)
+ if not target then return '칸이나 시설물을 선택하세요.' end
+ if target.kind then
+  local state=target.hp==0 and '파괴됨' or (target.open and '열림' or '닫힘')
+  local name=target.kind=='door' and ('문 · '..state) or (target.hp==0 and '벽 · 파괴됨' or '벽')
+  return name..'   |   내구도 '..target.hp..'/'..target.maxhp
+ end
+ local terrain=target.building and '건물 내부' or objectNames[target.object] or '평지'
+ if target.height~=0 and not target.object then terrain=target.height>0 and '고지대' or '저지대' end
+ if target.flag then terrain=target.flag==1 and '아군 깃발' or '적군 깃발' end
+ if map.pulleys[target] then terrain='도르래' end
+ return terrain..'   |   좌표 ('..target.q..', '..target.r..')   |   높이 '..target.height
+end
+
 function love.draw()
  local g=love.graphics
  PixelView.begin()
@@ -167,27 +218,38 @@ function love.draw()
   end
  end
  g.setColor(0,0,0)
- g.print('불가능 길드 / 폐허 초소',25,20)
- local view=C.top and '탑다운' or ('경사 '..C.index*45 ..'도')
- g.print(view..' | T: 시점 전환 | Q / D: 경사 회전 | 0: 정면',25,48)
- if hover and not hover.kind then
-  g.print('가리킨 칸: '..hover.q..', '..hover.r..' | 높이 '..hover.height,580,48)
+ g.print('불가능 길드 / 폐허 초소',25,22)
+ g.print('144칸 · 12 × 12',g.getWidth()-165,22)
+ for _,button in ipairs(buttons) do
+  g.setColor(button.active and {.79,.88,.80} or {.94,.94,.93})
+  g.rectangle('fill',button.x,button.y,button.w,button.h,5,5)
+  g.setColor(0,0,0)
+  g.printf(button.text,button.x,button.y+8,button.w,'center')
  end
- for _,b in ipairs(buttons) do
-  g.setColor(b.y>150 and {1,.65,.65} or {.9,.9,.9});g.rectangle('fill',b.x,b.y,b.w,b.h,5,5)
-  g.setColor(0,0,0);g.printf(b.text,b.x,b.y+7,b.w,'center')
- end
+ local y=g.getHeight()-68
+ g.setColor(.96,.96,.95)
+ g.rectangle('fill',25,y,g.getWidth()-50,46,5,5)
  g.setColor(0,0,0)
- g.print('12 × 12 / 144칸 | 파란 깃발: 아군 | 붉은 깃발: 적군 | 금색: 도르래',25,139)
- local status='타일을 클릭해 높이와 지형을 확인하세요.'
- if selected and selected.kind then
-  local state=selected.hp==0 and '파괴됨' or selected.open and '열림' or '닫힘'
-  status=(selected.kind=='door' and '문' or '벽')..' | 내구도 '..selected.hp..'/'..selected.maxhp..' | '..state
- elseif selected then
-  local terrain=selected.building and '건물 내부' or objectNames[selected.object] or '지면'
-  if selected.flag then terrain=selected.flag==1 and '아군 깃발' or '적군 깃발' end
-  status='타일 '..selected.q..', '..selected.r..' | 높이 '..selected.height..' | '..terrain
+ local label=selected and '선택  /  ' or ''
+ g.print(label..describe(selected or hover),41,y+13)
+ if helpOpen then
+  local x=g.getWidth()-380
+  g.setColor(1,1,1)
+  g.rectangle('fill',x,113,355,220,6,6)
+  g.setColor(.2,.2,.2)
+  g.setLineWidth(1)
+  g.rectangle('line',x,113,355,220,6,6)
+  g.setColor(0,0,0)
+  local help={
+   '좌클릭  /  칸 또는 시설물 선택',
+   'Shift + 좌클릭  /  바닥 칸 선택',
+   '우클릭 또는 Esc  /  선택 해제 또는 안내 닫기',
+   'T  /  시점 전환    1  /  위에서 보기',
+   '좌우 방향키  /  시점 회전    0  /  정면',
+   'E  /  문 열기·닫기    X  /  시험 타격',
+   'R  /  맵 초기화    F1  /  조작 안내',
+   '파란 깃발은 아군, 붉은 깃발은 적군, 금색은 도르래'
+  }
+  for i,line in ipairs(help) do g.print(line,x+14,124+(i-1)*25) end
  end
- g.print(status,25,g.getHeight()-62)
- g.print('좌클릭: 조사 | E: 문 개폐 | X: 벽·문에 시험 피해 | R: 초기화',25,g.getHeight()-34)
 end
