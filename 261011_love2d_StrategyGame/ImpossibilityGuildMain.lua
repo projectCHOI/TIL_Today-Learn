@@ -2,11 +2,18 @@ local H=require('src.grid')
 local W=require('src.world')
 local C=require('src.camera')
 local PixelView=require('src.pixel_view')
+local Battle=require('src.skirmish')
+local battle,warriorSelected,message
+local jumpTime=0
 local map,shapes,buttons,selected,hover
 local helpOpen=false
 local objectNames={tree='나무',rock='바위',grass='풀'}
 local function rebuild()
  map=W.new(nil,nil,true)
+ battle=Battle.new(map)
+ warriorSelected=false
+ message=nil
+ jumpTime=0
  selected=nil
  hover=nil
 end
@@ -110,6 +117,29 @@ local function setView(index)
  if index~=nil then C.index=index end
 end
 
+local function unitPosition(tile)
+ local x,y=H.center(tile,1)
+ return C.project(x,y,tile.height)
+end
+
+local function dicePanel()
+ return love.graphics.getWidth()-195,155
+end
+
+local function drawAxe(g,x,y)
+ x=2*math.floor(x/2)
+ y=2*math.floor(y/2)
+ g.setColor(.17,.12,.09)
+ g.rectangle('fill',x-4,y-18,8,34)
+ g.rectangle('fill',x-16,y-18,16,18)
+ g.setColor(.66,.43,.20)
+ g.rectangle('fill',x-2,y-16,4,30)
+ g.setColor(.75,.81,.84)
+ g.rectangle('fill',x-14,y-16,12,14)
+ g.setColor(.94,.97,.98)
+ g.rectangle('fill',x-14,y-14,4,10)
+end
+
 local function buildUI()
  buttons={}
  local function add(x,width,text,action,active)
@@ -130,10 +160,10 @@ end
 local function refresh()
  local w,h=love.graphics.getDimensions()
  PixelView.resize(w,h)
- C.fit(map,w,h);scene();buildUI();hover=nil
+ C.fit(map,w-190,h);scene();buildUI();hover=nil
 end
-local function pick(x,y,tilesOnly)
- for i=#shapes,1,-1 do if (not tilesOnly or shapes[i].layer==1) and inside(x,y,shapes[i].points) then return shapes[i].owner end end
+local function pick(x,y)
+ for i=#shapes,1,-1 do if inside(x,y,shapes[i].points) then return shapes[i].owner end end
 end
 function love.load()
  love.graphics.setBackgroundColor(1,1,1)
@@ -145,13 +175,14 @@ local function inMapArea(y)
  return y>=125 and y<love.graphics.getHeight()-70
 end
 
-function love.update()
+function love.update(dt)
+ jumpTime=math.max(0,jumpTime-(dt or 0))
  local x,y=love.mouse.getPosition()
  hover=not helpOpen and inMapArea(y) and pick(x,y) or nil
 end
 function love.mousepressed(x,y,button)
  if button==2 then
-  if helpOpen then helpOpen=false else selected=nil end
+  if helpOpen then helpOpen=false else selected=nil;warriorSelected=false;message=nil end
   buildUI()
   return
  end
@@ -163,23 +194,53 @@ function love.mousepressed(x,y,button)
    return
   end
  end
- if helpOpen or not inMapArea(y) then return end
- selected=pick(x,y,love.keyboard.isDown('lshift','rshift'))
+ if helpOpen then return end
+ local panelX,panelY=dicePanel()
+ if x>=panelX and x<panelX+170 and y>=panelY and y<panelY+285 then
+  if x>=panelX+10 and x<panelX+160 and y>=panelY+45 and y<panelY+95 and warriorSelected and not battle.rolled and not battle.won then
+   battle:roll(love.math.random)
+   message=nil
+  elseif x>=panelX+10 and x<panelX+160 and y>=panelY+142 and y<panelY+178 and battle.rolled and not battle.won then
+   battle:endTurn()
+   message='새 턴입니다. 주사위를 굴리세요.'
+  elseif x>=panelX+10 and x<panelX+160 and y>=panelY+184 and y<panelY+220 and warriorSelected and map.pulleys[battle.warrior] and not battle.won then
+   message=battle:act(map.pulleys[battle.warrior],true)
+  elseif x>=panelX+10 and x<panelX+160 and y>=panelY+230 and y<panelY+266 then
+   rebuild()
+   refresh()
+  end
+  return
+ end
+ if not inMapArea(y) then return end
+ local target=pick(x,y)
+ local ux,uy=unitPosition(battle.warrior)
+ local tx,ty=unitPosition(battle.target)
+ if battle.hp>0 and math.abs(x-tx)<=12 and math.abs(y-ty)<=12 then target=battle.target end
+ if target==battle.warrior or (math.abs(x-ux)<=18 and math.abs(y-uy)<=30) then
+  warriorSelected=true
+  selected=nil
+  message=nil
+  jumpTime=.28
+ elseif target and not target.kind and warriorSelected then
+  message=battle:act(target,false)
+  selected=nil
+ else
+  selected=target
+  warriorSelected=false
+  message=nil
+ end
  buildUI()
 end
-function love.keypressed(k)
- if k=='f1' then
+function love.keypressed(k,_,isRepeat)
+ if isRepeat then return end
+ if k=='q' then
   helpOpen=not helpOpen
  elseif k=='escape' then
-  if helpOpen then helpOpen=false else selected=nil end
- elseif k=='t' then C.top=not C.top
- elseif k=='1' then setView(nil)
- elseif k=='q' or k=='left' then C.top=false;C.turn(-1)
- elseif k=='d' or k=='right' then C.top=false;C.turn(1)
- elseif k=='0' then setView(0)
- elseif k=='r' then rebuild()
- elseif k=='e' and selected and selected.kind=='door' and selected.hp>0 then W.toggle(selected)
- elseif k=='x' and selected and selected.kind and selected.hp>0 then W.damage(selected,25)
+  if helpOpen then helpOpen=false else selected=nil;warriorSelected=false;message=nil end
+ elseif k=='w' then setView(nil)
+ elseif k=='a' then setView(-1)
+ elseif k=='s' then setView(0)
+ elseif k=='d' then setView(1)
  else return
  end
  refresh()
@@ -209,6 +270,22 @@ function love.draw()
   g.setColor(.18,.22,.16,.48)
   g.polygon('line',shape.points)
  end
+ local ux,uy=unitPosition(battle.warrior)
+ local hop=math.sin(jumpTime/.28*math.pi)*10
+ if warriorSelected then
+  g.setColor(.16,.48,.84)
+  g.rectangle('fill',ux-13,uy+12,26,4)
+ end
+ if battle.hp>0 then
+  local tx,ty=unitPosition(battle.target)
+  g.setColor(.59,.16,.12)
+  g.rectangle('fill',tx-12,ty-12,24,24)
+  g.setColor(.95,.75,.59)
+  g.rectangle('fill',tx-7,ty-7,14,14)
+  g.setColor(.59,.16,.12)
+  g.rectangle('fill',tx-3,ty-3,6,6)
+ end
+ drawAxe(g,ux,uy-hop)
  PixelView.finish()
  for _,shape in ipairs(shapes) do
   if shape.owner==selected and (selected.kind or shape.layer==1) then
@@ -226,29 +303,63 @@ function love.draw()
   g.setColor(0,0,0)
   g.printf(button.text,button.x,button.y+8,button.w,'center')
  end
+ local panelX,panelY=dicePanel()
+ g.setColor(.95,.95,.94)
+ g.rectangle('fill',panelX,panelY,170,285,6,6)
+ local function panelButton(offset,label,enabled)
+  g.setColor(enabled and {.79,.88,.80} or {.89,.89,.88})
+  g.rectangle('fill',panelX+10,panelY+offset,150,offset==45 and 50 or 36,4,4)
+  g.setColor(0,0,0)
+  local labelInset=offset==45 and 45 or 10
+  g.printf(label,panelX+labelInset,panelY+offset+8,160-labelInset,'center')
+ end
+ g.setColor(0,0,0)
+ g.print('아군 행동',panelX+12,panelY+14)
+ panelButton(45,battle.rolled and ('주사위 '..battle.rolled) or '주사위 굴리기',warriorSelected and not battle.rolled and not battle.won)
+ g.setColor(1,1,1)
+ g.rectangle('fill',panelX+18,panelY+57,24,24,3,3)
+ g.setColor(0,0,0)
+ local face=battle.rolled
+ if face then
+  local cx,cy=panelX+30,panelY+69
+  if face%2==1 then g.circle('fill',cx,cy,2) end
+  if face>=2 then g.circle('fill',cx-6,cy-6,2);g.circle('fill',cx+6,cy+6,2) end
+  if face>=4 then g.circle('fill',cx+6,cy-6,2);g.circle('fill',cx-6,cy+6,2) end
+  if face==6 then g.circle('fill',cx-6,cy,2);g.circle('fill',cx+6,cy,2) end
+ else
+  g.printf('?',panelX+18,panelY+59,24,'center')
+ end
+ g.print('남은 행동 '..battle.remaining..'/'..(battle.rolled or 0),panelX+12,panelY+105)
+ panelButton(142,'턴 종료',battle.rolled and not battle.won)
+ if map.pulleys[battle.warrior] then
+  panelButton(184,'도르래 이용',warriorSelected and not battle.won)
+ end
+ panelButton(230,'다시 시작',true)
  local y=g.getHeight()-68
  g.setColor(.96,.96,.95)
  g.rectangle('fill',25,y,g.getWidth()-50,46,5,5)
  g.setColor(0,0,0)
  local label=selected and '선택  /  ' or ''
- g.print(label..describe(selected or hover),41,y+13)
+ local detail=describe(selected or hover)
+ if warriorSelected then detail='도끼 전사  /  인접한 칸은 이동, 인접한 표적은 공격' end
+ if hover==battle.target and battle.hp>0 and not message then detail='시험 표적  /  체력 '..battle.hp..'/30' end
+ g.print(message or label..detail,41,y+13)
  if helpOpen then
   local x=g.getWidth()-380
   g.setColor(1,1,1)
-  g.rectangle('fill',x,113,355,220,6,6)
+  g.rectangle('fill',x,113,355,195,6,6)
   g.setColor(.2,.2,.2)
   g.setLineWidth(1)
-  g.rectangle('line',x,113,355,220,6,6)
+  g.rectangle('line',x,113,355,195,6,6)
   g.setColor(0,0,0)
   local help={
+   '도끼를 선택한 뒤 오른쪽 주사위를 클릭하세요.',
+   '인접한 칸을 클릭해 이동하거나 표적을 공격하세요.',
    '좌클릭  /  칸 또는 시설물 선택',
-   'Shift + 좌클릭  /  바닥 칸 선택',
    '우클릭 또는 Esc  /  선택 해제 또는 안내 닫기',
-   'T  /  시점 전환    1  /  위에서 보기',
-   '좌우 방향키  /  시점 회전    0  /  정면',
-   'E  /  문 열기·닫기    X  /  시험 타격',
-   'R  /  맵 초기화    F1  /  조작 안내',
-   '파란 깃발은 아군, 붉은 깃발은 적군, 금색은 도르래'
+   'Q  /  조작 안내 열기·닫기',
+   'W  /  위에서 보기    S  /  정면',
+   'A  /  왼쪽 45°    D  /  오른쪽 45°'
   }
   for i,line in ipairs(help) do g.print(line,x+14,124+(i-1)*25) end
  end
