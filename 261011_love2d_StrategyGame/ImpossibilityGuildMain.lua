@@ -7,6 +7,31 @@ local battle,warriorSelected,message
 local jumpTime=0
 local map,shapes,buttons,selected,hover
 local helpOpen=false
+local moveColor={255/255,169/255,92/255}
+local attackColor={255/255,46/255,45/255}
+local pulleyColor={67/255,226/255,189/255}
+
+local function actionHighlights()
+ local colors={}
+ if not warriorSelected or battle.won or (battle.rolled and battle.remaining==0) then return colors end
+ for _,tile in ipairs(map.tiles) do
+  if battle:canMove(tile,false) then colors[tile]=moveColor end
+ end
+ local landing=map.pulleys[battle.warrior]
+ if landing and battle:canMove(landing,true) then
+  colors[battle.warrior]=pulleyColor
+  colors[landing]=pulleyColor
+ end
+ for _,edge in ipairs(map.edges) do
+  if battle:canAttack(edge) then
+   local other=edge.tile==battle.warrior and edge.neighbor or edge.tile
+   colors[other]=attackColor
+   colors[edge]=attackColor
+  end
+ end
+ if battle:canAttack(battle.target) then colors[battle.target]=attackColor end
+ return colors
+end
 local objectNames={tree='나무',rock='바위',grass='풀'}
 local function rebuild()
  map=W.new(nil,nil,true)
@@ -150,11 +175,15 @@ local function buildUI()
  add(248,78,'정면',function() setView(0) end,not C.top and C.index==0)
  add(334,102,'오른쪽 45°',function() setView(1) end,not C.top and C.index==1)
  add(444,106,'조작 안내',function() helpOpen=not helpOpen end,helpOpen)
- if selected and selected.kind and selected.hp>0 then
-  if selected.kind=='door' then
-   add(575,104,selected.open and '문 닫기' or '문 열기',function() W.toggle(selected) end)
+ if warriorSelected and selected and selected.kind and not battle:actionError() then
+  if battle:canToggleDoor(selected) then
+   add(575,104,selected.open and '문 닫기' or '문 열기',function()
+    message=battle:toggleDoor(selected)
+   end)
   end
-  add(687,108,'시험 타격',function() W.damage(selected,25) end)
+  if battle:canAttack(selected) then
+   add(687,108,'공격',function() message=battle:attack(selected) end)
+  end
  end
 end
 local function refresh()
@@ -203,12 +232,14 @@ function love.mousepressed(x,y,button)
   elseif x>=panelX+10 and x<panelX+160 and y>=panelY+142 and y<panelY+178 and battle.rolled and not battle.won then
    battle:endTurn()
    message='새 턴입니다. 주사위를 굴리세요.'
-  elseif x>=panelX+10 and x<panelX+160 and y>=panelY+184 and y<panelY+220 and warriorSelected and map.pulleys[battle.warrior] and not battle.won then
+  elseif x>=panelX+10 and x<panelX+160 and y>=panelY+184 and y<panelY+220 and warriorSelected and not battle:actionError() and battle:canMove(map.pulleys[battle.warrior],true) then
    message=battle:act(map.pulleys[battle.warrior],true)
+   selected=nil
   elseif x>=panelX+10 and x<panelX+160 and y>=panelY+230 and y<panelY+266 then
    rebuild()
    refresh()
   end
+  buildUI()
   return
  end
  if not inMapArea(y) then return end
@@ -216,14 +247,32 @@ function love.mousepressed(x,y,button)
  local ux,uy=unitPosition(battle.warrior)
  local tx,ty=unitPosition(battle.target)
  if battle.hp>0 and math.abs(x-tx)<=12 and math.abs(y-ty)<=12 then target=battle.target end
- if target==battle.warrior or (math.abs(x-ux)<=18 and math.abs(y-uy)<=30) then
+ if target and target.kind then
+  selected=target
+  message=nil
+ elseif target==battle.warrior or (math.abs(x-ux)<=18 and math.abs(y-uy)<=30) then
   warriorSelected=true
   selected=nil
   message=nil
   jumpTime=.28
- elseif target and not target.kind and warriorSelected then
-  message=battle:act(target,false)
+ elseif target and warriorSelected then
   selected=nil
+  for _,edge in ipairs(map.edges) do
+   if not edge.open and battle:canAttack(edge)
+    and ((edge.tile==battle.warrior and edge.neighbor==target)
+     or (edge.neighbor==battle.warrior and edge.tile==target)) then
+    selected=edge
+    break
+   end
+  end
+  if selected then
+   message=nil
+  elseif target==map.pulleys[battle.warrior] and battle:canMove(target,true)
+   and not battle:canMove(target,false) then
+   message=battle:act(target,true)
+  else
+   message=battle:act(target,false)
+  end
  else
   selected=target
   warriorSelected=false
@@ -262,9 +311,11 @@ end
 
 function love.draw()
  local g=love.graphics
+ local colors=actionHighlights()
  PixelView.begin()
  for _,shape in ipairs(shapes) do
-  g.setColor(shape.color)
+  local highlight=(shape.layer==1 or shape.owner.kind) and colors[shape.owner]
+  g.setColor(highlight or shape.color)
   g.polygon('fill',shape.points)
   g.setLineWidth(shape.layer==1 and 1 or 2)
   g.setColor(.18,.22,.16,.48)
@@ -332,7 +383,8 @@ function love.draw()
  g.print('남은 행동 '..battle.remaining..'/'..(battle.rolled or 0),panelX+12,panelY+105)
  panelButton(142,'턴 종료',battle.rolled and not battle.won)
  if map.pulleys[battle.warrior] then
-  panelButton(184,'도르래 이용',warriorSelected and not battle.won)
+  panelButton(184,'도르래 이용',warriorSelected and not battle:actionError()
+   and battle:canMove(map.pulleys[battle.warrior],true))
  end
  panelButton(230,'다시 시작',true)
  local y=g.getHeight()-68
@@ -341,8 +393,8 @@ function love.draw()
  g.setColor(0,0,0)
  local label=selected and '선택  /  ' or ''
  local detail=describe(selected or hover)
- if warriorSelected then detail='도끼 전사  /  인접한 칸은 이동, 인접한 표적은 공격' end
- if hover==battle.target and battle.hp>0 and not message then detail='시험 표적  /  체력 '..battle.hp..'/30' end
+ if warriorSelected and not selected then detail='도끼 전사  /  인접한 칸은 이동, 인접한 표적은 공격' end
+ if not selected and hover==battle.target and battle.hp>0 and not message then detail='시험 표적  /  체력 '..battle.hp..'/30' end
  g.print(message or label..detail,41,y+13)
  if helpOpen then
   local x=g.getWidth()-380
@@ -354,8 +406,8 @@ function love.draw()
   g.setColor(0,0,0)
   local help={
    '도끼를 선택한 뒤 오른쪽 주사위를 클릭하세요.',
-   '인접한 칸을 클릭해 이동하거나 표적을 공격하세요.',
-   '좌클릭  /  칸 또는 시설물 선택',
+   '주황은 이동, 빨강은 공격, 민트는 도르래입니다.',
+   '문을 선택하면 화면 위에서 열기·닫기 또는 공격',
    '우클릭 또는 Esc  /  선택 해제 또는 안내 닫기',
    'Q  /  조작 안내 열기·닫기',
    'W  /  위에서 보기    S  /  정면',
