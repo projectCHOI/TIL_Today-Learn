@@ -2,6 +2,19 @@ local Flow={screen='title',axeSelected=false}
 local roster={'도끼 전사','창 전사','궁수','마법사','소환사','샤먼','늑대인간'}
 local ink={.10,.13,.19}
 local accent={.80,.88,.98}
+local titlePath='assets/images/Title_ImpossibilityGuild_Kor.png'
+local titleImage
+local titleLoaded=false
+
+local function getTitleImage()
+ if not titleLoaded then
+  titleLoaded=true
+  if love.filesystem.getInfo(titlePath,'file') then
+   titleImage=love.graphics.newImage(titlePath)
+  end
+ end
+ return titleImage
+end
 
 local function button(x,y,w,h,label,action,active)
  return {x=x,y=y,w=w,h=h,label=label,action=action,active=active}
@@ -19,8 +32,9 @@ local function layout(flow,w,h)
   return button(cx-120,y,240,48,label,action)
  end
  if flow.screen=='title' then
-  return '불가능 길드',nil,{
-   centered(cy+35,'게임 시작',function() flow.screen='lobby' end)
+  local art=getTitleImage()
+  return art and '' or '불가능 길드',nil,{
+   centered(art and h-74 or cy+35,'게임 시작',function() flow.screen='lobby' end)
   }
  elseif flow.screen=='lobby' then
   local party=flow.axeSelected and '출전 캐릭터 · 도끼 전사' or '출전 캐릭터를 선택하세요.'
@@ -78,9 +92,18 @@ function Flow:draw(fonts)
  local g=love.graphics
  local w,h=g.getDimensions()
  local heading,detail,controls=layout(self,w,h)
- g.setColor(ink)
- g.setFont(fonts.heading)
- g.printf(heading,0,h/2-155,w,'center')
+ local art=self.screen=='title' and titleImage
+ if art then
+  local iw,ih=art:getDimensions()
+  local scale=math.min(w/iw,h/ih)
+  g.clear(.055,.063,.075,1)
+  g.setColor(1,1,1,1)
+  g.draw(art,(w-iw*scale)/2,(h-ih*scale)/2,0,scale,scale)
+ else
+  g.setColor(ink)
+  g.setFont(fonts.heading)
+  g.printf(heading,0,h/2-155,w,'center')
+ end
  g.setFont(fonts.body)
  if detail then g.printf(detail,0,h/2-96,w,'center') end
  for _,control in ipairs(controls) do
