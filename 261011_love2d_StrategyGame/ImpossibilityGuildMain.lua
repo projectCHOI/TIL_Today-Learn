@@ -3,6 +3,8 @@ local W=require('src.world')
 local C=require('src.camera')
 local PixelView=require('src.pixel_view')
 local Battle=require('src.skirmish')
+local Flow=require('src.game_flow')
+local fonts
 local battle,warriorSelected,message
 local jumpTime=0
 local map,shapes,buttons,selected,hover
@@ -196,20 +198,24 @@ local function pick(x,y)
 end
 function love.load()
  love.graphics.setBackgroundColor(1,1,1)
- love.graphics.setFont(love.graphics.newFont('assets/fonts/SLEIGothicOTF.otf',15))
- rebuild();refresh()
+ local fontPath='assets/fonts/SLEIGothicOTF.otf'
+ fonts={body=love.graphics.newFont(fontPath,15),heading=love.graphics.newFont(fontPath,42)}
+ love.graphics.setFont(fonts.body)
 end
-function love.resize() refresh() end
+function love.resize()
+ if Flow.screen=='battle' then refresh() end
+end
 local function inMapArea(y)
  return y>=125 and y<love.graphics.getHeight()-70
 end
 
 function love.update(dt)
+ if Flow.screen~='battle' then return end
  jumpTime=math.max(0,jumpTime-(dt or 0))
  local x,y=love.mouse.getPosition()
  hover=not helpOpen and inMapArea(y) and pick(x,y) or nil
 end
-function love.mousepressed(x,y,button)
+local function battleClick(x,y,button)
  if button==2 then
   if helpOpen then helpOpen=false else selected=nil;warriorSelected=false;message=nil end
   buildUI()
@@ -236,8 +242,7 @@ function love.mousepressed(x,y,button)
    message=battle:act(map.pulleys[battle.warrior],true)
    selected=nil
   elseif x>=panelX+10 and x<panelX+160 and y>=panelY+230 and y<panelY+266 then
-   rebuild()
-   refresh()
+   Flow.screen='retreat'
   end
   buildUI()
   return
@@ -280,8 +285,25 @@ function love.mousepressed(x,y,button)
  end
  buildUI()
 end
+function love.mousepressed(x,y,button)
+ if Flow.screen~='battle' then
+  local action=Flow:mousepressed(x,y,button)
+  if action=='start' then
+   rebuild()
+   helpOpen=false
+   setView(nil)
+   refresh()
+  elseif Flow.screen=='battle' then
+   refresh()
+  end
+  return
+ end
+ battleClick(x,y,button)
+ if battle.won then Flow:finish(true,message) end
+end
+
 function love.keypressed(k,_,isRepeat)
- if isRepeat then return end
+ if isRepeat or Flow.screen~='battle' then return end
  if k=='q' then
   helpOpen=not helpOpen
  elseif k=='escape' then
@@ -310,6 +332,10 @@ local function describe(target)
 end
 
 function love.draw()
+ if Flow.screen~='battle' then
+  Flow:draw(fonts)
+  return
+ end
  local g=love.graphics
  local colors=actionHighlights()
  PixelView.begin()
@@ -386,7 +412,7 @@ function love.draw()
   panelButton(184,'도르래 이용',warriorSelected and not battle:actionError()
    and battle:canMove(map.pulleys[battle.warrior],true))
  end
- panelButton(230,'다시 시작',true)
+ panelButton(230,'전투 포기',true)
  local y=g.getHeight()-68
  g.setColor(.96,.96,.95)
  g.rectangle('fill',25,y,g.getWidth()-50,46,5,5)
