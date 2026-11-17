@@ -1,0 +1,23 @@
+return {
+ {name='Vulkan', korean='불칸', job='도끼전사', equipment='도끼(Axe)', element='격투', deployable=true,
+  stats={40,80,35,35,45,70},
+  skills={'도끼치기','난동부리기','장작패기','인파이트','분노의 도끼','목숨걸기'}},
+ {name='Fulgrim', korean='펄그림', job='창 전사', equipment='창(Spear)', element='노말',
+  stats={30,55,30,30,30,60},
+  skills={'찌르기','정광석화 찌르기','삼단 찌르기','독수리 발톱','브레이브(Brave) 스피어','이판사판 찌르기'}},
+ {name='Konrad', korean='콘라드', job='궁수', equipment='활(Bow)', element='노말',
+  stats={40,45,40,35,35,56},
+  skills={'명중','바람 일으키기','이중공격','강철비','돌풍','록 히드(Lockheed)'}},
+ {name='Angron', korean='앙그론', job='마법사', equipment='지팡이(Staff)', element='노말',
+  stats={28,25,25,45,35,40},
+  skills={'명상','사이코키네시스 (Psychic)','정신집중','하이퍼보이스 (Hyper Voice)','매지컬리프','사이코쇼크'}},
+ {name='Mortarion', korean='모리타운', job='소환사', equipment='책(book)', element='악',
+  stats={25,20,15,105,55,90},
+  skills={'순간이동 (Teleport)','정령소환(Elementals)','최면술','중급 정령소환(Elementals)','정령 폭탄 (Elementals Bomb)','길동무 (Destiny Bond)'}},
+ {name='Magnus', korean='마그누스', job='샤먼', equipment='쌍방울(Double Bell)', element='페어리',
+  stats={30,35,30,100,35,80},
+  skills={'HP회복 (Recover)','정보수집','찬송가','기합구슬','이스게레의 노래','부활'}},
+ {name='Lorgar', korean='로가', job='늑대인간', equipment='방패(Shield)', element='고스트',
+  stats={45,55,65,45,45,45},
+  skills={'할퀴기','스카이업퍼컷 (Sky Uppercut)','하늘 걷기','참격','난동부리기','늑대 변신(berserker)'}}
+}

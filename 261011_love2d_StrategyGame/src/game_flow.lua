@@ -1,15 +1,8 @@
+local roster=require('src.characters')
+local typeColors=require('src.type_colors')
 local Flow={screen='title',axeSelected=false}
-local roster={'도끼 전사','창 전사','궁수','마법사','소환사','샤먼','늑대인간'}
-local vulkan={
- name='Vulkan',
- job='도끼전사',
- equipment='도끼',
- element='격투',
- color={224/255,156/255,48/255},
- stats={{'체력',40},{'공격력',80},{'방어력',35},{'특수공격',35},{'특수방어',45},{'스피드',70}},
- basic='도끼치기',
- special='카운터'
-}
+local statNames={'체력','공격력','방어력','특수공격','특수방어','스피드'}
+local skillLabels={'하급 기본','하급 특수','중급 기본','중급 특수','상급 기본','상급 특수'}
 local ink={.10,.13,.19}
 local accent={.80,.88,.98}
 local titlePath='assets/images/Title_ImpossibilityGuild_Kor.png'
@@ -40,7 +33,17 @@ local function detailBounds(w,h)
  return w*.2,h*.2,w*.6,h*.6
 end
 
-local function drawCharacterDetail(g,w,h)
+local function typeText(g,text,x,y,width,color)
+ g.setColor(1,1,1)
+ g.printf(text,x-1,y,width,'center')
+ g.printf(text,x+1,y,width,'center')
+ g.printf(text,x,y-1,width,'center')
+ g.printf(text,x,y+1,width,'center')
+ g.setColor(color)
+ g.printf(text,x,y,width,'center')
+end
+
+local function drawCharacterDetail(g,w,h,character)
  local x,y,width,height=detailBounds(w,h)
  local left=math.floor(width*.38)
  local portraitWidth=left-20
@@ -57,41 +60,43 @@ local function drawCharacterDetail(g,w,h)
   g.setColor(1,1,1,1)
   g.draw(art,px+(portraitWidth-iw*scale)/2,py+(portraitHeight-86-ih*scale)/2,0,scale,scale)
  end
- g.setColor(vulkan.color)
- g.printf(vulkan.name,px,py+portraitHeight-70,portraitWidth,'center')
- g.printf(vulkan.job,px,py+portraitHeight-44,portraitWidth,'center')
+ local color=typeColors[character.element]
+ typeText(g,character.korean..' · '..character.name,px,py+portraitHeight-70,portraitWidth,color)
+ typeText(g,character.job,px,py+portraitHeight-44,portraitWidth,color)
 
  local rx=x+left+10
  local rw=width-left-24
  local line=y+14
  g.setColor(ink)
  g.print('현재 능력치',rx,line)
+ g.printf('현재 속성',rx,line,rw-64,'right')
+ g.rectangle('fill',rx+rw-56,line-2,56,21,4,4)
+ typeText(g,character.element,rx+rw-56,line,56,color)
+ g.setColor(ink)
  local total=0
- for i,stat in ipairs(vulkan.stats) do
+ for i,value in ipairs(character.stats) do
   local col=(i-1)%2
   local row=math.floor((i-1)/2)
   local sx=rx+col*rw/2
-  g.print(stat[1],sx,line+28+row*22)
-  g.printf(tostring(stat[2]),sx,line+28+row*22,rw/2-14,'right')
-  total=total+stat[2]
+  local sy=line+25+row*20
+  g.print(statNames[i],sx,sy)
+  g.printf(tostring(value),sx,sy,rw/2-12,'right')
+  total=total+value
  end
- g.print('총합',rx,line+94)
- g.printf(tostring(total),rx,line+94,rw-14,'right')
- g.print('하급 기본 공격기 · '..vulkan.basic,rx,line+124)
- g.print('하급 특수 공격기 · '..vulkan.special,rx,line+146)
- g.print('현재 속성',rx,line+174)
- g.setColor(.10,.12,.16)
- g.rectangle('fill',rx+78,line+170,58,25,4,4)
- g.setColor(vulkan.color)
- g.printf(vulkan.element,rx+78,line+174,58,'center')
+ g.print('총합',rx,line+85)
+ g.printf(tostring(total),rx,line+85,rw-12,'right')
+ g.print('공격기',rx,line+110)
+ for i,skill in ipairs(character.skills) do
+  g.print(skillLabels[i],rx,line+131+(i-1)*20)
+  g.print(skill,rx+80,line+131+(i-1)*20)
+ end
 
- local inventoryY=y+height-146
+ local inventoryY=y+height-115
  g.setColor(.89,.91,.94)
- g.rectangle('fill',rx,inventoryY,rw,82,5,5)
+ g.rectangle('fill',rx,inventoryY,rw,56,5,5)
  g.setColor(ink)
- g.print('사용 장비 · '..vulkan.equipment,rx+10,inventoryY+8)
- g.print('획득 장비 · 없음',rx+10,inventoryY+31)
- g.print('회복 아이템 · 없음',rx+10,inventoryY+54)
+ g.print('주무기 · '..character.equipment,rx+10,inventoryY+8)
+ g.print('획득 장비 · 없음    회복 아이템 · 없음',rx+10,inventoryY+30)
 end
 
 local function layout(flow,w,h)
@@ -119,11 +124,12 @@ local function layout(flow,w,h)
   local gaps=(#roster-1)*gap
   local width=math.min(180,(w-80-gaps)/#roster)
   local left=cx-(#roster*width+gaps)/2
-  for index,name in ipairs(roster) do
-   local card=button(left+(index-1)*(width+gap),cy-64,width,160,name,
-    index==1 and function() flow.screen='character_detail' end,
-    index==1 and flow.axeSelected)
-   card.detail=index==1 and (flow.axeSelected and '선택됨' or '격투 · 근접') or '준비 중'
+  for index,character in ipairs(roster) do
+   local card=button(left+(index-1)*(width+gap),cy-64,width,160,character.job,function()
+     flow.character=character
+     flow.screen='character_detail'
+    end,character.deployable and flow.axeSelected)
+   card.detail=character.korean..(character.deployable and flow.axeSelected and ' · 선택됨' or '')
    cards[#cards+1]=card
   end
   cards[#cards+1]=centered(cy+120,'대기실로 돌아가기',function() flow.screen='lobby' end)
@@ -134,10 +140,12 @@ local function layout(flow,w,h)
   local actionY=y+height-52
   return nil,nil,{
    button(x+width-254,actionY,112,38,'카드 목록',function() flow.screen='roster' end),
-   button(x+width-132,actionY,118,38,flow.axeSelected and '선택 해제' or '출전 선택',function()
+   button(x+width-132,actionY,118,38,
+    flow.character.deployable and (flow.axeSelected and '선택 해제' or '출전 선택') or '출전 준비 중',
+    flow.character.deployable and function()
     flow.axeSelected=not flow.axeSelected
     flow.screen='roster'
-   end,true)
+   end,flow.character.deployable)
   }
  elseif flow.screen=='retreat' then
   return '전투를 포기할까요?','포기하면 이번 전투는 실패로 끝납니다.',{
@@ -183,7 +191,7 @@ function Flow:draw(fonts)
   g.printf(heading,0,h/2-155,w,'center')
  end
  g.setFont(fonts.body)
- if self.screen=='character_detail' then drawCharacterDetail(g,w,h) end
+ if self.screen=='character_detail' then drawCharacterDetail(g,w,h,self.character) end
  if detail then g.printf(detail,0,h/2-96,w,'center') end
  for _,control in ipairs(controls) do
   g.setColor(control.active and accent or {.96,.96,.97})
