@@ -19,6 +19,18 @@ local function getTitleImage()
  return titleImage
 end
 
+local portraits={}
+
+local function getPortrait(character)
+ local file=character.portrait
+ if not file then return getTitleImage() end
+ if portraits[file]==nil then
+  local path='assets/images/characters/'..file
+  portraits[file]=love.filesystem.getInfo(path,'file') and love.graphics.newImage(path) or false
+ end
+ return portraits[file] or getTitleImage()
+end
+
 local function button(x,y,w,h,label,action,active)
  return {x=x,y=y,w=w,h=h,label=label,action=action,active=active}
 end
@@ -53,7 +65,7 @@ local function drawCharacterDetail(g,w,h,character)
  g.rectangle('fill',x,y,width,height,8,8)
  g.setColor(.10,.12,.16)
  g.rectangle('fill',px,py,portraitWidth,portraitHeight)
- local art=getTitleImage()
+ local art=getPortrait(character)
  if art then
   local iw,ih=art:getDimensions()
   local scale=math.min(portraitWidth/iw,(portraitHeight-86)/ih)
