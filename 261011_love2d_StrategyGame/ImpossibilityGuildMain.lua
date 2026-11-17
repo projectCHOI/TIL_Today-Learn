@@ -4,6 +4,12 @@ local C=require('src.camera')
 local PixelView=require('src.pixel_view')
 local Battle=require('src.skirmish')
 local Flow=require('src.game_flow')
+local Items=require('src.items')
+local Characters=require('src.characters')
+local typeColors=require('src.type_colors')
+local bag={}
+local modal
+local itemImages={}
 local fonts
 local battle,warriorSelected,message
 local jumpTime=0
@@ -37,7 +43,8 @@ end
 local objectNames={tree='나무',rock='바위',grass='풀'}
 local function rebuild()
  map=W.new(nil,nil,true)
- battle=Battle.new(map)
+ battle=Battle.new(map,Characters[1],bag)
+ modal=nil
  warriorSelected=false
  message=nil
  jumpTime=0
@@ -167,6 +174,92 @@ local function drawAxe(g,x,y)
  g.rectangle('fill',x-14,y-14,4,10)
 end
 
+local function drawItemImage(g,file,x,y,size)
+ if itemImages[file]==nil then
+  local path='assets/images/'..file
+  local ok,art=pcall(g.newImage,path)
+  itemImages[file]=ok and art or false
+  if ok then art:setFilter('nearest','nearest') end
+ end
+ local art=itemImages[file]
+ if not art then return false end
+ local w,h=art:getDimensions()
+ local scale=math.min(size/w,size/h)
+ g.setColor(1,1,1)
+ g.draw(art,x-w*scale/2,y-h*scale/2,0,scale,scale)
+ return true
+end
+
+local function itemModalLayout(w,h)
+ local rows={}
+ if modal=='bag' then
+  for index,item in ipairs(Items) do
+   local quantity=battle.bag[index] or 0
+   if quantity>0 then
+    rows[#rows+1]={item=item,label=item.name..' ×'..quantity,
+     button=item.heal and '사용' or '속성 적용',action=function()
+      return battle:useItem(index)
+     end}
+   end
+  end
+  if #rows==0 then rows[1]={label='가방이 비어 있습니다.'} end
+ else
+  local item=Items[battle.chests[modal].item]
+  rows[1]={item=item,label=item.name..(item.heal and ' · 회복 '..item.heal or ''),
+   button='획득',action=function()
+    local result=battle:takeItem(modal)
+    modal=nil
+    return result
+   end}
+ end
+ local height=110+#rows*27
+ return rows,(w-460)/2,(h-height)/2,height
+end
+
+local function drawItemModal(g)
+ local rows,x,y,h=itemModalLayout(g.getDimensions())
+ g.setColor(0,0,0,.4)
+ g.rectangle('fill',0,0,g.getDimensions())
+ g.setColor(1,1,1)
+ g.rectangle('fill',x,y,460,h,8,8)
+ g.setColor(0,0,0)
+ g.print(modal=='bag' and '불칸의 가방' or '상자 안의 아이템',x+18,y+13)
+ local function drawButton(label,bx,by,bw)
+  g.setColor(.86,.89,.93)
+  g.rectangle('fill',bx,by,bw,24,4,4)
+  g.setColor(0,0,0)
+  g.printf(label,bx,by+3,bw,'center')
+ end
+ for i,row in ipairs(rows) do
+  local ry=y+38+(i-1)*27
+  if row.item and not drawItemImage(g,row.item.image,x+29,ry+12,24) then
+   g.setColor(row.item.element and typeColors[row.item.element] or {.78,.23,.20})
+   g.circle('fill',x+29,ry+12,7)
+  end
+  g.setColor(0,0,0)
+  g.print(row.label,x+48,ry+3)
+  if row.action then drawButton(row.button,x+335,ry,107) end
+ end
+ g.setColor(0,0,0)
+ g.printf(message or '',x+18,y+h-64,424,'left')
+ drawButton(modal=='bag' and '닫기' or '그대로 두기',x+335,y+h-35,107)
+end
+
+local function clickItemModal(x,y,button)
+ if button==2 then modal=nil; return end
+ if button~=1 then return end
+ local rows,mx,my,h=itemModalLayout(love.graphics.getDimensions())
+ if x<mx+335 or x>=mx+442 then return end
+ if y>=my+h-35 and y<my+h-11 then modal=nil; return end
+ for i,row in ipairs(rows) do
+  local ry=my+38+(i-1)*27
+  if row.action and y>=ry and y<ry+24 then
+   message=row.action()
+   return
+  end
+ end
+end
+
 local function buildUI()
  buttons={}
  local function add(x,width,text,action,active)
@@ -177,6 +270,14 @@ local function buildUI()
  add(248,78,'정면',function() setView(0) end,not C.top and C.index==0)
  add(334,102,'오른쪽 45°',function() setView(1) end,not C.top and C.index==1)
  add(444,106,'조작 안내',function() helpOpen=not helpOpen end,helpOpen)
+ add(815,92,'가방',function() modal='bag'; message=nil end)
+ if selected and battle:canInspect(selected) then
+  add(575,140,battle.chests[selected].open and '상자 안을 본다' or '상자 열기',function()
+   local chest,problem=battle:inspect(selected)
+   message=problem
+   if chest then modal=selected end
+  end)
+ end
  if warriorSelected and selected and selected.kind and not battle:actionError() then
   if battle:canToggleDoor(selected) then
    add(575,104,selected.open and '문 닫기' or '문 열기',function()
@@ -216,6 +317,7 @@ function love.update(dt)
  hover=not helpOpen and inMapArea(y) and pick(x,y) or nil
 end
 local function battleClick(x,y,button)
+ if modal then clickItemModal(x,y,button); buildUI(); return end
  if button==2 then
   if helpOpen then helpOpen=false else selected=nil;warriorSelected=false;message=nil end
   buildUI()
@@ -252,7 +354,7 @@ local function battleClick(x,y,button)
  local ux,uy=unitPosition(battle.warrior)
  local tx,ty=unitPosition(battle.target)
  if battle.hp>0 and math.abs(x-tx)<=12 and math.abs(y-ty)<=12 then target=battle.target end
- if target and target.kind then
+ if target and (target.kind or battle.chests[target]) then
   selected=target
   message=nil
  elseif target==battle.warrior or (math.abs(x-ux)<=18 and math.abs(y-uy)<=30) then
@@ -304,6 +406,10 @@ end
 
 function love.keypressed(k,_,isRepeat)
  if isRepeat or Flow.screen~='battle' then return end
+ if modal then
+  if k=='escape' then modal=nil end
+  return
+ end
  if k=='q' then
   helpOpen=not helpOpen
  elseif k=='escape' then
@@ -346,6 +452,16 @@ function love.draw()
   g.setLineWidth(shape.layer==1 and 1 or 2)
   g.setColor(.18,.22,.16,.48)
   g.polygon('line',shape.points)
+ end
+ for tile,chest in pairs(battle.chests) do
+  local x,y=unitPosition(tile)
+  local file=chest.open and 'mob_box_on.png' or 'mob_box_off.png'
+  if not drawItemImage(g,file,x,y-7,27) then
+   g.setColor(.42,.25,.12)
+   g.rectangle('fill',x-10,y-15,20,14)
+   g.setColor(chest.open and {.19,.12,.08} or {.94,.69,.22})
+   g.rectangle('fill',x-8,y-14,16,chest.open and 6 or 3)
+  end
  end
  local ux,uy=unitPosition(battle.warrior)
  local hop=math.sin(jumpTime/.28*math.pi)*10
@@ -392,6 +508,7 @@ function love.draw()
  end
  g.setColor(0,0,0)
  g.print('아군 행동',panelX+12,panelY+14)
+ g.print('체력 '..battle.health..'/'..battle.maxHealth,panelX+12,panelY+122)
  panelButton(45,battle.rolled and ('주사위 '..battle.rolled) or '주사위 굴리기',warriorSelected and not battle.rolled and not battle.won)
  g.setColor(1,1,1)
  g.rectangle('fill',panelX+18,panelY+57,24,24,3,3)
@@ -419,7 +536,14 @@ function love.draw()
  g.setColor(0,0,0)
  local label=selected and '선택  /  ' or ''
  local detail=describe(selected or hover)
- if warriorSelected and not selected then detail='도끼 전사  /  인접한 칸은 이동, 인접한 표적은 공격' end
+ if warriorSelected and not selected then
+  local types=battle.baseElement
+  if battle.extraElement and battle.extraElement~=types then types=types..' / '..battle.extraElement end
+  detail='불칸  /  '..types
+ end
+ if selected and battle.chests[selected] then
+  detail=battle.chests[selected].open and '열린 상자' or '닫힌 상자'
+ end
  if not selected and hover==battle.target and battle.hp>0 and not message then detail='시험 표적  /  체력 '..battle.hp..'/30' end
  g.print(message or label..detail,41,y+13)
  if helpOpen then
@@ -441,4 +565,5 @@ function love.draw()
   }
   for i,line in ipairs(help) do g.print(line,x+14,124+(i-1)*25) end
  end
+ if modal then drawItemModal(g) end
 end
