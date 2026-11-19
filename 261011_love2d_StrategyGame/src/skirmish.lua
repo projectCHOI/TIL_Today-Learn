@@ -1,11 +1,20 @@
 local Grid=require('src.grid')
 local Movement=require('src.movement')
 local World=require('src.world')
+local Items=require('src.items')
+local outpost=require('src.outpost')
 local Battle={}
 Battle.__index=Battle
 
-function Battle.new(map)
+function Battle.new(map,character,bag)
+ local chests={}
+ for index,position in ipairs(outpost.chests) do
+  local tile=assert(Grid.get(map,position[1],position[2]))
+  chests[tile]={item=index,open=false}
+ end
  return setmetatable({
+  chests=chests, bag=bag or {}, maxHealth=character.stats[1], health=character.stats[1],
+  baseElement=character.element,
   map=map, warrior=assert(Grid.get(map,1,5)), target=assert(Grid.get(map,3,4)),
   hp=30, rolled=nil, remaining=0, won=false
  },Battle)
@@ -30,7 +39,53 @@ function Battle:actionError()
 end
 
 function Battle:canMove(tile,pulley)
+ if self.chests[tile] then return nil,'상자가 이동을 막습니다.' end
  return Movement.step(self.map,self.warrior,tile,{[self.target]=self.hp>0},pulley)
+end
+
+function Battle:canInspect(tile)
+ return tile and self.chests[tile] and Grid.distance(self.warrior,tile)==1
+  and math.abs(self.warrior.height-tile.height)<=1 and not World.blocked(self.map,self.warrior,tile)
+end
+
+function Battle:inspect(tile)
+ if not self:canInspect(tile) then return nil,'상자에 인접해야 합니다.' end
+ local chest=self.chests[tile]
+ if not chest.open then
+  local problem=self:actionError()
+  if problem then return nil,problem end
+  self.remaining=self.remaining-1
+  chest.open=true
+ end
+ return chest
+end
+
+function Battle:takeItem(tile)
+ local chest=self:canInspect(tile) and self.chests[tile]
+ if not chest or not chest.open then return end
+ local index=chest.item
+ self.bag[index]=(self.bag[index] or 0)+1
+ self.chests[tile]=nil
+ local item=Items[index]
+ if item.element then self.extraElement=item.element end
+ return item.name..' 획득'
+end
+
+function Battle:useItem(index)
+ local item=Items[index]
+ if not item or (self.bag[index] or 0)==0 then return end
+ if item.element then
+  self.extraElement=item.element
+  return item.element..' 속성을 적용했습니다.'
+ end
+ local problem=self:actionError()
+ if problem then return problem end
+ local amount=math.min(item.heal,self.maxHealth-self.health)
+ if amount==0 then return '이미 체력이 가득 찼습니다.' end
+ self.health=self.health+amount
+ self.remaining=self.remaining-1
+ self.bag[index]=self.bag[index]-1
+ return item.name..' 사용 · 체력 '..amount..' 회복'
 end
 
 function Battle:touches(edge)
