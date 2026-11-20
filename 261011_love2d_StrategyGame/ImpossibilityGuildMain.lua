@@ -5,6 +5,8 @@ local PixelView=require('src.pixel_view')
 local Battle=require('src.skirmish')
 local Flow=require('src.game_flow')
 local Items=require('src.items')
+local Skills=require('src.skills')
+local Combat=require('src.combat')
 local Characters=require('src.characters')
 local typeColors=require('src.type_colors')
 local bag={}
@@ -37,7 +39,9 @@ local function actionHighlights()
    colors[edge]=attackColor
   end
  end
- if battle:canAttack(battle.target) then colors[battle.target]=attackColor end
+ for _,enemy in ipairs(battle.enemies) do
+  if battle:canAttack(enemy.tile) then colors[enemy.tile]=attackColor end
+ end
  return colors
 end
 local objectNames={tree='나무',rock='바위',grass='풀'}
@@ -271,6 +275,13 @@ local function buildUI()
  add(334,102,'오른쪽 45°',function() setView(1) end,not C.top and C.index==1)
  add(444,106,'조작 안내',function() helpOpen=not helpOpen end,helpOpen)
  add(815,92,'가방',function() modal='bag'; message=nil end)
+ for i,id in ipairs(battle.character.combatSkills) do
+  local skill=Skills[id]
+  local skillId=id
+  buttons[#buttons+1]={x=25+(i-1)*255,y=105,w=247,h=32,
+   text=skill.name..' · 행동 '..skill.cost..' · 명중 '..skill.accuracy..'%',
+   active=battle.skillId==id,action=function() battle.skillId=skillId end}
+ end
  if selected and battle:canInspect(selected) then
   add(575,140,battle.chests[selected].open and '상자 안을 본다' or '상자 열기',function()
    local chest,problem=battle:inspect(selected)
@@ -307,7 +318,7 @@ function love.resize()
  if Flow.screen=='battle' then refresh() end
 end
 local function inMapArea(y)
- return y>=125 and y<love.graphics.getHeight()-70
+ return y>=140 and y<love.graphics.getHeight()-70
 end
 
 function love.update(dt)
@@ -338,8 +349,7 @@ local function battleClick(x,y,button)
    battle:roll(love.math.random)
    message=nil
   elseif x>=panelX+10 and x<panelX+160 and y>=panelY+142 and y<panelY+178 and battle.rolled and not battle.won then
-   battle:endTurn()
-   message='새 턴입니다. 주사위를 굴리세요.'
+   message=battle:endTurn()
   elseif x>=panelX+10 and x<panelX+160 and y>=panelY+184 and y<panelY+220 and warriorSelected and not battle:actionError() and battle:canMove(map.pulleys[battle.warrior],true) then
    message=battle:act(map.pulleys[battle.warrior],true)
    selected=nil
@@ -352,8 +362,10 @@ local function battleClick(x,y,button)
  if not inMapArea(y) then return end
  local target=pick(x,y)
  local ux,uy=unitPosition(battle.warrior)
- local tx,ty=unitPosition(battle.target)
- if battle.hp>0 and math.abs(x-tx)<=12 and math.abs(y-ty)<=12 then target=battle.target end
+ for _,enemy in ipairs(battle.enemies) do
+  local tx,ty=unitPosition(enemy.tile)
+  if enemy.health>0 and math.abs(x-tx)<=12 and math.abs(y-ty)<=12 then target=enemy.tile end
+ end
  if target and (target.kind or battle.chests[target]) then
   selected=target
   message=nil
@@ -401,7 +413,8 @@ function love.mousepressed(x,y,button)
   return
  end
  battleClick(x,y,button)
- if battle.won then Flow:finish(true,message) end
+ if battle.won then Flow:finish(true,message)
+ elseif battle.lost then Flow:finish(false,message) end
 end
 
 function love.keypressed(k,_,isRepeat)
@@ -469,14 +482,16 @@ function love.draw()
   g.setColor(.16,.48,.84)
   g.rectangle('fill',ux-13,uy+12,26,4)
  end
- if battle.hp>0 then
-  local tx,ty=unitPosition(battle.target)
-  g.setColor(.59,.16,.12)
-  g.rectangle('fill',tx-12,ty-12,24,24)
-  g.setColor(.95,.75,.59)
-  g.rectangle('fill',tx-7,ty-7,14,14)
-  g.setColor(.59,.16,.12)
-  g.rectangle('fill',tx-3,ty-3,6,6)
+ for _,enemy in ipairs(battle.enemies) do
+  if enemy.health>0 then
+   local tx,ty=unitPosition(enemy.tile)
+   g.setColor(typeColors[enemy.element])
+   g.rectangle('fill',tx-12,ty-12,24,24)
+   g.setColor(1,1,1)
+   g.rectangle('fill',tx-8,ty-17,16,3)
+   g.setColor(.85,.12,.12)
+   g.rectangle('fill',tx-8,ty-17,16*enemy.health/45,3)
+  end
  end
  drawAxe(g,ux,uy-hop)
  PixelView.finish()
@@ -544,7 +559,15 @@ function love.draw()
  if selected and battle.chests[selected] then
   detail=battle.chests[selected].open and '열린 상자' or '닫힌 상자'
  end
- if not selected and hover==battle.target and battle.hp>0 and not message then detail='시험 표적  /  체력 '..battle.hp..'/30' end
+ local enemy=battle:enemyAt(hover)
+ if enemy and not selected and not message then
+  detail=enemy.name..' · 체력 '..enemy.health..'/45'
+  if battle:canAttack(enemy.tile) then
+   local low,high=Combat.preview(battle,enemy,Skills[battle.skillId])
+   detail=detail..' · 예상 피해 '..low..'~'..high
+   if battle.attackers[enemy] then detail=detail..' · 반격 대상' end
+  end
+ end
  g.print(message or label..detail,41,y+13)
  if helpOpen then
   local x=g.getWidth()-380
