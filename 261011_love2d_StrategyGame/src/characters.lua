@@ -1,5 +1,5 @@
 return {
- {name='Vulkan', portrait='Vulkan.png', korean='불칸', job='도끼전사', equipment='도끼(Axe)', element='격투', deployable=true,
+ {name='Vulkan', portrait='Vulkan.png', korean='불칸', job='도끼전사', equipment='도끼(Axe)', element='격투', deployable=true, combatSkills={'axe_strike','rampage'},
   stats={40,80,35,35,45,70},
   skills={'도끼치기','난동부리기','장작패기','인파이트','분노의 도끼','목숨걸기'}},
  {name='Fulgrim', portrait='Fulgrim.png', korean='펄그림', job='창 전사', equipment='창(Spear)', element='노말',
