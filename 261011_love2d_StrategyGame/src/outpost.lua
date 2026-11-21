@@ -1,3 +1,4 @@
+-- Coordinates use zero-based columns and rows. Lower columns are the allied side.
 return {
  width=12, height=12,
  high={
@@ -18,11 +19,11 @@ return {
  building={{5,5},{6,5},{5,6},{6,6}},
  doors={{{5,5},{4,5}},{{6,5},{7,5}}},
  pulley={{4,3},{4,2}},
-
+ -- One chest per item, in src.items order.
  chests={
   {1,4},{2,6},{3,7},{1,9},{2,10},
   {1,1},{2,2},{5,0},{7,3},{9,1},{10,3},
-  {7,7},{9,5},{10,8},{9,10},{6,11},{3,11}
+  {7,7},{9,5},{10,8},{9,10},{6,11},{3,11},{0,5}
  },
  flags={{1,5},{10,6}}
 }

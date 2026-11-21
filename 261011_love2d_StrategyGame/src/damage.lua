@@ -20,9 +20,9 @@ function Damage.terrain(attackerHeight,defenderHeight)
  number(attackerHeight,'attackerHeight',-math.huge)
  number(defenderHeight,'defenderHeight',-math.huge)
  local difference=attackerHeight-defenderHeight
- assert(difference%1==0 and math.abs(difference)<=2,
-  'Height difference must be an integer from -2 to 2')
- local multipliers={[-2]=0.4,[-1]=0.6,[0]=1,[1]=1.4,[2]=1.6}
+ assert(difference%1==0 and math.abs(difference)<=3,
+  'Height difference must be an integer from -3 to 3')
+ local multipliers={[-3]=0.2,[-2]=0.4,[-1]=0.6,[0]=1,[1]=1.4,[2]=1.6,[3]=1.8}
  return multipliers[difference]
 end
 

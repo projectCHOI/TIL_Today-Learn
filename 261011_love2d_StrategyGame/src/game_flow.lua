@@ -1,6 +1,13 @@
 local roster=require('src.characters')
+local Progress=require('src.progression')
 local typeColors=require('src.type_colors')
-local Flow={screen='title',axeSelected=false}
+local Flow={screen='title',selectedCharacter=nil}
+function Flow:getSelectedCharacter() return self.selectedCharacter end
+function Flow:selectCharacter(character)
+ if not character or not character.deployable then return false end
+ self.selectedCharacter=self.selectedCharacter~=character and character or nil
+ return true
+end
 local statNames={'체력','공격력','방어력','특수공격','특수방어','스피드'}
 local skillLabels={'하급 기본','하급 특수','중급 기본','중급 특수','상급 기본','상급 특수'}
 local ink={.10,.13,.19}
@@ -80,13 +87,13 @@ local function drawCharacterDetail(g,w,h,character)
  local rw=width-left-24
  local line=y+14
  g.setColor(ink)
- g.print('현재 능력치',rx,line)
+ g.print('현재 능력치 · '..Progress.label(character),rx,line)
  g.printf('현재 속성',rx,line,rw-64,'right')
  g.rectangle('fill',rx+rw-56,line-2,56,21,4,4)
  typeText(g,character.element,rx+rw-56,line,56,color)
  g.setColor(ink)
  local total=0
- for i,value in ipairs(character.stats) do
+ for i,value in ipairs(Progress.stats(character)) do
   local col=(i-1)%2
   local row=math.floor((i-1)/2)
   local sx=rx+col*rw/2
@@ -100,7 +107,8 @@ local function drawCharacterDetail(g,w,h,character)
  g.print('공격기',rx,line+110)
  for i,skill in ipairs(character.skills) do
   g.print(skillLabels[i],rx,line+131+(i-1)*20)
-  g.print(skill,rx+80,line+131+(i-1)*20)
+  local locked=character.ranks and math.ceil(i/2)>Progress.get(character).rank
+  g.print(skill..(locked and ' (잠김)' or ''),rx+80,line+131+(i-1)*20)
  end
 
  local inventoryY=y+height-115
@@ -122,10 +130,10 @@ local function layout(flow,w,h)
    centered(art and h-74 or cy+35,'게임 시작',function() flow.screen='lobby' end)
   }
  elseif flow.screen=='lobby' then
-  local party=flow.axeSelected and '출전 캐릭터 · 도끼 전사' or '출전 캐릭터를 선택하세요.'
+  local party=flow.selectedCharacter and ('출전 캐릭터 · '..flow.selectedCharacter.korean..' / '..flow.selectedCharacter.job) or '출전 캐릭터를 선택하세요.'
   return '게임 대기실',party,{
    centered(cy+18,'캐릭터 선택',function() flow.screen='roster' end),
-   centered(cy+78,'게임 실행',flow.axeSelected and function()
+   centered(cy+78,'게임 실행',flow.selectedCharacter and function()
     flow.screen='battle'
     return 'start'
    end)
@@ -140,22 +148,22 @@ local function layout(flow,w,h)
    local card=button(left+(index-1)*(width+gap),cy-64,width,160,character.job,function()
      flow.character=character
      flow.screen='character_detail'
-    end,character.deployable and flow.axeSelected)
-   card.detail=character.korean..(character.deployable and flow.axeSelected and ' · 선택됨' or '')
+    end,flow.selectedCharacter==character)
+   card.detail=character.korean..(flow.selectedCharacter==character and ' · 선택됨' or '')
    cards[#cards+1]=card
   end
   cards[#cards+1]=centered(cy+120,'대기실로 돌아가기',function() flow.screen='lobby' end)
-  local count=flow.axeSelected and '1' or '0'
-  return '캐릭터 선택','선택 '..count..' / 3 · 현재 출전 가능 1명',cards
+  local count=flow.selectedCharacter and '1' or '0'
+  return '캐릭터 선택','선택 '..count..' / 1 · 불칸·펄그림·콘라드 중 1명 테스트 출전',cards
  elseif flow.screen=='character_detail' then
   local x,y,width,height=detailBounds(w,h)
   local actionY=y+height-52
   return nil,nil,{
    button(x+width-254,actionY,112,38,'카드 목록',function() flow.screen='roster' end),
    button(x+width-132,actionY,118,38,
-    flow.character.deployable and (flow.axeSelected and '선택 해제' or '출전 선택') or '출전 준비 중',
+    flow.character.deployable and (flow.selectedCharacter==flow.character and '선택 해제' or '출전 선택') or '출전 준비 중',
     flow.character.deployable and function()
-    flow.axeSelected=not flow.axeSelected
+    flow:selectCharacter(flow.character)
     flow.screen='roster'
    end,flow.character.deployable)
   }
@@ -169,7 +177,7 @@ local function layout(flow,w,h)
  end
  return flow.success and '전투 성공' or '전투 실패',flow.reason,{
   centered(cy+35,'대기실로 돌아가기',function()
-   flow.axeSelected=false
+   flow.selectedCharacter=nil
    flow.screen='lobby'
   end)
  }

@@ -14,4 +14,6 @@ for index,element in ipairs(elements) do
   image=string.format('mob_Jewelry_%02d.png',index)
  }
 end
+Items[#Items+1]={id='reawaken_stone',name='부활석',revive=true,
+ image='mob_reawaken stone.png'}
 return Items

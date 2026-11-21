@@ -1,6 +1,7 @@
 local Grid=require('src.grid')
 local World=require('src.world')
 local Damage=require('src.damage')
+local Life=require('src.life')
 local Combat={}
 
 -- Traverse crossed tile boundaries. At a diagonal corner, all four edges must be clear.
@@ -44,12 +45,28 @@ function Combat.canTarget(map,attacker,defender,skill)
  local a,b=attacker.tile,defender.tile
  local dx,dy=math.abs(a.q-b.q),math.abs(a.r-b.r)
  local distance=skill.metric=='chebyshev' and math.max(dx,dy) or dx+dy
- return distance>=skill.minRange and distance<=skill.maxRange
+ local inRange=false
+ if skill.area=='center' then
+  inRange=math.max(dx,dy)<=skill.radius and dx+dy>0
+ elseif skill.area=='groups' then
+  local q,r=b.q-a.q,b.r-a.r
+  for _,region in ipairs(skill.regions) do
+   if q>=region[1] and q<=region[3] and r>=region[2] and r<=region[4] then inRange=true;break end
+  end
+ elseif skill.offsets then
+  for _,offset in ipairs(skill.offsets) do
+   if b.q-a.q==offset[1] and b.r-a.r==offset[2] then inRange=true end
+  end
+ else inRange=distance>=skill.minRange and distance<=skill.maxRange end
+ if skill.straight and dx~=0 and dy~=0 then return false end
+ return inRange
   and math.abs(a.height-b.height)<=skill.maxHeight and Combat.pathClear(map,a,b)
 end
 
 local function damageInput(attacker,defender,skill,random)
  local power=skill.power
+ if skill.heightPower and attacker.tile.height~=defender.tile.height then power=power*2 end
+ if skill.rage then power=power+30*math.min(9,attacker.rageStacks or 0) end
  if skill.retaliation and attacker.attackers[defender] then power=power*2 end
  local types={defender.element}
  if defender.extraElement then types[2]=defender.extraElement end
@@ -61,21 +78,29 @@ local function damageInput(attacker,defender,skill,random)
 end
 
 function Combat.preview(attacker,defender,skill)
- return Damage.range(damageInput(attacker,defender,skill))
+ if skill.sacrifice then return defender.health,defender.health end
+ local low,high=Damage.range(damageInput(attacker,defender,skill))
+ return low*(skill.finalMultiplier or 1),high*(skill.finalMultiplier or 1)
 end
 
 function Combat.execute(attacker,defender,skill,random)
  -- Record an executed attack before its accuracy roll, including misses.
  defender.attackers[attacker]=true
  if random(0,99)>=skill.accuracy then return 0,false end
- local amount=Damage.calculate(damageInput(attacker,defender,skill,random))
+ local amount=skill.sacrifice and defender.health or Damage.calculate(damageInput(attacker,defender,skill,random))
+ amount=amount*(skill.finalMultiplier or 1)
+ if skill.root then defender.moveLocks=1 end
+ if skill.sacrifice then attacker.health=0 end
  defender.health=math.max(0,defender.health-amount)
+ local revived={}
+ if Life.tryRevive(defender) then revived[#revived+1]=defender end
+ if skill.sacrifice and Life.tryRevive(attacker) then revived[#revived+1]=attacker end
  if defender.health==0 then
   for source in pairs(defender.attackers) do source.attackers[defender]=nil end
   attacker.attackers[defender]=nil
   defender.attackers={}
  end
- return amount,true
+ return amount,true,revived
 end
 
 return Combat

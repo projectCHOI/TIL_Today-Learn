@@ -7,9 +7,9 @@ local Flow=require('src.game_flow')
 local Items=require('src.items')
 local Skills=require('src.skills')
 local Combat=require('src.combat')
-local Characters=require('src.characters')
+local Progress=require('src.progression')
 local typeColors=require('src.type_colors')
-local bag={}
+local bags={}
 local modal
 local itemImages={}
 local fonts
@@ -23,9 +23,16 @@ local pulleyColor={67/255,226/255,189/255}
 
 local function actionHighlights()
  local colors={}
- if not warriorSelected or battle.won or (battle.rolled and battle.remaining==0) then return colors end
+ if not warriorSelected or battle.won or battle.lost or (battle.rolled and battle.remaining==0 and not battle.pendingCharge) then return colors end
  for _,tile in ipairs(map.tiles) do
-  if battle:canMove(tile,false) then colors[tile]=moveColor end
+  if Skills[battle.skillId].charge then
+   if battle:canCharge(tile) then colors[tile]={.2,.4,1} end
+  elseif battle:canMove(tile,false) then colors[tile]=moveColor end
+ end
+ if Skills[battle.skillId].area then
+  for tile in pairs(battle:areaCells()) do
+   colors[tile]=Skills[battle.skillId].area=='center' and {.2,.4,1} or attackColor
+  end
  end
  local landing=map.pulleys[battle.warrior]
  if landing and battle:canMove(landing,true) then
@@ -47,7 +54,9 @@ end
 local objectNames={tree='나무',rock='바위',grass='풀'}
 local function rebuild()
  map=W.new(nil,nil,true)
- battle=Battle.new(map,Characters[1],bag)
+ local character=assert(Flow:getSelectedCharacter(),'출전 캐릭터를 선택하세요.')
+ bags[character.name]=bags[character.name] or {}
+ battle=Battle.new(map,character,bags[character.name])
  modal=nil
  warriorSelected=false
  message=nil
@@ -161,7 +170,7 @@ local function unitPosition(tile)
 end
 
 local function dicePanel()
- return love.graphics.getWidth()-195,155
+ return love.graphics.getWidth()-195,195
 end
 
 local function drawAxe(g,x,y)
@@ -176,6 +185,32 @@ local function drawAxe(g,x,y)
  g.rectangle('fill',x-14,y-16,12,14)
  g.setColor(.94,.97,.98)
  g.rectangle('fill',x-14,y-14,4,10)
+end
+
+local function drawSpear(g,x,y)
+ x=2*math.floor(x/2);y=2*math.floor(y/2)
+ g.setColor(.17,.12,.09)
+ g.rectangle('fill',x-3,y-12,6,30)
+ g.setColor(.66,.43,.20)
+ g.rectangle('fill',x-1,y-10,2,26)
+ g.setColor(.75,.81,.84)
+ g.polygon('fill',x,y-26,x-8,y-10,x+8,y-10)
+ g.setColor(.94,.97,.98)
+ g.polygon('fill',x,y-24,x-5,y-12,x,y-12)
+end
+
+local function drawBow(g,x,y)
+ x=2*math.floor(x/2);y=2*math.floor(y/2)
+ g.setColor(.38,.23,.10)
+ g.rectangle('fill',x-10,y-17,6,6)
+ g.rectangle('fill',x-5,y-13,6,8)
+ g.rectangle('fill',x,y-7,6,14)
+ g.rectangle('fill',x-5,y+5,6,8)
+ g.rectangle('fill',x-10,y+11,6,6)
+ g.setColor(.75,.81,.84)
+ g.rectangle('fill',x-10,y-15,2,30)
+ g.rectangle('fill',x-17,y-1,32,2)
+ g.polygon('fill',x+18,y,x+10,y-5,x+10,y+5)
 end
 
 local function drawItemImage(g,file,x,y,size)
@@ -200,16 +235,16 @@ local function itemModalLayout(w,h)
   for index,item in ipairs(Items) do
    local quantity=battle.bag[index] or 0
    if quantity>0 then
-    rows[#rows+1]={item=item,label=item.name..' ×'..quantity,
-     button=item.heal and '사용' or '속성 적용',action=function()
+    rows[#rows+1]={item=item,label=item.name..' ×'..quantity..(item.revive and ' · 사망 시 자동 사용' or ''),
+     button=item.heal and '사용' or '속성 적용',action=not item.revive and function()
       return battle:useItem(index)
-     end}
+     end or nil}
    end
   end
   if #rows==0 then rows[1]={label='가방이 비어 있습니다.'} end
  else
   local item=Items[battle.chests[modal].item]
-  rows[1]={item=item,label=item.name..(item.heal and ' · 회복 '..item.heal or ''),
+  rows[1]={item=item,label=item.name..(item.heal and ' · 회복 '..item.heal or item.revive and ' · 사망 시 최대 체력으로 부활' or ''),
    button='획득',action=function()
     local result=battle:takeItem(modal)
     modal=nil
@@ -227,7 +262,7 @@ local function drawItemModal(g)
  g.setColor(1,1,1)
  g.rectangle('fill',x,y,460,h,8,8)
  g.setColor(0,0,0)
- g.print(modal=='bag' and '불칸의 가방' or '상자 안의 아이템',x+18,y+13)
+ g.print(modal=='bag' and (battle.character.korean..'의 가방') or '상자 안의 아이템',x+18,y+13)
  local function drawButton(label,bx,by,bw)
   g.setColor(.86,.89,.93)
   g.rectangle('fill',bx,by,bw,24,4,4)
@@ -275,12 +310,16 @@ local function buildUI()
  add(334,102,'오른쪽 45°',function() setView(1) end,not C.top and C.index==1)
  add(444,106,'조작 안내',function() helpOpen=not helpOpen end,helpOpen)
  add(815,92,'가방',function() modal='bag'; message=nil end)
- for i,id in ipairs(battle.character.combatSkills) do
+ for i,id in ipairs(battle:skillIds()) do
   local skill=Skills[id]
   local skillId=id
-  buttons[#buttons+1]={x=25+(i-1)*255,y=105,w=247,h=32,
+  local width=math.max(160,(love.graphics.getWidth()-240)/3)
+  buttons[#buttons+1]={x=25+((i-1)%3)*width,y=105+math.floor((i-1)/3)*36,w=width-8,h=32,
    text=skill.name..' · 행동 '..skill.cost..' · 명중 '..skill.accuracy..'%',
-   active=battle.skillId==id,action=function() battle.skillId=skillId end}
+   active=battle.skillId==id,action=function() battle:selectSkill(skillId);message=nil end}
+ end
+ if warriorSelected and not selected and Skills[battle.skillId].area=='center' then
+  add(575,140,'기술 사용',function() message=battle:castArea(1) end)
  end
  if selected and battle:canInspect(selected) then
   add(575,140,battle.chests[selected].open and '상자 안을 본다' or '상자 열기',function()
@@ -318,7 +357,7 @@ function love.resize()
  if Flow.screen=='battle' then refresh() end
 end
 local function inMapArea(y)
- return y>=140 and y<love.graphics.getHeight()-70
+ return y>=180 and y<love.graphics.getHeight()-70
 end
 
 function love.update(dt)
@@ -330,6 +369,7 @@ end
 local function battleClick(x,y,button)
  if modal then clickItemModal(x,y,button); buildUI(); return end
  if button==2 then
+  battle:cancelCharge()
   if helpOpen then helpOpen=false else selected=nil;warriorSelected=false;message=nil end
   buildUI()
   return
@@ -354,6 +394,7 @@ local function battleClick(x,y,button)
    message=battle:act(map.pulleys[battle.warrior],true)
    selected=nil
   elseif x>=panelX+10 and x<panelX+160 and y>=panelY+230 and y<panelY+266 then
+   battle:cancelCharge()
    Flow.screen='retreat'
   end
   buildUI()
@@ -366,7 +407,10 @@ local function battleClick(x,y,button)
   local tx,ty=unitPosition(enemy.tile)
   if enemy.health>0 and math.abs(x-tx)<=12 and math.abs(y-ty)<=12 then target=enemy.tile end
  end
- if target and (target.kind or battle.chests[target]) then
+ if warriorSelected and Skills[battle.skillId].area=='groups' and target and not target.kind and battle:areaGroupAt(target) then
+  selected=nil
+  message=battle:castArea(battle:areaGroupAt(target))
+ elseif target and (target.kind or battle.chests[target]) then
   selected=target
   message=nil
  elseif target==battle.warrior or (math.abs(x-ux)<=18 and math.abs(y-uy)<=30) then
@@ -426,6 +470,7 @@ function love.keypressed(k,_,isRepeat)
  if k=='q' then
   helpOpen=not helpOpen
  elseif k=='escape' then
+  battle:cancelCharge()
   if helpOpen then helpOpen=false else selected=nil;warriorSelected=false;message=nil end
  elseif k=='w' then setView(nil)
  elseif k=='a' then setView(-1)
@@ -493,9 +538,15 @@ function love.draw()
    g.rectangle('fill',tx-8,ty-17,16*enemy.health/45,3)
   end
  end
- drawAxe(g,ux,uy-hop)
+ if battle.character.name=='Fulgrim' then drawSpear(g,ux,uy-hop)
+ elseif battle.character.name=='Konrad' then drawBow(g,ux,uy-hop) else drawAxe(g,ux,uy-hop) end
  PixelView.finish()
+ local group=warriorSelected and not selected and Skills[battle.skillId].area=='groups' and battle:areaGroupAt(hover)
+ local area=group and battle:areaCells(group) or {}
  for _,shape in ipairs(shapes) do
+  if shape.layer==1 and area[shape.owner] then
+   g.setColor(.65,0,0);g.setLineWidth(3);g.polygon('line',shape.points)
+  end
   if shape.owner==selected and (selected.kind or shape.layer==1) then
    g.setColor(.08,.10,.08)
    g.setLineWidth(2)
@@ -522,7 +573,7 @@ function love.draw()
   g.printf(label,panelX+labelInset,panelY+offset+8,160-labelInset,'center')
  end
  g.setColor(0,0,0)
- g.print('아군 행동',panelX+12,panelY+14)
+ g.print(battle.character.korean..' · '..Progress.label(battle.character),panelX+12,panelY+14)
  g.print('체력 '..battle.health..'/'..battle.maxHealth,panelX+12,panelY+122)
  panelButton(45,battle.rolled and ('주사위 '..battle.rolled) or '주사위 굴리기',warriorSelected and not battle.rolled and not battle.won)
  g.setColor(1,1,1)
@@ -545,6 +596,15 @@ function love.draw()
    and battle:canMove(map.pulleys[battle.warrior],true))
  end
  panelButton(230,'전투 포기',true)
+ g.setColor(0,0,0)
+ local progress=Progress.get(battle.character)
+ for index,rule in ipairs(battle.character.promotions or {}) do
+  g.print(Skills[rule.skill].name..' '..(progress.uses[rule.skill] or 0)..'/'..rule.count,
+   panelX+12,panelY+278+index*22)
+ end
+ if battle.character.name=='Vulkan' and progress.rank>=2 then
+  g.print('분노 위력 '..(30+30*battle.rageStacks),panelX+12,panelY+344)
+ end
  local y=g.getHeight()-68
  g.setColor(.96,.96,.95)
  g.rectangle('fill',25,y,g.getWidth()-50,46,5,5)
@@ -554,7 +614,9 @@ function love.draw()
  if warriorSelected and not selected then
   local types=battle.baseElement
   if battle.extraElement and battle.extraElement~=types then types=types..' / '..battle.extraElement end
-  detail='불칸  /  '..types
+  detail=battle.character.korean..'  /  '..types
+  if Skills[battle.skillId].area=='center' then detail=detail..' · 파란 범위 확인 후 위쪽 기술 사용 클릭'
+  elseif Skills[battle.skillId].area=='groups' then detail=detail..' · 빨간 구역의 칸을 클릭하세요.' end
  end
  if selected and battle.chests[selected] then
   detail=battle.chests[selected].open and '열린 상자' or '닫힌 상자'
@@ -572,14 +634,16 @@ function love.draw()
  if helpOpen then
   local x=g.getWidth()-380
   g.setColor(1,1,1)
-  g.rectangle('fill',x,113,355,195,6,6)
+  g.rectangle('fill',x,113,355,245,6,6)
   g.setColor(.2,.2,.2)
   g.setLineWidth(1)
-  g.rectangle('line',x,113,355,195,6,6)
+  g.rectangle('line',x,113,355,245,6,6)
   g.setColor(0,0,0)
   local help={
-   '도끼를 선택한 뒤 오른쪽 주사위를 클릭하세요.',
-   '주황은 이동, 빨강은 공격, 민트는 도르래입니다.',
+   '유닛을 선택한 뒤 오른쪽 주사위를 클릭하세요.',
+   '주황 이동 / 빨강 공격 / 민트 도르래',
+   '이동형 기술: 파란 칸 이동 후 빨간 칸 공격',
+   '콘라드: 빨간 구역 클릭 / 바람은 위쪽 기술 사용',
    '문을 선택하면 화면 위에서 열기·닫기 또는 공격',
    '우클릭 또는 Esc  /  선택 해제 또는 안내 닫기',
    'Q  /  조작 안내 열기·닫기',
