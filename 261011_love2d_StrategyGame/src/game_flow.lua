@@ -1,15 +1,27 @@
 local roster=require('src.characters')
 local Progress=require('src.progression')
 local typeColors=require('src.type_colors')
-local Flow={screen='title',selectedCharacter=nil}
-function Flow:getSelectedCharacter() return self.selectedCharacter end
+local Flow={screen='title',selectedCharacter=nil,selectedParty={}}
+function Flow:getParty()
+ if #self.selectedParty>0 then return self.selectedParty end
+ return self.selectedCharacter and {self.selectedCharacter} or {}
+end
+function Flow:getSelectedCharacter() return self:getParty()[1] end
+function Flow:isSelected(character)
+ for _,c in ipairs(self:getParty()) do if c==character then return true end end
+ return false
+end
 function Flow:selectCharacter(character)
  if not character or not character.deployable then return false end
- self.selectedCharacter=self.selectedCharacter~=character and character or nil
- return true
+ if #self.selectedParty==0 and self.selectedCharacter then self.selectedParty={self.selectedCharacter} end
+ for i,c in ipairs(self.selectedParty) do
+  if c==character then table.remove(self.selectedParty,i);self.selectedCharacter=self.selectedParty[1];self.selectionError=nil;return true end
+ end
+ if #self.selectedParty>=3 then self.selectionError='최대 3명까지 출전할 수 있습니다.';return false end
+ self.selectedParty[#self.selectedParty+1]=character;self.selectedCharacter=self.selectedParty[1];self.selectionError=nil;return true
 end
 local statNames={'체력','공격력','방어력','특수공격','특수방어','스피드'}
-local skillLabels={'하급 기본','하급 특수','중급 기본','중급 특수','상급 기본','상급 특수'}
+local skillLabels={'하급 기술','하급 기술','중급 기술','중급 기술','상급 기술','상급 기술'}
 local ink={.10,.13,.19}
 local accent={.80,.88,.98}
 local titlePath='assets/images/Title_ImpossibilityGuild_Kor.png'
@@ -130,7 +142,9 @@ local function layout(flow,w,h)
    centered(art and h-74 or cy+35,'게임 시작',function() flow.screen='lobby' end)
   }
  elseif flow.screen=='lobby' then
-  local party=flow.selectedCharacter and ('출전 캐릭터 · '..flow.selectedCharacter.korean..' / '..flow.selectedCharacter.job) or '출전 캐릭터를 선택하세요.'
+  local names={}
+  for _,c in ipairs(flow:getParty()) do names[#names+1]=c.korean end
+  local party=#names>0 and ('출전 캐릭터 · '..table.concat(names,' / ')) or '출전 캐릭터를 선택하세요.'
   return '게임 대기실',party,{
    centered(cy+18,'캐릭터 선택',function() flow.screen='roster' end),
    centered(cy+78,'게임 실행',flow.selectedCharacter and function()
@@ -148,20 +162,20 @@ local function layout(flow,w,h)
    local card=button(left+(index-1)*(width+gap),cy-64,width,160,character.job,function()
      flow.character=character
      flow.screen='character_detail'
-    end,flow.selectedCharacter==character)
-   card.detail=character.korean..(flow.selectedCharacter==character and ' · 선택됨' or '')
+    end,flow:isSelected(character))
+   card.detail=character.korean..(flow:isSelected(character) and ' · 선택됨' or '')
    cards[#cards+1]=card
   end
   cards[#cards+1]=centered(cy+120,'대기실로 돌아가기',function() flow.screen='lobby' end)
-  local count=flow.selectedCharacter and '1' or '0'
-  return '캐릭터 선택','선택 '..count..' / 1 · 불칸·펄그림·콘라드 중 1명 테스트 출전',cards
+  local count=tostring(#flow:getParty())
+  return '캐릭터 선택','선택 '..count..' / 3 · '..(flow.selectionError or '일곱 캐릭터 중 1~3명 선택'),cards
  elseif flow.screen=='character_detail' then
   local x,y,width,height=detailBounds(w,h)
   local actionY=y+height-52
   return nil,nil,{
    button(x+width-254,actionY,112,38,'카드 목록',function() flow.screen='roster' end),
    button(x+width-132,actionY,118,38,
-    flow.character.deployable and (flow.selectedCharacter==flow.character and '선택 해제' or '출전 선택') or '출전 준비 중',
+    flow.character.deployable and (flow:isSelected(flow.character) and '선택 해제' or '출전 선택') or '출전 준비 중',
     flow.character.deployable and function()
     flow:selectCharacter(flow.character)
     flow.screen='roster'
@@ -177,7 +191,7 @@ local function layout(flow,w,h)
  end
  return flow.success and '전투 성공' or '전투 실패',flow.reason,{
   centered(cy+35,'대기실로 돌아가기',function()
-   flow.selectedCharacter=nil
+   flow.selectedCharacter=nil;flow.selectedParty={}
    flow.screen='lobby'
   end)
  }
