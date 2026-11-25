@@ -8,10 +8,25 @@ local Skills=require('src.skills')
 local Progress=require('src.progression')
 local Charge=require('src.charge')
 local Area=require('src.area')
+local Units=require('src.units')
+local Rules=require('src.rules')
 local Battle={}
-Battle.__index=Battle
+Battle.__index=function(self,key)
+ if Units.fields[key] and rawget(self,'active') then
+  return self.active[key=='warrior' and 'tile' or key]
+ end
+ return Battle[key]
+end
+Battle.__newindex=function(self,key,value)
+ if Units.fields[key] and rawget(self,'active') then self.active[key=='warrior' and 'tile' or key]=value
+ else rawset(self,key,value) end
+end
 
 function Battle.new(map,character,bag)
+ local party=character.name and {character} or character
+ local allBags
+ if not character.name then allBags=bag end
+ character=assert(party[1],'출전 캐릭터가 없습니다.')
  local chests={}
  for index,position in ipairs(outpost.chests) do
   local tile=assert(Grid.get(map,position[1],position[2]))
@@ -23,64 +38,93 @@ function Battle.new(map,character,bag)
   enemies[i]={name=element..' 시험 적',element=element,stats={45,30,35,20,20,45},
    health=45,tile=assert(Grid.get(map,positions[i][1],positions[i][2])),attackers={}}
  end
- return setmetatable({
-  enemies=enemies, character=character, stats=Progress.stats(character),element=character.element,
-  tile=assert(Grid.get(map,1,5)),attackers={},skillId=character.combatSkills[1],
-  chests=chests, bag=bag or {}, maxHealth=Progress.stats(character)[1], health=Progress.stats(character)[1], rageStacks=0,
-  baseElement=character.element,
-  map=map, warrior=assert(Grid.get(map,1,5)),
-  rolled=nil, remaining=0, won=false
- },Battle)
+ local units={}
+ local spawns={{1,5},{0,4},{0,6}}
+ for i,profile in ipairs(party) do
+  assert(i<=3,'최대 3명 출전')
+  local ownBag
+  if allBags then ownBag=allBags[profile.name] or {};allBags[profile.name]=ownBag else ownBag=i==1 and bag or {} end
+  units[i]=Units.new(profile,assert(Grid.get(map,spawns[i][1],spawns[i][2])),ownBag)
+ end
+ for _,enemy in ipairs(enemies) do enemy.faction='enemy' end
+ return setmetatable({map=map,enemies=enemies,chests=chests,units=units,active=units[1],
+  spirits={},rolled=nil,remaining=0,won=false,lost=false,turn=1},Battle)
 end
 
 function Battle:roll(random)
- if self.rolled or self.won or self.lost or self.pendingCharge then return end
+ if self.rolled or self.won or self.lost or self.pendingCharge or self.pendingAction then return end
  self.random=random
- self.rolled=random(1,6)
- self.remaining=self.rolled
+ self.dice={}
+ local total=0
+ for i=1,(#self.units>=2 and 2 or 1) do self.dice[i]=random(1,6);total=total+self.dice[i] end
+ self.rolled=total
+ self.remaining=total
 end
 
+function Battle:selectUnit(unit)
+ for _,ally in ipairs(self.units) do
+  if ally==unit and ally.health>0 then self:cancelCharge();self.pendingAction=nil;self.moveMode=false;self.active=ally;return true end
+ end
+ return false
+end
+function Battle:unitAt(tile,includeDead) return Units.at(self,tile,includeDead) end
+function Battle:occupied(except) return Units.occupied(self,except or self.active) end
 function Battle:endTurn()
  if self.won or self.lost then return end
- if self.pendingCharge then return '이동 기술의 공격을 완료하거나 우클릭으로 취소하세요.' end
- local messages={}
- for _,enemy in ipairs(self.enemies) do
-  if self.health>0 and Combat.canTarget(self.map,enemy,self,Skills.test_strike) then
-   local amount,hit,revived=Combat.execute(enemy,self,Skills.test_strike,self.random or math.random)
-   messages[#messages+1]=enemy.name..(hit and (' · 피해 '..amount) or ' · 빗나감')
-   if revived and #revived>0 then messages[#messages+1]=self.character.korean..' · 부활석 사용, 체력 전부 회복' end
+ if self.pendingCharge or self.pendingAction then return '진행 중인 기술을 완료하거나 취소하세요.' end
+ local text=require('src.summoning').endTurn(self)
+ if not self.won and not self.lost then
+  for _,enemy in ipairs(self.enemies) do
+   if enemy.health>0 then
+    if enemy.hypnotized then
+     require('src.summoning').wander(self,enemy)
+    elseif (enemy.actionLocks or 0)>0 then enemy.actionLocks=enemy.actionLocks-1
+    else
+     local candidates={}
+     for _,ally in ipairs(self.units) do candidates[#candidates+1]=ally end
+     if Rules.spiritTargetable then for _,spirit in ipairs(self.spirits) do candidates[#candidates+1]=spirit end end
+     table.sort(candidates,function(a,b) return Grid.distance(enemy.tile,a.tile)<Grid.distance(enemy.tile,b.tile) end)
+     for _,ally in ipairs(candidates) do
+      if Combat.canTarget(self.map,enemy,ally,Skills.test_strike) then
+       local damage,hit,revived=Combat.execute(enemy,ally,Skills.test_strike,self.random or math.random)
+       text[#text+1]=enemy.name..(hit and (' · 피해 '..damage) or ' · 빗나감')
+       if revived and #revived>0 then text[#text+1]=(ally.name or '아군')..' · 부활석 발동' end
+       break
+      end
+     end
+    end
+   end
   end
  end
- self.lost=self.health<=0
- self.rolled=nil
- self.remaining=0
- messages[#messages+1]=self.lost and (self.character.korean..'이 쓰러졌습니다.') or '새 턴입니다. 주사위를 굴리세요.'
- return table.concat(messages,' / ')
+ require('src.special').refreshAuras(self)
+ self:resolveOutcome()
+ self.rolled=nil;self.dice=nil;self.remaining=0;self.turn=self.turn+1
+ text[#text+1]=self.lost and '아군이 모두 쓰러졌습니다.' or '새 턴입니다. 주사위를 굴리세요.'
+ return table.concat(text,' / ')
 end
 
 function Battle:actionError()
  if self.won then return '승리했습니다.' end
  if self.lost then return '전투에서 패배했습니다.' end
- if self.pendingCharge then return '이동 기술의 공격을 완료하거나 우클릭으로 취소하세요.' end
+ if self.pendingCharge or self.pendingAction then return '진행 중인 기술을 완료하거나 취소하세요.' end
+ if self.health<=0 then return '생존한 아군을 선택하세요.' end
  if not self.rolled then return '먼저 주사위를 굴리세요.' end
  if self.remaining==0 then return '남은 행동이 없습니다.' end
+ if (self.actionLocks or 0)>0 then return '행동 불능 상태입니다.' end
 end
 
 function Battle:canMove(tile,pulley)
  if self.pendingCharge or (self.moveLocks or 0)>0 then return nil,'이동할 수 없습니다.' end
  if self.chests[tile] then return nil,'상자가 이동을 막습니다.' end
- local occupied={}
- for _,enemy in ipairs(self.enemies) do occupied[enemy.tile]=enemy.health>0 end
+ local occupied=self:occupied()
  return Movement.step(self.map,self.warrior,tile,occupied,pulley)
 end
 
 -- Shared enemy movement entry point for future AI path selection.
 function Battle:moveEnemy(enemy,tile,pulley)
  if self.won or self.lost or self.pendingCharge or enemy.health<=0 then return nil,'이동할 수 없습니다.' end
- local occupied={[self.tile]=self.health>0}
- for _,other in ipairs(self.enemies) do
-  if other~=enemy and other.health>0 then occupied[other.tile]=true end
- end
+ if (enemy.actionLocks or 0)>0 then enemy.actionLocks=enemy.actionLocks-1;return nil,'행동 불능으로 이동 취소' end
+ local occupied=self:occupied(enemy)
  for chest in pairs(self.chests) do occupied[chest]=true end
  local cost,reason=Movement.step(self.map,enemy.tile,tile,occupied,pulley)
  if not cost then return nil,reason end
@@ -93,11 +137,14 @@ function Battle:moveEnemy(enemy,tile,pulley)
 end
 
 function Battle:canInspect(tile)
- return tile and self.chests[tile] and Grid.distance(self.warrior,tile)==1
+ return not self.pendingCharge and not self.pendingAction and tile and self.chests[tile] and Grid.distance(self.warrior,tile)==1
   and math.abs(self.warrior.height-tile.height)<=1 and not World.blocked(self.map,self.warrior,tile)
 end
 
 function Battle:inspect(tile)
+ if tile and self.chests[tile] and not self.chests[tile].open then
+  local locked=self:consumeActionLock();if locked then return nil,locked end
+ end
  if not self:canInspect(tile) then return nil,'상자에 인접해야 합니다.' end
  local chest=self.chests[tile]
  if not chest.open then
@@ -121,6 +168,7 @@ function Battle:takeItem(tile)
 end
 
 function Battle:useItem(index)
+ local locked=self:consumeActionLock();if locked then return locked end
  if self.pendingCharge then return '이동 기술을 완료하거나 취소하세요.' end
  local item=Items[index]
  if not item or (self.bag[index] or 0)==0 then return end
@@ -156,11 +204,12 @@ end
 function Battle:skillIds() return Progress.skills(self.character) end
 function Battle:selectSkill(id)
  for _,available in ipairs(self:skillIds()) do
-  if id==available then self:cancelCharge(); self.skillId=id; return true end
+  if id==available then self:cancelCharge(); self.moveMode=false;self.skillId=id; return true end
  end
  return false
 end
 function Battle:cancelCharge()
+ self.pendingAction=nil
  if not self.pendingCharge then return end
  self.warrior=self.pendingCharge.origin
  self.tile=self.warrior
@@ -187,6 +236,7 @@ function Battle:beginCharge(tile)
 end
 
 function Battle:canAttack(target)
+ if Skills[self.skillId].effect then return require('src.special').canTarget(self,target) end
  if not target then return false end
  local skill=Skills[self.skillId]
  if target.kind then
@@ -202,12 +252,33 @@ function Battle:canAttack(target)
 end
 
 function Battle:resolveOutcome()
- self.won=true
- for _,enemy in ipairs(self.enemies) do if enemy.health>0 then self.won=false end end
- self.won=self.won or (self.health>0 and self.warrior.flag==2)
- self.lost=not self.won and self.health<=0
+ require('src.special').refreshAuras(self)
+ local enemyAlive=false;local allyAlive=false;local flag=false
+ for _,enemy in ipairs(self.enemies) do if enemy.health>0 then enemyAlive=true end end
+ for _,ally in ipairs(self.units) do
+  if ally.health>0 then allyAlive=true;if ally.tile.flag==2 then flag=true end end
+ end
+ self.won=flag or (not enemyAlive and (allyAlive or Rules.simultaneousElimination=='victory'))
+ self.lost=not self.won and not allyAlive
+ -- Retain the active corpse until the next explicit selection; party members remain available.
 end
 
+function Battle:consumeActionLock()
+ if (self.actionLocks or 0)>0 and self.rolled and self.remaining>0 and not self.won and not self.lost then
+  self.actionLocks=self.actionLocks-1;self.remaining=self.remaining-1
+  return '행동 불능으로 이번 행동이 취소되었습니다.'
+ end
+end
+function Battle:finishSkill(id,text)
+ local promotion=Progress.record(self,id)
+ if promotion then text=text..' / '..promotion end
+ self:resolveOutcome()
+ if self.won then text=text..' / 전투 성공' elseif self.lost then text=text..' / 전투 실패' end
+ return text
+end
+function Battle:cast(target)
+ return require('src.special').cast(self,target)
+end
 function Battle:areaGroupAt(tile)
  return Area.groupAt(self.tile,tile,Skills[self.skillId])
 end
@@ -215,12 +286,14 @@ function Battle:areaCells(group)
  return Area.cells(self,Skills[self.skillId],group)
 end
 function Battle:castArea(group)
+ local locked=self:consumeActionLock();if locked then return locked end
  local problem=self:actionError()
  if problem then return problem end
  local skill=Skills[self.skillId]
  if not skill.area then return '범위 기술을 선택하세요.' end
  if self.remaining<skill.cost then return '행동 '..skill.cost..'회가 필요합니다.' end
- if not group or group%1~=0 or group<1 or group>(skill.area=='center' and 1 or #skill.regions) then
+ if skill.area=='all' then group=0 end
+ if not group or group%1~=0 or group<0 or (group==0 and skill.area~='all') or group>(skill.area=='center' and 1 or #(skill.regions or {})) then
   return '빨간 공격 구역을 선택하세요.'
  end
  local targets=Area.targets(self,skill,group)
@@ -239,6 +312,8 @@ function Battle:castArea(group)
 end
 
 function Battle:attack(target)
+ local locked=self:consumeActionLock();if locked then return locked end
+ if Skills[self.skillId].effect then return self:cast(target) end
  if Skills[self.skillId].area then return self:castArea(self:areaGroupAt(target)) end
  local pending=self.pendingCharge
  if not pending then
@@ -255,7 +330,7 @@ function Battle:attack(target)
   result='시설물에 시험 피해 10을 입혔습니다.'
  else
   local enemy=self:enemyAt(target)
-  local amount,hit,revived=Combat.execute(self,enemy,skill,self.random or math.random)
+  local amount,hit,revived=Combat.execute(self.active,enemy,skill,self.random or math.random)
   result=skill.name..(hit and (' · 피해 '..amount) or ' · 빗나감')
   for _,unit in ipairs(revived or {}) do
    local name=unit.character and unit.character.korean or unit.name
@@ -274,6 +349,7 @@ function Battle:attack(target)
 end
 
 function Battle:toggleDoor(edge)
+ local locked=self:consumeActionLock();if locked then return locked end
  local errorMessage=self:actionError()
  if errorMessage then return errorMessage end
  if not self:canToggleDoor(edge) then return '문에 인접해야 열거나 닫을 수 있습니다.' end
@@ -283,11 +359,17 @@ function Battle:toggleDoor(edge)
 end
 
 function Battle:act(tile,pulley)
- if Skills[self.skillId].area and not pulley and self:areaGroupAt(tile) then
+ if Skills[self.skillId].effect and not self.moveMode then
+  if ({meditate=true,detonate=true,howl=true,berserk=true})[Skills[self.skillId].effect] then return '위쪽 기술 사용 버튼을 클릭하세요.' end
+  return self:cast(tile)
+ end
+ local locked=self:consumeActionLock();if locked then return locked end
+ if not self.moveMode and Skills[self.skillId].area and not pulley and self:areaGroupAt(tile) then
   return self:castArea(self:areaGroupAt(tile))
  end
  if self.pendingCharge then return self:attack(tile) end
- if Skills[self.skillId].charge and not pulley and not self:enemyAt(tile) then return self:beginCharge(tile) end
+ if not self.moveMode and Skills[self.skillId].charge and not pulley and not self:enemyAt(tile) then return self:beginCharge(tile) end
+ if self.moveMode and self:enemyAt(tile) then return '도착 칸이 점유되어 있습니다.' end
  if self:enemyAt(tile) and not pulley then return self:attack(tile) end
  local errorMessage=self:actionError()
  if errorMessage then return errorMessage end
@@ -300,7 +382,7 @@ function Battle:act(tile,pulley)
  self.warrior=tile
  self.tile=tile
  self.remaining=self.remaining-cost
- self.won=tile.flag==2
+ self:resolveOutcome()
  return self.won and '승리했습니다. 적군 깃발에 도달했습니다.' or '이동했습니다.'
 end
 
