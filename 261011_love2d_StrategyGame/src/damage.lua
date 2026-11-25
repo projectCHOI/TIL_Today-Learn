@@ -49,14 +49,15 @@ local function parameters(input)
   'Skill category must be physical or special')
  local attackIndex=input.category=='physical' and 2 or 4
  local defenseIndex=input.category=='physical' and 3 or 5
- local attack=number(input.attacker.stats[attackIndex],'attack',0)
+ local bonus=attackIndex==2 and (input.attacker.attackBonus or 0) or (input.attacker.specialBonus or 0)
+ local attack=number(input.attacker.stats[attackIndex]+bonus,'attack',0)
  local defense=number(input.defender.stats[defenseIndex],'defense',0)
  assert(defense>0,'Defense must be greater than zero')
  local power=number(input.power,'power',0)
  local divisor=number(Damage.divisor,'divisor',0)
  assert(divisor>0,'Divisor must be greater than zero')
  local base=math.floor(power*attack/defense/divisor+2)
- local terrain=Damage.terrain(input.attackerHeight,input.defenderHeight)
+ local terrain=input.ignoreTerrain and 1 or Damage.terrain(input.attackerHeight,input.defenderHeight)
  local effectiveness=Damage.effectiveness(input.attackType,input.defenderTypes)
  return base,terrain,effectiveness
 end
