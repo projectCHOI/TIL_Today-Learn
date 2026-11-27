@@ -1,4 +1,3 @@
--- Region selection and knockback shared by area skills.
 local Grid=require('src.grid')
 local Combat=require('src.combat')
 local Area={}
@@ -15,7 +14,7 @@ function Area.groupAt(origin,tile,skill)
 end
 function Area.canReach(map,unit,tile,skill)
  return Area.groupAt(unit.tile,tile,skill)~=nil
-  and math.abs(unit.tile.height-tile.height)<=skill.maxHeight
+  and math.abs(unit.tile.height-tile.height)<=(skill.maxHeight or 3)
   and Combat.pathClear(map,unit.tile,tile)
 end
 function Area.cells(battle,skill,group)
@@ -29,7 +28,7 @@ end
 function Area.targets(battle,skill,group)
  local targets={}
  for _,enemy in ipairs(battle.enemies) do
-  if enemy.health>0 and Area.groupAt(battle.tile,enemy.tile,skill)==group
+  if enemy.health>0 and (group==0 and Area.groupAt(battle.tile,enemy.tile,skill)~=nil or Area.groupAt(battle.tile,enemy.tile,skill)==group)
    and Area.canReach(battle.map,battle,enemy.tile,skill) then targets[#targets+1]=enemy end
  end
  return targets
@@ -44,7 +43,7 @@ function Area.push(battle,enemy,radius)
   local tile=Grid.get(battle.map,enemy.tile.q+dx,enemy.tile.r+dy)
   if not tile or tile==battle.tile or tile.object=='rock' or battle.chests[tile]
    or math.abs(tile.height-enemy.tile.height)>1 or not Combat.pathClear(battle.map,enemy.tile,tile) then break end
-  local occupied=false
+  local occupied=battle.occupied and battle:occupied(enemy)[tile] or false
   for _,other in ipairs(battle.enemies) do
    if other~=enemy and other.health>0 and other.tile==tile then occupied=true;break end
   end
@@ -58,7 +57,7 @@ function Area.execute(battle,skill,targets)
  local hitUnits={}
  -- Snapshot targets once: moving one enemy must not change who gets hit.
  for _,enemy in ipairs(targets) do
-  local amount,hit,revived=Combat.execute(battle,enemy,skill,battle.random or math.random)
+  local amount,hit,revived=Combat.execute(battle.active or battle,enemy,skill,battle.random or math.random)
   if hit then
    result.hits=result.hits+1;result.damage=result.damage+amount
    result.revivals=result.revivals+#(revived or {})
