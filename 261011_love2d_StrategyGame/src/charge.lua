@@ -1,4 +1,3 @@
--- Shared move-then-attack geometry. Blue/red cells are skill data.
 local Grid=require('src.grid')
 local World=require('src.world')
 local Combat=require('src.combat')
@@ -20,7 +19,7 @@ function Charge.canLand(battle,tile,skill)
  local origin=battle.warrior
  if not contains(skill.landings,origin,tile) then return false end
  if skill.jumpHeight and math.abs(origin.height-tile.height)>skill.jumpHeight then return false end
- local occupied={}
+ local occupied=battle.occupied and battle:occupied() or {}
  for _,enemy in ipairs(battle.enemies) do if enemy.health>0 then occupied[enemy.tile]=true end end
  for chest in pairs(battle.chests) do occupied[chest]=true end
  if occupied[tile] or tile.object=='rock' then return false end
