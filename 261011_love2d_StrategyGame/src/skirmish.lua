@@ -163,7 +163,6 @@ function Battle:takeItem(tile)
  self.bag[index]=(self.bag[index] or 0)+1
  self.chests[tile]=nil
  local item=Items[index]
- if item.element then self.extraElement=item.element end
  return item.name..' 획득'
 end
 
@@ -174,8 +173,13 @@ function Battle:useItem(index)
  if not item or (self.bag[index] or 0)==0 then return end
  if item.revive then return '부활석은 가방에 보유하면 사망 시 자동으로 사용됩니다.' end
  if item.element then
-  self.extraElement=item.element
-  return item.element..' 속성을 적용했습니다.'
+  if self.equippedGem==index then return '이미 장착한 보석입니다.' end
+  local problem=self:actionError();if problem then return problem end
+  if self.equippedGem then self.bag[self.equippedGem]=(self.bag[self.equippedGem] or 0)+1 end
+  self.bag[index]=self.bag[index]-1
+  self.equippedGem=index;self.bag.equippedGem=index;self.extraElement=item.element
+  self.remaining=self.remaining-1
+  return item.name..' 장착 · 행동력 1 소모'
  end
  local problem=self:actionError()
  if problem then return problem end
@@ -185,6 +189,17 @@ function Battle:useItem(index)
  self.remaining=self.remaining-1
  self.bag[index]=self.bag[index]-1
  return item.name..' 사용 · 체력 '..amount..' 회복'
+end
+
+function Battle:unequipGem()
+ if not self.equippedGem then return '장착한 보석이 없습니다.' end
+ local locked=self:consumeActionLock();if locked then return locked end
+ local problem=self:actionError();if problem then return problem end
+ local index=self.equippedGem
+ self.bag[index]=(self.bag[index] or 0)+1
+ self.equippedGem=nil;self.bag.equippedGem=nil;self.extraElement=nil
+ self.remaining=self.remaining-1
+ return Items[index].name..' 해제 · 행동력 1 소모'
 end
 
 function Battle:touches(edge)
