@@ -43,6 +43,21 @@ function Damage.effectiveness(attackType,defenderTypes)
  return multiplier
 end
 
+function Damage.gemEffectiveness(attackType,gemType,defenderTypes)
+ local multiplier=1
+ local seen={}
+ for _,element in ipairs(defenderTypes) do
+  element=typeName(element)
+  if not seen[element] then
+   for _,offense in ipairs({attackType,gemType}) do
+    multiplier=multiplier*math.max(1,TypeChart[typeName(offense)][element])
+   end
+   seen[element]=true
+  end
+ end
+ return multiplier
+end
+
 local function parameters(input)
  assert(type(input)=='table','Damage input must be a table')
  assert(input.category=='physical' or input.category=='special',
@@ -58,7 +73,8 @@ local function parameters(input)
  assert(divisor>0,'Divisor must be greater than zero')
  local base=math.floor(power*attack/defense/divisor+2)
  local terrain=input.ignoreTerrain and 1 or Damage.terrain(input.attackerHeight,input.defenderHeight)
- local effectiveness=Damage.effectiveness(input.attackType,input.defenderTypes)
+ local effectiveness=input.gemType and Damage.gemEffectiveness(input.attackType,input.gemType,input.defenderTypes)
+  or Damage.effectiveness(input.attackType,input.defenderTypes)
  return base,terrain,effectiveness
 end
 
