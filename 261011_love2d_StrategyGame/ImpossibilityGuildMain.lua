@@ -238,11 +238,14 @@ end
 local function itemModalLayout(w,h)
  local rows={}
  if modal=='bag' then
+  if battle.equippedGem then
+   rows[#rows+1]={label='장착: '..Items[battle.equippedGem].name,button='해제 · 1',action=function() return battle:unequipGem() end}
+  end
   for index,item in ipairs(Items) do
    local quantity=battle.bag[index] or 0
    if quantity>0 then
     rows[#rows+1]={item=item,label=item.name..' ×'..quantity..(item.revive and ' · 사망 시 자동 사용' or ''),
-     button=item.heal and '사용' or '속성 적용',action=not item.revive and function()
+     button=item.heal and '사용' or '장착 · 1',action=not item.revive and function()
       return battle:useItem(index)
      end or nil}
    end
@@ -601,7 +604,7 @@ function love.draw()
  for _,enemy in ipairs(battle.enemies) do
   if enemy.health>0 and enemy.revealed then
    local x,y=unitPosition(enemy.tile);g.setColor(1,1,1);g.rectangle('fill',x-45,y-46,90,22)
-   g.setColor(0,0,0);g.printf(enemy.element..(enemy.extraElement and '/'..enemy.extraElement or ''),x-45,y-44,90,'center')
+   g.setColor(0,0,0);g.printf(enemy.element..(enemy.secondaryElement and '/'..enemy.secondaryElement or ''),x-45,y-44,90,'center')
   end
  end
  local group=warriorSelected and not selected and Skills[battle.skillId].area=='groups' and battle:areaGroupAt(hover)
@@ -681,7 +684,7 @@ function love.draw()
  local detail=describe(selected or hover)
  if warriorSelected and not selected then
   local types=battle.baseElement
-  if battle.extraElement and battle.extraElement~=types then types=types..' / '..battle.extraElement end
+  if battle.extraElement and battle.extraElement~=types then types=types..' · 공격 보석: '..battle.extraElement end
   detail=battle.character.korean..'  /  '..types
   if (battle.attackBonus or 0)>0 then detail=detail..' · 공격력·특수공격 +100' end
   if Skills[battle.skillId].area=='center' then detail=detail..' · 파란 범위 확인 후 위쪽 기술 사용 클릭'
